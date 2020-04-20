@@ -1,5 +1,7 @@
 {
   "name": "RTVServicesApp",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
