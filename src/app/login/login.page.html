@@ -1,15 +1,15 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-title>Login</ion-title>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
 <ion-content class="login-page" padding>
   <div class="ion-text-center">
     <img src="assets/img/logo.png" alt="" />
   </div>
 
-  <form [formGroup]="loginForm">
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
     <ion-list lines="full" class="ion-no-margin ion-no-padding">
       <ion-item>
         <ion-label position="stacked">Логин</ion-label>
@@ -20,11 +20,17 @@
         <ion-label position="stacked">Пароль</ion-label>
         <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
-      
     </ion-list>
 
     <div class="ion-padding">
-      <ion-button expand="block" type="submit" class="ion-no-margin">Войти</ion-button>
+      <ion-button [disabled]="!loginForm.valid" expand="block" type="submit" class="ion-no-margin">Войти</ion-button>
     </div>
+
+    <div>
+      <a href="{{apiUrl}}/auth/registration.php">Зарегистрироваться</a>
+    </div>      
+    <ion-label class="privacy-url">
+      <a href="{{apiUrl}}/home/privacy">Политика конфиденциальности</a>
+    </ion-label>
   </form>
 </ion-content>
