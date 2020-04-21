@@ -22,6 +22,10 @@
       </ion-item>
     </ion-list>
 
+    <ion-label class="forgot-password-url">
+      <a href="{{apiUrl}}/auth/?forgot_password=yes">Забыли пароль?</a>
+    </ion-label>
+
     <div class="ion-padding">
       <ion-button [disabled]="!loginForm.valid" expand="block" type="submit" class="ion-no-margin">Войти</ion-button>
     </div>

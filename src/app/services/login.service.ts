@@ -16,4 +16,8 @@ export class LoginService {
 
     return this.http.post(environment.apiUrl + `/back/auth.php`, data);
   }
+
+  init( ) {
+    return this.http.get(environment.apiUrl + `/back/init.php?_=1587479318554`)
+  }
 }

@@ -27,6 +27,7 @@ export class LoginPage implements OnInit {
         console.log(x);
         if (x.AUTHORIZED) {
           alert('Success');
+
         } else {
           alert(x.MESSAGE);
         }
