@@ -1,0 +1,33 @@
+<ion-content>
+
+  <ion-item class="ion-text-center" lines="none">
+    <ion-label color="primary">Озаригн</ion-label>
+  </ion-item>
+
+  <div class="ion-text-center">
+    <ion-item lines="none" class="inline">
+      <ion-avatar slot="start">
+        <img src="assets/img/avatar.svg">
+      </ion-avatar>
+      Василий Пупкин
+    </ion-item>
+  </div>
+
+
+  <ion-card *ngFor="let service of services">
+    <ion-card-header>
+      <ion-card-title>{{ service.Name }}</ion-card-title>
+    </ion-card-header>
+
+    <ion-item *ngIf="service.Level === 1">
+      <ion-label>{{ service.Name }}</ion-label>
+      <ion-select interface="alert" cancel-text="Cancel">
+        <ion-select-option *ngFor="let item of service.Items1" value="item">{{item.Name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </ion-card>
+
+
+
+
+</ion-content>
