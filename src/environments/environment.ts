@@ -3,7 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  apiUrl: "https://rithm-time.tv",
+  apiUrl: 'https://rithm-time.tv',
+  cdn: 'https://s64408.cdn.ngenix.net',
   production: false
 };
 
