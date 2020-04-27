@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="services"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Choice</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <ion-list>
+    <ion-list-header>
+      Items
+    </ion-list-header>
+   
+    <ion-item *ngFor="let item of model.Items" (click)="choice(item, model.Next)">
+      <!-- <ion-avatar slot="start">
+        <img src="https://img.icons8.com/flat_round/2x/play--v1.png">
+      </ion-avatar> -->
+      <ion-label>
+        <h2>{{ item.Name }} - {{ item.Id }}</h2>
+        
+      </ion-label>
+    </ion-item>
+    
+  </ion-list>
+</ion-content>
