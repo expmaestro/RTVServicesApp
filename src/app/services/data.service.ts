@@ -1,22 +1,26 @@
 import { Injectable } from '@angular/core';
+import { CoordBaseService } from './coord-base.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataService {
-
-  constructor() { }
+  coordBase = this.coordBaseService.coordBase;
+  constructor(private coordBaseService: CoordBaseService) {
+  }
 
   get getServices(): Array<ServiceModel> {
     return this.services;
   }
 
-  getItems(id: number, childId: number): NextModel {
-    let data = this.services.find(f => f.Id === id);
-    if (childId > -1) {
-      return data.Next.Next;
-    }
-    return data.Next;
+  getItems(id: number, params: number[]): NextModel {
+    let data = this.services.find(f => f.Id === id);   
+    let current = data.Next;
+    params.forEach(element => {
+      current = current.Next;
+    });
+    return current;
   }
 
   private formatDate() {
@@ -33,28 +37,31 @@ export class DataService {
     return [year, month, day].join('-');
   }
 
-  getPlayList(typeId: number, secretName: string, param1?: string, param2?: string): Array<any> {
+  getPlayList(typeId: number, secretName: string, params: string[]): Array<any> {
     if (typeId === 1) { // Завод времен календарей
       let dateFormat = this.formatDate();
       console.log(dateFormat);
-      return this.getCalendar(dateFormat, param1, param2, this.coord)
+      return this.getCalendar(dateFormat, params[0], params[1], this.coordinates)
     }
 
     if (typeId === 10) // черпачек
     {
-      return this.getScoop(param1.toString(), param2.toString(), this.coord);
+      return this.getScoop(params[0], params[1], this.coordinates);
     }
 
     if (typeId === 2) { // Приближение к Ключевым координатам
-      return this.getCoordKey(secretName, this.coord);
+      return this.getCoordKey(secretName, this.coordinates);
     }
 
     if (typeId === 3) { // Приближение к Лучевым координатам
-      return this.getCoordRay(this.coord);
+      return this.getCoordRay(this.coordinates);
     }
 
     if (typeId === 4) { // Приближение к Основным координатам
-      return this.getCoordBase("1", "2", "3");
+
+      let r1:NameIdModel = this.getRadasteyaForCoordBase("Радастея")[params[1]];  
+      let z:NameIdModel = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
+      return this.getCoordBase('voprosa.mp3__Страдастея Вопроса', r1.Url, z.Url);
     }
 
     if (typeId === 100) {
@@ -68,7 +75,7 @@ export class DataService {
     }
 
     if (typeId === 1000) {
-      const playlist = this.getCharge(Number(param1));
+      const playlist = this.getCharge(Number(params[0]));
       return playlist;
     }
 
@@ -145,17 +152,15 @@ export class DataService {
       Id: 4,
       Next: {
         Items: [
-          { Name: 'Белое время', Id: 0 },
-          { Name: 'Черное время', Id: 1 },
-          { Name: 'Серое время', Id: 2 },
-          { Name: 'Время Зари', Id: 3 },
-          { Name: 'Вертикальный календарь', Id: 4 },
+          { Name: 'Страдастея Вопроса', Id: 1, Url: 'voprosa.mp3__Страдастея Вопроса' },
+          { Name: 'Страдастея', Id: 2, Url: 'stradasteya.mp3__Страдастея' }
         ],
         Next: {
-          Items: [
-            { Name: 'Личное', Id: 0 },
-            { Name: 'Общее', Id: 1 }],
-          Next: null
+          Items: this.getRadasteyaForCoordBase("Радастея"),         
+          Next: {
+            Items: this.getRadasteyaForCoordBase("Зитуорд"),
+            Next: null
+          }
         }
       }
     },
@@ -171,6 +176,18 @@ export class DataService {
       Next: null, // unknown 
     }
   ];
+
+  private getRadasteyaForCoordBase(name): Array<NameIdModel> {
+    let array: Array<NameIdModel> = [];
+    let index = 0;
+    for (var key in this.coordBase) {
+      if (this.coordBase[key].name.indexOf(name) != -1) {
+        array.push({ Id: index, Name: this.coordBase[key].name, Url: this.coordBase[key].filename + "__" + this.coordBase[key].name });
+        index++;
+      };
+    };
+    return array;
+  }
 
   // черпачок
   getScoop(scoop: string, type: string, coord: CoordsModel): Array<any> {
@@ -400,14 +417,42 @@ export class DataService {
     return result;
   };
 
-  private _initStradasteyaCanvas() {
-    
-  }
 
-  // основные координаты
-  getCoordBase(stradasteya, radasteya, zituord) {
+
+  private _initStradasteyaCanvas(name) {
+    let result = {} as CoordsModel;
+    if (Array.isArray(this.canvasBase[this._getCoordIDbyName(name)])) {
+      result.keyObraz = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][0]];
+      result.keyOblik = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][8]];
+      result.keyLobr = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][1]];
+      result.keyRobl = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][7]];
+      result.stradasteyaDistance = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][6]];
+      result.radasteyaCanvas = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][3]];
+      result.zituordCanvas = this.coordBase[this.canvasBase[this._getCoordIDbyName(name)][5]];
+      result.stradasteyaOpposite = this.coordBase[this.oppositeBase[this._getCoordIDbyName(name)]];
+      // var obj = this.coordBase[stradasteyaOpposite[this._getCoordIDbyName(name)]]; ????????????
+      var obj = this.coordBase[this.oppositeBase[this._getCoordIDbyName(name)]];
+      result.stradasteyaOppositeDistance = { name: obj.name, filename: obj.filename };
+      result.stradasteyaOppositeDistance.name = obj.name.replace("Страдастея", "Расстояние в Страдастею");
+    };
+    return result;
+  };
+
+  _getCoordIDbyName = function (name, defaultCoord = null) {
+    for (var key in this.coordBase) {
+      if (name == this.coordBase[key].name) {
+        return key;
+      };
+    };
+    return defaultCoord;
+  };
+
+
+  // основные координаты 
+  // этот режим надо проверить
+  getCoordBase(stradasteya: string, radasteya: string, zituord: string) {
     var result = [];
-    var coord = this._model.helper.coord._initStradasteyaCanvas(stradasteya.split("__")[1]);
+    var coord = this._initStradasteyaCanvas(stradasteya.split("__")[1]);
     if (stradasteya != "stradasteya.mp3__Страдастея") {
       result.push({ title: coord.keyObraz.name, src: "/ngenix/coord/obrazi/" + coord.keyObraz.filename });
       result.push({ title: coord.keyLobr.name, src: "/ngenix/coord/lobrs/" + coord.keyLobr.filename });
@@ -428,521 +473,198 @@ export class DataService {
     return result;
   };
 
-  stradasteyaCanvas = {
-    136:[13,56,225,324,136,388,225,129,43],
-    137:[22,61,226,355,137,360,226,103,42],
-    138:[19,80,227,354,138,388,227,110,48],
-    139:[6,67,228,322,139,394,228,131,42],
-    140:[1,63,231,338,140,371,231,128,32],
-    141:[8,82,230,334,141,361,230,116,29],
-    142:[9,54,232,338,142,357,232,109,32],
-    143:[20,86,233,327,143,385,233,135,402],
-    144:[17,81,234,320,144,387,234,96,40],
-    145:[13,50,235,355,145,379,235,121,34],
-    146:[7,75,236,333,146,378,236,108,49],
-    147:[11,87,237,318,147,389,237,92,49],
-    148:[21,51,238,349,148,359,238,110,24],
-    149:[14,84,239,324,149,392,239,129,26],
-    150:[13,89,240,332,150,400,240,107,41],
-    151:[10,51,241,315,151,390,241,93,24],
-    152:[13,75,242,316,152,387,242,117,26],
-    153:[5,84,243,343,153,374,243,127,27],
-    154:[12,53,244,323,154,396,244,102,45],
-    155:[6,77,245,314,155,385,245,120,45],
-    156:[21,74,246,318,156,382,246,105,30],
-    157:[20,83,247,343,157,359,247,95,28],
-    158:[6,55,248,340,158,371,248,132,29],
-    159:[7,86,249,329,159,386,249,114,37],
-    160:[2,79,250,356,160,379,250,92,48],
-    161:[17,57,251,337,161,373,251,116,34],
-    162:[19,70,252,346,162,374,252,99,29],
-    163:[20,59,253,320,163,394,253,113,23],
-    164:[1,71,254,328,164,397,254,97,28],
-    165:[3,66,255,333,165,380,255,121,41],
-    166:[22,88,256,330,166,395,256,94,39],
-    167:[13,50,257,352,167,383,257,128,42],
-    168:[8,56,258,321,168,362,258,98,49],
-    169:[16,61,259,335,169,399,259,123,31],
-    170:[10,52,260,325,170,393,260,91,25],
-    171:[22,86,261,348,171,377,261,123,29],
-    172:[20,71,262,336,172,364,262,401,49],
-    173:[18,60,263,342,173,357,263,117,402],
-    174:[4,52,264,353,174,362,264,120,46],
-    175:[9,68,265,335,175,373,265,112,24],
-    176:[6,90,266,331,176,396,266,98,33],
-    177:[11,85,267,325,177,398,267,100,38],
-    178:[7,65,268,315,178,384,268,107,46],
-    179:[21,70,269,351,179,368,269,109,40],
-    180:[22,79,270,328,180,383,270,124,48],
-    181:[9,53,271,341,181,376,271,133,27],
-    182:[5,55,272,323,182,375,272,102,36],
-    183:[17,76,273,346,183,376,273,103,37],
-    184:[4,85,274,348,184,399,274,134,47],
-    185:[21,90,275,352,185,381,275,96,33],
-    186:[14,78,276,329,186,380,276,94,33],
-    187:[2,89,277,344,187,370,277,126,25],
-    188:[8,77,278,345,188,372,278,106,46],
-    189:[3,72,279,339,189,400,279,113,31],
-    190:[11,64,280,319,190,397,280,100,26],
-    191:[15,69,281,353,191,398,281,111,35],
-    192:[12,62,282,350,192,360,282,99,39],
-    193:[8,76,283,351,193,378,283,124,44],
-    194:[14,59,284,332,194,398,284,101,34],
-    195:[18,60,285,319,195,366,285,115,36],
-    196:[19,74,286,317,196,386,286,125,23],
-    197:[7,80,287,316,197,392,287,130,36],
-    198:[11,52,288,339,198,370,288,104,43],
-    199:[5,62,289,348,199,367,289,106,402],
-    200:[1,89,290,354,200,363,290,119,45],
-    201:[12,68,291,356,201,367,291,105,31],
-    202:[10,58,292,337,202,395,292,132,38],
-    203:[2,88,293,331,203,391,293,134,34],
-    204:[3,88,294,347,204,369,294,97,36],
-    205:[12,75,295,321,205,391,295,93,44],
-    206:[4,58,296,345,206,364,296,126,39],
-    207:[3,68,297,336,207,358,297,112,25],
-    208:[18,73,298,326,208,381,298,114,30],
-    209:[2,54,299,340,209,358,299,115,41],
-    210:[14,50,300,349,210,368,300,118,46],
-    211:[17,66,301,341,211,361,301,401,44],
-    212:[9,83,302,330,212,382,302,104,28],
-    213:[16,82,303,350,213,365,303,91,27],
-    214:[18,67,304,334,214,372,304,108,23],
-    215:[12,81,305,342,215,369,305,135,40],
-    216:[16,64,306,344,216,363,306,127,43],
-    217:[22,65,307,326,217,384,307,119,47],
-    218:[19,81,308,351,218,365,308,95,40],
-    219:[1,73,309,317,219,393,309,125,30],
-    220:[10,72,310,327,220,375,310,101,31],
-    221:[7,78,311,322,221,389,311,131,37],
-    222:[5,87,312,335,222,362,312,130,32],
-    223:[4,63,313,347,223,366,313,133,38],
-    224:[16,57,229,314,224,390,229,118,47]
+  // request stradasteyaCanvas 
+  // "/back/personal/coord/stradasteyaCanvas.js?_="+version
+  canvasBase = {
+    136: [13, 56, 225, 324, 136, 388, 225, 129, 43],
+    137: [22, 61, 226, 355, 137, 360, 226, 103, 42],
+    138: [19, 80, 227, 354, 138, 388, 227, 110, 48],
+    139: [6, 67, 228, 322, 139, 394, 228, 131, 42],
+    140: [1, 63, 231, 338, 140, 371, 231, 128, 32],
+    141: [8, 82, 230, 334, 141, 361, 230, 116, 29],
+    142: [9, 54, 232, 338, 142, 357, 232, 109, 32],
+    143: [20, 86, 233, 327, 143, 385, 233, 135, 402],
+    144: [17, 81, 234, 320, 144, 387, 234, 96, 40],
+    145: [13, 50, 235, 355, 145, 379, 235, 121, 34],
+    146: [7, 75, 236, 333, 146, 378, 236, 108, 49],
+    147: [11, 87, 237, 318, 147, 389, 237, 92, 49],
+    148: [21, 51, 238, 349, 148, 359, 238, 110, 24],
+    149: [14, 84, 239, 324, 149, 392, 239, 129, 26],
+    150: [13, 89, 240, 332, 150, 400, 240, 107, 41],
+    151: [10, 51, 241, 315, 151, 390, 241, 93, 24],
+    152: [13, 75, 242, 316, 152, 387, 242, 117, 26],
+    153: [5, 84, 243, 343, 153, 374, 243, 127, 27],
+    154: [12, 53, 244, 323, 154, 396, 244, 102, 45],
+    155: [6, 77, 245, 314, 155, 385, 245, 120, 45],
+    156: [21, 74, 246, 318, 156, 382, 246, 105, 30],
+    157: [20, 83, 247, 343, 157, 359, 247, 95, 28],
+    158: [6, 55, 248, 340, 158, 371, 248, 132, 29],
+    159: [7, 86, 249, 329, 159, 386, 249, 114, 37],
+    160: [2, 79, 250, 356, 160, 379, 250, 92, 48],
+    161: [17, 57, 251, 337, 161, 373, 251, 116, 34],
+    162: [19, 70, 252, 346, 162, 374, 252, 99, 29],
+    163: [20, 59, 253, 320, 163, 394, 253, 113, 23],
+    164: [1, 71, 254, 328, 164, 397, 254, 97, 28],
+    165: [3, 66, 255, 333, 165, 380, 255, 121, 41],
+    166: [22, 88, 256, 330, 166, 395, 256, 94, 39],
+    167: [13, 50, 257, 352, 167, 383, 257, 128, 42],
+    168: [8, 56, 258, 321, 168, 362, 258, 98, 49],
+    169: [16, 61, 259, 335, 169, 399, 259, 123, 31],
+    170: [10, 52, 260, 325, 170, 393, 260, 91, 25],
+    171: [22, 86, 261, 348, 171, 377, 261, 123, 29],
+    172: [20, 71, 262, 336, 172, 364, 262, 401, 49],
+    173: [18, 60, 263, 342, 173, 357, 263, 117, 402],
+    174: [4, 52, 264, 353, 174, 362, 264, 120, 46],
+    175: [9, 68, 265, 335, 175, 373, 265, 112, 24],
+    176: [6, 90, 266, 331, 176, 396, 266, 98, 33],
+    177: [11, 85, 267, 325, 177, 398, 267, 100, 38],
+    178: [7, 65, 268, 315, 178, 384, 268, 107, 46],
+    179: [21, 70, 269, 351, 179, 368, 269, 109, 40],
+    180: [22, 79, 270, 328, 180, 383, 270, 124, 48],
+    181: [9, 53, 271, 341, 181, 376, 271, 133, 27],
+    182: [5, 55, 272, 323, 182, 375, 272, 102, 36],
+    183: [17, 76, 273, 346, 183, 376, 273, 103, 37],
+    184: [4, 85, 274, 348, 184, 399, 274, 134, 47],
+    185: [21, 90, 275, 352, 185, 381, 275, 96, 33],
+    186: [14, 78, 276, 329, 186, 380, 276, 94, 33],
+    187: [2, 89, 277, 344, 187, 370, 277, 126, 25],
+    188: [8, 77, 278, 345, 188, 372, 278, 106, 46],
+    189: [3, 72, 279, 339, 189, 400, 279, 113, 31],
+    190: [11, 64, 280, 319, 190, 397, 280, 100, 26],
+    191: [15, 69, 281, 353, 191, 398, 281, 111, 35],
+    192: [12, 62, 282, 350, 192, 360, 282, 99, 39],
+    193: [8, 76, 283, 351, 193, 378, 283, 124, 44],
+    194: [14, 59, 284, 332, 194, 398, 284, 101, 34],
+    195: [18, 60, 285, 319, 195, 366, 285, 115, 36],
+    196: [19, 74, 286, 317, 196, 386, 286, 125, 23],
+    197: [7, 80, 287, 316, 197, 392, 287, 130, 36],
+    198: [11, 52, 288, 339, 198, 370, 288, 104, 43],
+    199: [5, 62, 289, 348, 199, 367, 289, 106, 402],
+    200: [1, 89, 290, 354, 200, 363, 290, 119, 45],
+    201: [12, 68, 291, 356, 201, 367, 291, 105, 31],
+    202: [10, 58, 292, 337, 202, 395, 292, 132, 38],
+    203: [2, 88, 293, 331, 203, 391, 293, 134, 34],
+    204: [3, 88, 294, 347, 204, 369, 294, 97, 36],
+    205: [12, 75, 295, 321, 205, 391, 295, 93, 44],
+    206: [4, 58, 296, 345, 206, 364, 296, 126, 39],
+    207: [3, 68, 297, 336, 207, 358, 297, 112, 25],
+    208: [18, 73, 298, 326, 208, 381, 298, 114, 30],
+    209: [2, 54, 299, 340, 209, 358, 299, 115, 41],
+    210: [14, 50, 300, 349, 210, 368, 300, 118, 46],
+    211: [17, 66, 301, 341, 211, 361, 301, 401, 44],
+    212: [9, 83, 302, 330, 212, 382, 302, 104, 28],
+    213: [16, 82, 303, 350, 213, 365, 303, 91, 27],
+    214: [18, 67, 304, 334, 214, 372, 304, 108, 23],
+    215: [12, 81, 305, 342, 215, 369, 305, 135, 40],
+    216: [16, 64, 306, 344, 216, 363, 306, 127, 43],
+    217: [22, 65, 307, 326, 217, 384, 307, 119, 47],
+    218: [19, 81, 308, 351, 218, 365, 308, 95, 40],
+    219: [1, 73, 309, 317, 219, 393, 309, 125, 30],
+    220: [10, 72, 310, 327, 220, 375, 310, 101, 31],
+    221: [7, 78, 311, 322, 221, 389, 311, 131, 37],
+    222: [5, 87, 312, 335, 222, 362, 312, 130, 32],
+    223: [4, 63, 313, 347, 223, 366, 313, 133, 38],
+    224: [16, 57, 229, 314, 224, 390, 229, 118, 47]
   };
 
-  coord2 = {
-    1:{name:"Образ Чаши",filename:"Obraz_chashi.mp3"},
-    2:{name:"Образ Чистоты",filename:"Obraz_chistoti.mp3"},
-    3:{name:"Образ Циферблата",filename:"Obraz_csiferblata.mp3"},
-    4:{name:"Образ Диалектики",filename:"Obraz_dialektitki.mp3"},
-    5:{name:"Образ Истины",filename:"Obraz_istiny.mp3"},
-    6:{name:"Образ Ключа",filename:"Obraz_klycha.mp3"},
-    7:{name:"Образ Корня",filename:"Obraz_kornya.mp3"},
-    8:{name:"Образ Красоты",filename:"Obraz_krasoty.mp3"},
-    9:{name:"Образ Лепестка",filename:"Obraz_lepestka.mp3"},
-    10:{name:"Образ Лука",filename:"Obraz_luka.mp3"},
-    11:{name:"Образ Мозга",filename:"Obraz_mozga.mp3"},
-    12:{name:"Образ Нити",filename:"Obraz_niti.mp3"},
-    13:{name:"Образ Ноля",filename:"Obraz_nolya.mp3"},
-    14:{name:"Образ Перехода",filename:"Obraz_perehoda.mp3"},
-    15:{name:"Образ Радастеи",filename:"Obraz_radastei.mp3"},
-    16:{name:"Образ Счастья",filename:"Obraz_schastya.mp3"},
-    17:{name:"Образ Сферы",filename:"Obraz_sfery.mp3"},
-    18:{name:"Образ Сияния",filename:"Obraz_siyaniya.mp3"},
-    19:{name:"Образ Свечения",filename:"Obraz_svecheniya.mp3"},
-    20:{name:"Образ Света",filename:"Obraz_sveta.mp3"},
-    21:{name:"Образ Циркуля",filename:"Obraz_tsirkylya.mp3"},
-    22:{name:"Образ Вибраций",filename:"Obraz_vibratsiy.mp3"},
-    23:{name:"Облик Читателя",filename:"Oblik_chitatelya.mp3"},
-    24:{name:"Облик Достатка",filename:"Oblik_dostatka.mp3"},
-    25:{name:"Облик Достоинства",filename:"Oblik_dostoinstva.mp3"},
-    26:{name:"Облик Гения",filename:"Oblik_geniya.mp3"},
-    27:{name:"Облик Изобилия",filename:"Oblik_izobiliya.mp3"},
-    28:{name:"Облик Контакта",filename:"Oblik_kontakta.mp3"},
-    29:{name:"Облик Награды",filename:"Oblik_nagraqdy.mp3"},
-    30:{name:"Облик Неба",filename:"Oblik_neba.mp3"},
-    31:{name:"Облик Нормы",filename:"Oblik_normi.mp3"},
-    32:{name:"Облик Плоти",filename:"Oblik_ploty.mp3"},
-    33:{name:"Облик Правителя",filename:"Oblik_pravitelya.mp3"},
-    34:{name:"Облик Пути",filename:"Oblik_puti.mp3"},
-    35:{name:"Облик Радастеи",filename:"Oblik_radastei.mp3"},
-    36:{name:"Облик Разума",filename:"Oblik_razuma.mp3"},
-    37:{name:"Облик Секрета",filename:"Oblik_sekreta.mp3"},
-    38:{name:"Облик Смысла",filename:"Oblik_smysla.mp3"},
-    39:{name:"Облик Солнца",filename:"Oblik_solnsa.mp3"},
-    40:{name:"Облик Стабильности",filename:"Oblik_stabilnosty.mp3"},
-    41:{name:"Облик Старта",filename:"Oblik_starta.mp3"},
-    42:{name:"Облик Связи",filename:"Oblik_svyazi.mp3"},
-    43:{name:"Облик Сути",filename:"Oblik_syti.mp3"},
-    44:{name:"Облик Таланта",filename:"Oblik_talanta.mp3"},
-    45:{name:"Облик Цели",filename:"Oblik_tsely.mp3"},
-    46:{name:"Облик Удобства",filename:"Oblik_udobstva.mp3"},
-    47:{name:"Облик Уверенности",filename:"Oblik_uverennosty.mp3"},
-    48:{name:"Облик Вежливости",filename:"Oblik_vejlivosti.mp3"},
-    49:{name:"Облик Звезды",filename:"Oblik_zvezdy.mp3"},
-    50:{name:"Лобр Активности",filename:"Lobr_aktivnosty.mp3"},
-    51:{name:"Лобр Беседы",filename:"Lobr_besedy.mp3"},
-    52:{name:"Лобр Богатства",filename:"Lobr_bogatstva.mp3"},
-    53:{name:"Лобр Друзей",filename:"Lobr_druzey.mp3"},
-    54:{name:"Лобр Дуновения",filename:"Lobr_dunoveniya.mp3"},
-    55:{name:"Лобр Голоса",filename:"Lobr_golosa.mp3"},
-    56:{name:"Лобр Изысканности",filename:"Lobr_iziskannosty.mp3"},
-    57:{name:"Лобр Жизни",filename:"Lobr_jizni.mp3"},
-    58:{name:"Лобр Любви",filename:"Lobr_lubvi.mp3"},
-    59:{name:"Лобр Милости",filename:"Lobr_milosty.mp3"},
-    60:{name:"Лобр Начала",filename:"Lobr_nachala.mp3"},
-    61:{name:"Лобр Общения",filename:"Lobr_obsheniya.mp3"},
-    62:{name:"Лобр Огня",filename:"Lobr_ognya.mp3"},
-    63:{name:"Лобр Охлаждения",filename:"Lobr_ohlajdeniya.mp3"},
-    64:{name:"Лобр Откровения",filename:"Lobr_otkroveniya.mp3"},
-    65:{name:"Лобр Планеты",filename:"Lobr_planety.mp3"},
-    66:{name:"Лобр Полёта",filename:"Lobr_poleta.mp3"},
-    67:{name:"Лобр Причины",filename:"Lobr_prichiny.mp3"},
-    68:{name:"Лобр Прочности",filename:"Lobr_prochnosty.mp3"},
-    69:{name:"Лобр Радастеи",filename:"Lobr_radastei.mp3"},
-    70:{name:"Лобр Развёртки",filename:"Lobr_razvertky.mp3"},
-    71:{name:"Лобр Реальности",filename:"Lobr_realnosty.mp3"},
-    72:{name:"Лобр Результата",filename:"Lobr_rezultata.mp3"},
-    73:{name:"Лобр Рубежа",filename:"Lobr_rubeja.mp3"},
-    74:{name:"Лобр Сердца",filename:"Lobr_serdtca.mp3"},
-    75:{name:"Лобр Сгустка",filename:"Lobr_sgustka.mp3"},
-    76:{name:"Лобр Соития",filename:"Lobr_soitiya.mp3"},
-    77:{name:"Лобр Сотрудничества",filename:"Lobr_sotrudnichestva.mp3"},
-    78:{name:"Лобр Совершенства",filename:"Lobr_sovershenstva.mp3"},
-    79:{name:"Лобр Свёртки",filename:"Lobr_svertki.mp3"},
-    80:{name:"Лобр Творчества",filename:"Lobr_tvorchestva.mp3"},
-    81:{name:"Лобр Удачи",filename:"Lobr_udachi.mp3"},
-    82:{name:"Лобр Успеха",filename:"Lobr_uspeha.mp3"},
-    83:{name:"Лобр Вдохновения",filename:"Lobr_vdohnoveniya.mp3"},
-    84:{name:"Лобр Вечности",filename:"Lobr_vechnosty.mp3"},
-    85:{name:"Лобр Вместимости",filename:"Lobr_vmestimosty.mp3"},
-    86:{name:"Лобр Времени",filename:"Lobr_vremeny.mp3"},
-    87:{name:"Лобр Встречи",filename:"Lobr_vstrechi.mp3"},
-    88:{name:"Лобр Здоровья",filename:"Lobr_zdorovya.mp3"},
-    89:{name:"Лобр Знака",filename:"Lobr_znaka.mp3"},
-    90:{name:"Лобр Знамения",filename:"Lobr_znameniya.mp3"},
-    91:{name:"Робл Будущего",filename:"Robl_buduscego.mp3"},
-    92:{name:"Робл Человека",filename:"Robl_cheloveka.mp3"},
-    93:{name:"Робл Единения",filename:"Robl_edineniya.mp3"},
-    94:{name:"Робл Эфира",filename:"Robl_efira.mp3"},
-    95:{name:"Робл Филигранности",filename:"Robl_filigrannosty.mp3"},
-    96:{name:"Робл Формы",filename:"Robl_formy.mp3"},
-    97:{name:"Робл Хладности",filename:"Robl_hladnosty.mp3"},
-    98:{name:"Робл Книги",filename:"Robl_knigi.mp3"},
-    99:{name:"Робл Короны",filename:"Robl_koroni.mp3"},
-    100:{name:"Робл Ладоней",filename:"Robl_ladoney.mp3"},
-    101:{name:"Робл Мира",filename:"Robl_mira.mp3"},
-    102:{name:"Робл Млечности",filename:"Robl_mlechnosty.mp3"},
-    103:{name:"Робл Моста",filename:"Robl_mosta.mp3"},
-    104:{name:"Робл Мудрости",filename:"Robl_mudrosty.mp3"},
-    105:{name:"Робл Наслаждения",filename:"Robl_naslajdeniya.mp3"},
-    106:{name:"Робл Обнуления",filename:"Robl_obnuleniya.mp3"},
-    107:{name:"Робл Обретения",filename:"Robl_obrateniya.mp3"},
-    108:{name:"Робл Окончания",filename:"Robl_okonchaniya.mp3"},
-    109:{name:"Робл Праздника",filename:"Robl_prazdnika.mp3"},
-    110:{name:"Робл Процесса",filename:"Robl_processa.mp3"},
-    111:{name:"Робл Радастеи",filename:"Robl_radasrei.mp3"},
-    112:{name:"Робл Рассвета",filename:"Robl_rassveta.mp3"},
-    113:{name:"Робл Развёртки",filename:"Robl_razvertki.mp3"},
-    114:{name:"Робл Регламента",filename:"Robl_reglamenta.mp3"},
-    115:{name:"Робл Результата",filename:"Robl_rezultata.mp3"},
-    116:{name:"Робл Рождения",filename:"Robl_rojdeniya.mp3"},
-    117:{name:"Робл Скорости",filename:"Robl_skorosty.mp3"},
-    118:{name:"Робл Сохранения",filename:"Robl_sohraneniya.mp3"},
-    119:{name:"Робл Соответствия",filename:"Robl_sootvetstviya.mp3"},
-    120:{name:"Робл Спешности",filename:"Robl_speshnosty.mp3"},
-    121:{name:"Робл Стоп",filename:"Robl_stop.mp3"},
-    122:{name:"Робл Старта",filename:"Robl_starta.mp3"},
-    123:{name:"Робл Свёртки",filename:"Robl_svertki.mp3"},
-    124:{name:"Робл Цвета",filename:"Robl_sveta.mp3"},
-    125:{name:"Робл Свидания",filename:"Robl_svidaniya.mp3"},
-    126:{name:"Робл Тоннеля",filename:"Robl_tonelya.mp3"},
-    127:{name:"Робл Ученика",filename:"Robl_uchenika.mp3"},
-    128:{name:"Робл Языка",filename:"Robl_yazika.mp3"},
-    129:{name:"Робл Замедления",filename:"Robl_zamedleniya.mp3"},
-    130:{name:"Робл Зари",filename:"Robl_zari.mp3"},
-    131:{name:"Робл Земли",filename:"Robl_zemli.mp3"},
-    132:{name:"Робл Зенита",filename:"Robl_zenita.mp3"},
-    133:{name:"Робл Знамени",filename:"Robl_znameniya.mp3"},
-    134:{name:"Робл Звучания",filename:"Robl_zvuchaniya.mp3"},
-    135:{name:"Робл Стража",filename:"Robl_straja.mp3"},
-    136:{name:"Страдастея Абсолюта",filename:"absoluta.mp3"},
-    137:{name:"Страдастея Адреса",filename:"adresa.mp3"},
-    138:{name:"Страдастея Астрологиста",filename:"astrologista.mp3"},
-    139:{name:"Страдастея Часов",filename:"chasov.mp3"},
-    140:{name:"Страдастея Дешифровки",filename:"deshifrovki.mp3"},
-    141:{name:"Страдастея Действия",filename:"deystviya.mp3"},
-    142:{name:"Страдастея Долга",filename:"dolga.mp3"},
-    143:{name:"Страдастея Эффекта",filename:"effekta.mp3"},
-    144:{name:"Страдастея Эгрегора",filename:"egregora.mp3"},
-    145:{name:"Страдастея Экспедиций",filename:"expeditsii.mp3"},
-    146:{name:"Страдастея Энергии",filename:"energii.mp3"},
-    147:{name:"Страдастея Этноса",filename:"etnosa.mp3"},
-    148:{name:"Страдастея Фрагмента",filename:"fragmenta.mp3"},
-    149:{name:"Страдастея Галактики",filename:"galaktiki.mp3"},
-    150:{name:"Страдастея Голограммы",filename:"gologrammi.mp3"},
-    151:{name:"Страдастея Готовности",filename:"gotovnosti.mp3"},
-    152:{name:"Страдастея Импульса",filename:"impulsa.mp3"},
-    153:{name:"Страдастея Информации",filename:"informatsii.mp3"},
-    154:{name:"Страдастея Интеллекта",filename:"intellekta.mp3"},
-    155:{name:"Страдастея Интереса",filename:"interesa.mp3"},
-    156:{name:"Страдастея Искусства",filename:"isskustva.mp3"},
-    157:{name:"Страдастея Источника",filename:"istochnika.mp3"},
-    158:{name:"Страдастея Желаний",filename:"jelaniy.mp3"},
-    159:{name:"Страдастея Календаря",filename:"kalendarya.mp3"},
-    160:{name:"Страдастея Контроля",filename:"kontrolya.mp3"},
-    161:{name:"Страдастея Ленты",filename:"lenti.mp3"},
-    162:{name:"Страдастея Ликования",filename:"likovaniya.mp3"},
-    163:{name:"Страдастея Лона",filename:"lona.mp3"},
-    164:{name:"Страдастея Мар-СТОП",filename:"marstop.mp3"},
-    165:{name:"Страдастея Масс",filename:"mass.mp3"},
-    166:{name:"Страдастея Материнства",filename:"materinstva.mp3"},
-    167:{name:"Страдастея Множеств",filename:"mnojestv.mp3"},
-    168:{name:"Страдастея Модели",filename:"modeli.mp3"},
-    169:{name:"Страдастея Монады",filename:"monady.mp3"},
-    170:{name:"Страдастея Монолита",filename:"monolita.mp3"},
-    171:{name:"Страдастея Наблюдателя",filename:"nabludatelya.mp3"},
-    172:{name:"Страдастея Невероятности",filename:"neveroyatnosty.mp3"},
-    173:{name:"Страдастея Ночи",filename:"nochi.mp3"},
-    174:{name:"Страдастея Оси",filename:"osi.mp3"},
-    175:{name:"Страдастея Отцовства",filename:"otcovstva.mp3"},
-    176:{name:"Страдастея Открытий",filename:"otkritiy.mp3"},
-    177:{name:"Страдастея Ответа",filename:"otveta.mp3"},
-    178:{name:"Страдастея Пакета",filename:"paketa.mp3"},
-    179:{name:"Страдастея Памяти",filename:"pamyati.mp3"},
-    180:{name:"Страдастея Пламенного",filename:"plamennogo.mp3"},
-    181:{name:"Страдастея Победы",filename:"pobedy.mp3"},
-    182:{name:"Страдастея Побуждения",filename:"pobujdeniya.mp3"},
-    183:{name:"Страдастея Поля",filename:"polya.mp3"},
-    184:{name:"Страдастея Поворота",filename:"povorota.mp3"},
-    185:{name:"Страдастея Правды",filename:"pravdi.mp3"},
-    186:{name:"Страдастея Предрадастеи",filename:"predradastei.mp3"},
-    187:{name:"Страдастея Пространства",filename:"prostranstva.mp3"},
-    188:{name:"Страдастея Прозрачности",filename:"prozrachnosty.mp3"},
-    189:{name:"Страдастея Псевдожизни",filename:"psevdojizni.mp3"},
-    190:{name:"Страдастея Пустоты",filename:"pustoti.mp3"},
-    191:{name:"Страдастея Радастеи",filename:"radastei.mp3"},
-    192:{name:"Страдастея Радости",filename:"radosti.mp3"},
-    193:{name:"Страдастея Разума",filename:"razuma.mp3"},
-    194:{name:"Страдастея Развёртки",filename:"razvertki.mp3"},
-    195:{name:"Страдастея Решения",filename:"resheniya.mp3"},
-    196:{name:"Страдастея Ресниц",filename:"resnits.mp3"},
-    197:{name:"Страдастея Резюме",filename:"rezume.mp3"},
-    198:{name:"Страдастея Ритмологии",filename:"ritmologii.mp3"},
-    199:{name:"Страдастея Ритмомеры",filename:"ritmomeri.mp3"},
-    200:{name:"Страдастея Ритмопроброса",filename:"ritmoprobrosa.mp3"},
-    201:{name:"Страдастея Ритмовремени",filename:"ritmovremeni.mp3"},
-    202:{name:"Страдастея Семени",filename:"semeni.mp3"},
-    203:{name:"Страдастея Случения",filename:"slucheniya.mp3"},
-    204:{name:"Страдастея События",filename:"sobitiya.mp3"},
-    205:{name:"Страдастея Сокровищ",filename:"sokrovish.mp3"},
-    206:{name:"Страдастея Солитона",filename:"solitona.mp3"},
-    207:{name:"Страдастея Сознания",filename:"soznaniya.mp3"},
-    208:{name:"Страдастея Созвездий",filename:"sozvezdii.mp3"},
-    209:{name:"Страдастея Свёртки",filename:"svertki.mp3"},
-    210:{name:"Страдастея Удовольствия",filename:"udovolstviya.mp3"},
-    211:{name:"Страдастея Венца",filename:"ventsa.mp3"},
-    212:{name:"Страдастея Вестника",filename:"vestnika.mp3"},
-    213:{name:"Страдастея Входа",filename:"vhoda.mp3"},
-    214:{name:"Страдастея Выхода",filename:"vihoda.mp3"},
-    215:{name:"Страдастея Волновода",filename:"volnovoda.mp3"},
-    216:{name:"Страдастея Вопроса",filename:"voprosa.mp3"},
-    217:{name:"Страдастея Возврата",filename:"vozvrata.mp3"},
-    218:{name:"Страдастея Времени",filename:"vremeni.mp3"},
-    219:{name:"Страдастея Заботы",filename:"zaboty.mp3"},
-    220:{name:"Страдастея Знакомства",filename:"znakomstva.mp3"},
-    221:{name:"Страдастея Знакопрочтения",filename:"znakoprochteniya.mp3"},
-    222:{name:"Страдастея Знакоряда",filename:"znakoryda.mp3"},
-    223:{name:"Страдастея Знания",filename:"znaniya.mp3"},
-    224:{name:"Страдастея Щедрости",filename:"shedrosty.mp3"},
-    225:{name:"Расстояние в страдастею Абсолюта",filename:"absoluta.mp3"},
-    226:{name:"Расстояние в страдастею Адреса",filename:"adresa.mp3"},
-    227:{name:"Расстояние в страдастею Астрологиста",filename:"astrologista.mp3"},
-    228:{name:"Расстояние в страдастею Часов",filename:"chasov.mp3"},
-    229:{name:"Расстояние в страдастею Щедрости",filename:"shedrosty.mp3"},
-    230:{name:"Расстояние в страдастею Действия",filename:"deystviya.mp3"},
-    231:{name:"Расстояние в страдастею Дешифровки",filename:"deshifrovki.mp3"},
-    232:{name:"Расстояние в страдастею Долга",filename:"dolga.mp3"},
-    233:{name:"Расстояние в страдастею Эффекта",filename:"effekta.mp3"},
-    234:{name:"Расстояние в страдастею Эгрегора",filename:"egregora.mp3"},
-    235:{name:"Расстояние в страдастею Экспедиций",filename:"expeditsii.mp3"},
-    236:{name:"Расстояние в страдастею Энергии",filename:"energii.mp3"},
-    237:{name:"Расстояние в страдастею Этноса",filename:"etnosa.mp3"},
-    238:{name:"Расстояние в страдастею Фрагмента",filename:"fragmenta.mp3"},
-    239:{name:"Расстояние в страдастею Галактики",filename:"galaktiki.mp3"},
-    240:{name:"Расстояние в страдастею Голограммы",filename:"gologrammi.mp3"},
-    241:{name:"Расстояние в страдастею Готовности",filename:"gotovnosti.mp3"},
-    242:{name:"Расстояние в страдастею Импульса",filename:"impulsa.mp3"},
-    243:{name:"Расстояние в страдастею Информации",filename:"informatsii.mp3"},
-    244:{name:"Расстояние в страдастею Интеллекта",filename:"intellekta.mp3"},
-    245:{name:"Расстояние в страдастею Интереса",filename:"interesa.mp3"},
-    246:{name:"Расстояние в страдастею Искусства",filename:"isskustva.mp3"},
-    247:{name:"Расстояние в страдастею Источника",filename:"istochnika.mp3"},
-    248:{name:"Расстояние в страдастею Желаний",filename:"jelaniy.mp3"},
-    249:{name:"Расстояние в страдастею Календаря",filename:"kalendarya.mp3"},
-    250:{name:"Расстояние в страдастею Контроля",filename:"kontrolya.mp3"},
-    251:{name:"Расстояние в страдастею Ленты",filename:"lenti.mp3"},
-    252:{name:"Расстояние в страдастею Ликования",filename:"likovaniya.mp3"},
-    253:{name:"Расстояние в страдастею Лона",filename:"lona.mp3"},
-    254:{name:"Расстояние в страдастею Марстоп",filename:"marstop.mp3"},
-    255:{name:"Расстояние в страдастею Масс",filename:"mass.mp3"},
-    256:{name:"Расстояние в страдастею Материнства",filename:"materinstva.mp3"},
-    257:{name:"Расстояние в страдастею Множеств",filename:"mnojestv.mp3"},
-    258:{name:"Расстояние в страдастею Модели",filename:"modeli.mp3"},
-    259:{name:"Расстояние в страдастею Монады",filename:"monady.mp3"},
-    260:{name:"Расстояние в страдастею Монолита",filename:"monolita.mp3"},
-    261:{name:"Расстояние в страдастею Наблюдателя",filename:"nabludatelya.mp3"},
-    262:{name:"Расстояние в страдастею Невероятности",filename:"neveroyatnosty.mp3"},
-    263:{name:"Расстояние в страдастею Ночи",filename:"nochi.mp3"},
-    264:{name:"Расстояние в страдастею Оси",filename:"osi.mp3"},
-    265:{name:"Расстояние в страдастею Отцовства",filename:"otcovstva.mp3"},
-    266:{name:"Расстояние в страдастею Открытий",filename:"otkritiy.mp3"},
-    267:{name:"Расстояние в страдастею Ответа",filename:"otveta.mp3"},
-    268:{name:"Расстояние в страдастею Пакета",filename:"paketa.mp3"},
-    269:{name:"Расстояние в страдастею Памяти",filename:"pamyati.mp3"},
-    270:{name:"Расстояние в страдастею Пламенного",filename:"plamennogo.mp3"},
-    271:{name:"Расстояние в страдастею Победы",filename:"pobedy.mp3"},
-    272:{name:"Расстояние в страдастею Побуждения",filename:"pobujdeniya.mp3"},
-    273:{name:"Расстояние в страдастею Поля",filename:"polya.mp3"},
-    274:{name:"Расстояние в страдастею Поворота",filename:"povorota.mp3"},
-    275:{name:"Расстояние в страдастею Правды",filename:"pravdi.mp3"},
-    276:{name:"Расстояние в страдастею Предрадастеи",filename:"predradastei.mp3"},
-    277:{name:"Расстояние в страдастею Пространства",filename:"prostranstva.mp3"},
-    278:{name:"Расстояние в страдастею Прозрачности",filename:"prozrachnosty.mp3"},
-    279:{name:"Расстояние в страдастею Псевдожизни",filename:"psevdojizni.mp3"},
-    280:{name:"Расстояние в страдастею Пустоты",filename:"pustoti.mp3"},
-    281:{name:"Расстояние в страдастею Радастеи",filename:"radastei.mp3"},
-    282:{name:"Расстояние в страдастею Радости",filename:"radosti.mp3"},
-    283:{name:"Расстояние в страдастею Разума",filename:"razuma.mp3"},
-    284:{name:"Расстояние в страдастею Развёртки",filename:"razvertki.mp3"},
-    285:{name:"Расстояние в страдастею Решения",filename:"resheniya.mp3"},
-    286:{name:"Расстояние в страдастею Ресниц",filename:"resnits.mp3"},
-    287:{name:"Расстояние в страдастею Резюме",filename:"rezume.mp3"},
-    288:{name:"Расстояние в страдастею Ритмологии",filename:"ritmologii.mp3"},
-    289:{name:"Расстояние в страдастею Ритмомеры",filename:"ritmomeri.mp3"},
-    290:{name:"Расстояние в страдастею Ритмопроброса",filename:"ritmoprobrosa.mp3"},
-    291:{name:"Расстояние в страдастею Ритмовремени",filename:"ritmovremeni.mp3"},
-    292:{name:"Расстояние в страдастею Семени",filename:"semeni.mp3"},
-    293:{name:"Расстояние в страдастею Случения",filename:"slucheniya.mp3"},
-    294:{name:"Расстояние в страдастею События",filename:"sobitiya.mp3"},
-    295:{name:"Расстояние в страдастею Сокровищ",filename:"sokrovish.mp3"},
-    296:{name:"Расстояние в страдастею Солитона",filename:"solitona.mp3"},
-    297:{name:"Расстояние в страдастею Сознания",filename:"soznaniya.mp3"},
-    298:{name:"Расстояние в страдастею Созвездий",filename:"sozvezdii.mp3"},
-    299:{name:"Расстояние в страдастею Свёртки",filename:"svertki.mp3"},
-    300:{name:"Расстояние в страдастею Удовольствия",filename:"udovolstviya.mp3"},
-    301:{name:"Расстояние в страдастею Венца",filename:"ventsa.mp3"},
-    302:{name:"Расстояние в страдастею Вестника",filename:"vestnika.mp3"},
-    303:{name:"Расстояние в страдастею Входа",filename:"vhoda.mp3"},
-    304:{name:"Расстояние в страдастею Выхода",filename:"vihoda.mp3"},
-    305:{name:"Расстояние в страдастею Волновода",filename:"volnovoda.mp3"},
-    306:{name:"Расстояние в страдастею Вопроса",filename:"voprosa.mp3"},
-    307:{name:"Расстояние в страдастею Возврата",filename:"vozvrata.mp3"},
-    308:{name:"Расстояние в страдастею Времени",filename:"vremeni.mp3"},
-    309:{name:"Расстояние в страдастею Заботы",filename:"zaboty.mp3"},
-    310:{name:"Расстояние в страдастею Знакомства",filename:"znakomstva.mp3"},
-    311:{name:"Расстояние в страдастею Знакопрочтения",filename:"znakoprochteniya.mp3"},
-    312:{name:"Расстояние в страдастею Знакоряда",filename:"znakoryda.mp3"},
-    313:{name:"Расстояние в страдастею Знания",filename:"znaniya.mp3"},
-    314:{name:"Радастея 100",filename:"100.mp3"},
-    315:{name:"Радастея 101",filename:"101.mp3"},
-    316:{name:"Радастея 102",filename:"102.mp3"},
-    317:{name:"Радастея 103",filename:"103.mp3"},
-    318:{name:"Радастея 104",filename:"104.mp3"},
-    319:{name:"Радастея 105",filename:"105.mp3"},
-    320:{name:"Радастея 106",filename:"106.mp3"},
-    321:{name:"Радастея 107",filename:"107.mp3"},
-    322:{name:"Радастея 108",filename:"108.mp3"},
-    323:{name:"Радастея 109",filename:"109.mp3"},
-    324:{name:"Радастея 110",filename:"110.mp3"},
-    325:{name:"Радастея 111",filename:"111.mp3"},
-    326:{name:"Радастея 112",filename:"112.mp3"},
-    327:{name:"Радастея 113",filename:"113.mp3"},
-    328:{name:"Радастея 114",filename:"114.mp3"},
-    329:{name:"Радастея 115",filename:"115.mp3"},
-    330:{name:"Радастея 116",filename:"116.mp3"},
-    331:{name:"Радастея 125",filename:"125.mp3"},
-    332:{name:"Радастея 0",filename:"0.mp3"},
-    333:{name:"Радастея 0 N",filename:"0_nomernoi.mp3"},
-    334:{name:"Радастея 1",filename:"1.mp3"},
-    335:{name:"Радастея 2",filename:"2.mp3"},
-    336:{name:"Радастея 3",filename:"3.mp3"},
-    337:{name:"Радастея 4",filename:"4.mp3"},
-    338:{name:"Радастея 5",filename:"5.mp3"},
-    339:{name:"Радастея 6",filename:"6.mp3"},
-    340:{name:"Радастея 7",filename:"7.mp3"},
-    341:{name:"Радастея 8",filename:"8.mp3"},
-    342:{name:"Радастея 9",filename:"9.mp3"},
-    343:{name:"Радастея 10",filename:"10.mp3"},
-    344:{name:"Радастея 11",filename:"11.mp3"},
-    345:{name:"Радастея 12",filename:"12.mp3"},
-    346:{name:"Радастея 13",filename:"13.mp3"},
-    347:{name:"Радастея 14",filename:"14.mp3"},
-    348:{name:"Радастея 15",filename:"15.mp3"},
-    349:{name:"Радастея 16",filename:"16.mp3"},
-    350:{name:"Радастея 25",filename:"25.mp3"},
-    351:{name:"Радастея 200",filename:"200.mp3"},
-    352:{name:"Радастея 200 E",filename:"200e.mp3"},
-    353:{name:"Радастея 200 Ш",filename:"200h.mp3"},
-    354:{name:"Радастея 200 О",filename:"200o.mp3"},
-    355:{name:"Радастея 200 S",filename:"200s.mp3"},
-    356:{name:"Радастея 200 T",filename:"200t.mp3"},
-    357:{name:"Зитуорд 100",filename:"100.mp3"},
-    358:{name:"Зитуорд 101",filename:"101.mp3"},
-    359:{name:"Зитуорд 102",filename:"102.mp3"},
-    360:{name:"Зитуорд 103",filename:"103.mp3"},
-    361:{name:"Зитуорд 104",filename:"104.mp3"},
-    362:{name:"Зитуорд 105",filename:"105.mp3"},
-    363:{name:"Зитуорд 106",filename:"106.mp3"},
-    364:{name:"Зитуорд 107",filename:"107.mp3"},
-    365:{name:"Зитуорд 108",filename:"108.mp3"},
-    366:{name:"Зитуорд 109",filename:"109.mp3"},
-    367:{name:"Зитуорд 110",filename:"110.mp3"},
-    368:{name:"Зитуорд 111",filename:"111.mp3"},
-    369:{name:"Зитуорд 112",filename:"112.mp3"},
-    370:{name:"Зитуорд 113",filename:"113.mp3"},
-    371:{name:"Зитуорд 114",filename:"114.mp3"},
-    372:{name:"Зитуорд 115",filename:"115.mp3"},
-    373:{name:"Зитуорд 116",filename:"116.mp3"},
-    374:{name:"Зитуорд 125",filename:"125.mp3"},
-    375:{name:"Зитуорд 0",filename:"0.mp3"},
-    376:{name:"Зитуорд 0 бесконечности",filename:"0_beskonechnosti.mp3"},
-    377:{name:"Зитуорд 0 вечности",filename:"0_vechnosti.mp3"},
-    378:{name:"Зитуорд 1",filename:"1.mp3"},
-    379:{name:"Зитуорд 2",filename:"2.mp3"},
-    380:{name:"Зитуорд 3",filename:"3.mp3"},
-    381:{name:"Зитуорд 4",filename:"4.mp3"},
-    382:{name:"Зитуорд 5",filename:"5.mp3"},
-    383:{name:"Зитуорд 6",filename:"6.mp3"},
-    384:{name:"Зитуорд 7",filename:"7.mp3"},
-    385:{name:"Зитуорд 8",filename:"8.mp3"},
-    386:{name:"Зитуорд 9",filename:"9.mp3"},
-    387:{name:"Зитуорд 10",filename:"10.mp3"},
-    388:{name:"Зитуорд 11",filename:"11.mp3"},
-    389:{name:"Зитуорд 12",filename:"12.mp3"},
-    390:{name:"Зитуорд 13",filename:"13.mp3"},
-    391:{name:"Зитуорд 14",filename:"14.mp3"},
-    392:{name:"Зитуорд 15",filename:"15.mp3"},
-    393:{name:"Зитуорд 16",filename:"16.mp3"},
-    394:{name:"Зитуорд 25",filename:"25.mp3"},
-    395:{name:"Зитуорд 200 Щ",filename:"200_ch.mp3"},
-    396:{name:"Зитуорд 200 Д",filename:"200_d.mp3"},
-    397:{name:"Зитуорд 200 Фита",filename:"200_fita.mp3"},
-    398:{name:"Зитуорд 200 i",filename:"200_i.mp3"},
-    399:{name:"Зитуорд 200 Q",filename:"200_q.mp3"},
-    400:{name:"Зитуорд 200 з",filename:"200_z.mp3"},
-    401:{name:"Робл Мановения",filename:"Robl_manoveniya.mp3"},
-    402:{name:"Облик Смелости",filename:"Oblik_smelosty.mp3"},
-      403:{name:"Матрица Логика",filename:"01_Matrix_Logika.mp3"},
-      404:{name:"Матрица Циклоид",filename:"02_Matrix_Cikloid.mp3"},
-      405:{name:"Матрица Кардиоида",filename:"03_Matrix_Kardioida.mp3"},
-      406:{name:"Матрица Оригинал",filename:"04_Matrix_Original.mp3"},
-      407:{name:"Матрица Восприятия",filename:"05_Matrix_Vospriyatiya.mp3"},
-      408:{name:"Матрица Практика",filename:"06_Matrix_Practika.mp3"},
-      409:{name:"Матрица Воспроизведения",filename:"07_Matrix_Vosproisvedeniya.mp3"},
-      410:{name:"Матрица Конхоида",filename:"08_Matrix_Konhoida.mp3"},
-      411:{name:"Матрица Вразумления",filename:"09_Matrix_Vrasumleniya.mp3"},
-      412:{name:"Матрица Теоретика",filename:"10_Matrix_Teoretika.mp3"},
-      413:{name:"Матрица Логистика",filename:"11_Matrix_Logistika.mp3"},
-      414:{name:"Матрица Тороида",filename:"12_Matrix_Toroida.mp3"},
-      415:{name:"Матрица Пираусмидакон",filename:"13_Matrix_Pirausmidakon.mp3"},
-      416:{name:"Матрица Нужности",filename:"14_Matrix_Nuzhnosti.mp3"},
-      417:{name:"Матрица Важности",filename:"15_Matrix_Vazhnosti.mp3"},
-      418:{name:"Матрица Целесообразности",filename:"16_Matrix_Celesoobraznosti.mp3"},
-      419:{name:"Матрица Цельности",filename:"17_Matrix_Celnosti.mp3"},
-      420:{name:"Матрица Целостности",filename:"18_Matrix_Celostnosti.mp3"}
+  //"/back/personal/coord/stradasteyaOpposite.js?_="+version
+
+  oppositeBase = {
+    136: 215,
+    137: 177,
+    138: 179,
+    139: 174,
+    140: 196,
+    141: 184,
+    142: 202,
+    143: 158,
+    144: 204,
+    145: 193,
+    146: 160,
+    147: 210,
+    148: 150,
+    149: 206,
+    150: 148,
+    151: 223,
+    152: 198,
+    153: 212,
+    154: 209,
+    155: 214,
+    156: 162,
+    157: 189,
+    158: 143,
+    159: 187,
+    160: 146,
+    161: 180,
+    162: 156,
+    163: 216,
+    164: 168,
+    165: 181,
+    166: 173,
+    167: 175,
+    168: 164,
+    169: 211,
+    170: 200,
+    171: 217,
+    172: 219,
+    173: 166,
+    174: 139,
+    175: 167,
+    176: 207,
+    177: 137,
+    178: 188,
+    179: 138,
+    180: 161,
+    181: 165,
+    182: 185,
+    183: 186,
+    184: 141,
+    185: 182,
+    186: 183,
+    187: 159,
+    188: 178,
+    189: 157,
+    190: 222,
+    191: 191,
+    192: 194,
+    193: 145,
+    194: 192,
+    195: 205,
+    196: 140,
+    197: 213,
+    198: 152,
+    199: 224,
+    200: 170,
+    201: 221,
+    202: 142,
+    203: 218,
+    204: 144,
+    205: 195,
+    206: 149,
+    207: 176,
+    208: 220,
+    209: 154,
+    210: 147,
+    211: 169,
+    212: 153,
+    213: 197,
+    214: 155,
+    215: 136,
+    216: 163,
+    217: 171,
+    218: 203,
+    219: 172,
+    220: 208,
+    221: 201,
+    222: 190,
+    223: 151,
+    224: 199
   };
-  
+
+  //request
+  // "/back/personal/coord/coord.js?_="+version
+  // this is ssame coord
+
 
 
   // заряды
@@ -958,7 +680,7 @@ export class DataService {
     };
   };
 
-  coord: CoordsModel = { // с сервера будет приходить такой объект, для человека у кого уже есть
+  coordinates: CoordsModel = {
     matrix: { name: "Матрица", filename: "matrix.mp3" },
     obraz: { name: "Образ", filename: "obraz.mp3" },
     oblik: { name: "Облик", filename: "oblik.mp3" },
