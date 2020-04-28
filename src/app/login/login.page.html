@@ -1,23 +1,17 @@
-<!-- <ion-header>
-  <ion-toolbar>
-    <ion-title>Login</ion-title>
-  </ion-toolbar>
-</ion-header> -->
-
-<ion-content class="login-page" padding>
+<ion-content class="ion-padding">
   <div class="ion-text-center">
     <img src="assets/img/logo.png" alt="" />
   </div>
 
   <form [formGroup]="loginForm" (ngSubmit)="login()">
     <ion-list lines="full" class="ion-no-margin ion-no-padding">
-      <ion-item>
-        <ion-label position="stacked">Логин</ion-label>
+      <ion-item lines="none">
+        <ion-label position="floating">Логин</ion-label>
         <ion-input type="text" formControlName="login"></ion-input>
       </ion-item>
 
-      <ion-item>
-        <ion-label position="stacked">Пароль</ion-label>
+      <ion-item lines="none">
+        <ion-label position="floating">Пароль</ion-label>
         <ion-input type="password" formControlName="password"></ion-input>
       </ion-item>
     </ion-list>
