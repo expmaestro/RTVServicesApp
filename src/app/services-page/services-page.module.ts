@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ServicesPagePageRoutingModule } from './services-page-routing.module';
 
 import { ServicesPagePage } from './services-page.page';
+import { ChoiceComponent } from './choice/choice.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { ServicesPagePage } from './services-page.page';
     IonicModule,
     ServicesPagePageRoutingModule
   ],
-  declarations: [ServicesPagePage]
+  declarations: [ServicesPagePage, ChoiceComponent]
 })
 export class ServicesPagePageModule {}

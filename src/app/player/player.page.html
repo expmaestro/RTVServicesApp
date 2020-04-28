@@ -1,9 +1,35 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="services"></ion-back-button>
+    </ion-buttons>
     <ion-title>Player</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-list>
 
+    <ng-container *ngIf="typeId === 2">
+      <ion-item lines="none">
+        <!-- <ion-label item-start position="floating">Сокровенное имя</ion-label> -->
+        <ion-input type="text" placeholder="Сокровенное имя" [formControl]="secretName"></ion-input>
+        <ion-button (click)="setSecretName()" item-end class="ion-no-margin">Напитать</ion-button>
+      </ion-item>
+      <ion-item *ngIf="secretNameWarning.length > 0" lines="none">
+        <ion-label item-start>{{ secretNameWarning }}</ion-label>
+      </ion-item>
+    </ng-container>
+
+    <ion-item *ngFor="let music of playlist; let index= index;">
+      <ion-avatar slot="start">
+        <img src="https://img.icons8.com/flat_round/2x/play--v1.png">
+      </ion-avatar>
+      <ion-label>
+        <h2>{{ index + 1 }}. {{ music.title }}</h2>
+        <!-- <p>{{ music.src}}</p> -->
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
 </ion-content>

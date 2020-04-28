@@ -17,7 +17,6 @@ export class ChoiceComponent implements OnInit {
   choice(item: any, next: NextModel) {
     this.params.push(item.Id);
     if (next) {
-     // debugger;
       this.router.navigate([`/services/${this.id}/${(this.params.join('/'))}`]);
     }
     else {
@@ -26,15 +25,10 @@ export class ChoiceComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('choice');
     this.activatedRoute.url.subscribe((segments: UrlSegment[]) => {
       this.id = Number(segments[0].path);
       this.params = segments.filter((f, i) => i > 0).map((x) => Number(x.path));
-      this.model = this.dataService.getItems(this.id, this.params.length > 0 ? Number(this.params[0]) : -1);
+      this.model = this.dataService.getItems(this.id, this.params);
     });
-
-
-
   }
-
 }

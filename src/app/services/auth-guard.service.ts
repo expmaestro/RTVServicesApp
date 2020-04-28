@@ -8,11 +8,15 @@ import { Observable } from 'rxjs';
 export class AuthGuardService implements CanActivate {
 
   constructor() { }
-  canActivate(route: import("@angular/router").ActivatedRouteSnapshot, 
+  canActivate(route: import("@angular/router").ActivatedRouteSnapshot,
     state: import("@angular/router").RouterStateSnapshot): boolean | import("@angular/router").UrlTree | import("rxjs").Observable<boolean | import("@angular/router").UrlTree> | Promise<boolean | import("@angular/router").UrlTree> {
-   return Observable.create( observer => {
-    observer.next(true);
-    observer.complete();
-   });
+    return Observable.create(observer => {
+      let userAuthenticated = true; // check a token value
+      if(userAuthenticated) {
+
+      }
+      observer.next(userAuthenticated);
+      observer.complete();
+    });
   }
 }
