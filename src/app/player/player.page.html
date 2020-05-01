@@ -8,11 +8,31 @@
 </ion-header>
 
 <ion-content>
+
+  <div class="ion-text-center">
+    <span>Загрузить завод всех времён для прослушивания без интернета</span>
+    <ion-button (click)="download()">
+      <ion-icon slot="start" name="download-outline"></ion-icon>
+      Download
+    </ion-button>
+
+    <ion-button (click)="clear()">
+      <ion-icon slot="start" name="trash"></ion-icon>
+      Clear all
+    </ion-button>
+  </div>
+
+  <ion-list>
+    <ion-item *ngFor="let item of fileListInFolder; let index = index;">
+      <ion-label>
+        <h2>{{ index + 1 }}. {{ item.name }}</h2>
+      </ion-label>
+    </ion-item>
+  </ion-list>
   <ion-list>
 
     <ng-container *ngIf="typeId === 2">
       <ion-item lines="none">
-        <!-- <ion-label item-start position="floating">Сокровенное имя</ion-label> -->
         <ion-input type="text" placeholder="Сокровенное имя" [formControl]="secretName"></ion-input>
         <ion-button (click)="setSecretName()" item-end class="ion-no-margin">Напитать</ion-button>
       </ion-item>
@@ -23,13 +43,13 @@
 
     <ion-item *ngFor="let music of playlist; let index= index;">
       <ion-avatar slot="start">
-        <img src="https://img.icons8.com/flat_round/2x/play--v1.png">
+        <img src="https://img.icons8.com/flat_round/2x/play--v1.png" (click)="play()">
       </ion-avatar>
       <ion-label>
         <h2>{{ index + 1 }}. {{ music.title }}</h2>
-        <!-- <p>{{ music.src}}</p> -->
       </ion-label>
     </ion-item>
-
   </ion-list>
+  
+
 </ion-content>

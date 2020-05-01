@@ -31,8 +31,7 @@ export class LoginPage implements OnInit {
   async login() {
     this.loading = await this.loadingCtrl.create({
       message: 'Пожалуйста подождите...'
-    }
-    );
+    });
     await this.loading.present();
     this.loginService.login(this.loginForm.get('login').value, this.loginForm.get('password').value)
       .subscribe(async (x: any) => {

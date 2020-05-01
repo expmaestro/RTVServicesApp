@@ -15,7 +15,7 @@ export class DataService {
   }
 
   getItems(id: number, params: number[]): NextModel {
-    let data = this.services.find(f => f.Id === id);   
+    let data = this.services.find(f => f.Id === id);
     let current = data.Next;
     params.forEach(element => {
       current = current.Next;
@@ -37,7 +37,7 @@ export class DataService {
     return [year, month, day].join('-');
   }
 
-  getPlayList(typeId: number, secretName: string, params: string[]): Array<any> {
+  getPlayList(typeId: number, secretName: string, params: string[]): Array<PlayListModel> {
     if (typeId === 1) { // Завод времен календарей
       let dateFormat = this.formatDate();
       console.log(dateFormat);
@@ -59,8 +59,8 @@ export class DataService {
 
     if (typeId === 4) { // Приближение к Основным координатам
 
-      let r1:NameIdModel = this.getRadasteyaForCoordBase("Радастея")[params[1]];  
-      let z:NameIdModel = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
+      let r1: NameIdModel = this.getRadasteyaForCoordBase("Радастея")[params[1]];
+      let z: NameIdModel = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
       return this.getCoordBase('voprosa.mp3__Страдастея Вопроса', r1.Url, z.Url);
     }
 
@@ -73,11 +73,15 @@ export class DataService {
       const playlist = { title: "Скафандриальная гимнастика (вечер)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_podgotovka_ko_snu.mp3" };
       return [playlist];
     }
-
-    if (typeId === 1000) {
-      const playlist = this.getCharge(Number(params[0]));
-      return playlist;
+    if (typeId === 11) { // chargeEnergo
+      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3" }];
     }
+    if (typeId === 12) {//"chargeInformo") 
+      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3" }];
+    }
+    if (typeId === 13) { // "chargeTime"
+      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3" }];
+    };
 
     return [];
   }
@@ -124,18 +128,19 @@ export class DataService {
     },
 
     {
-      Name: 'Заряды',
-      Id: 1000, // unknown 
-
-      Next: {
-        Items: [
-          { Name: 'ЭнергозаряД', Id: 1, Type: 'chargeEnergo', Url: '/ngenix/audio/Energozaryad.mp3' },
-          { Name: 'ИнформозаряД', Id: 2, Type: 'chargeInformo', Url: '/ngenix/audio/informozaryad.mp3' },
-          //{ Name: 'Пространственный заряд', Id: 3 },
-          { Name: 'Временной заряд', Id: 4, Type: 'chargeTime', Url: '/ngenix/audio/timezaryad.mp3' }
-        ],
-        Next: null
-      }
+      Name: 'ЭнергозаряД +',
+      Id: 11, // unknown 
+      Next: null
+    },
+    {
+      Name: 'ИнформозаряД + ',
+      Id: 12, // unknown 
+      Next: null
+    },
+    {
+      Name: 'Времени заряД +',
+      Id: 13, // unknown 
+      Next: null
     },
     {
       Name: 'Приближение к Ключевым координатам',
@@ -156,7 +161,7 @@ export class DataService {
           { Name: 'Страдастея', Id: 2, Url: 'stradasteya.mp3__Страдастея' }
         ],
         Next: {
-          Items: this.getRadasteyaForCoordBase("Радастея"),         
+          Items: this.getRadasteyaForCoordBase("Радастея"),
           Next: {
             Items: this.getRadasteyaForCoordBase("Зитуорд"),
             Next: null
@@ -166,14 +171,14 @@ export class DataService {
     },
 
     {
-      Name: 'Скафандриальная гимнастика (утро)',
+      Name: 'Скафандриальная гимнастика (утро) +',
       Id: 100,// unknown 
-      Next: null, // unknown 
+      Next: null
     },
     {
-      Name: 'Скафандриальная гимнастика (вечер)',
+      Name: 'Скафандриальная гимнастика (вечер) +',
       Id: 200,// unknown 
-      Next: null, // unknown 
+      Next: null 
     }
   ];
 
@@ -665,20 +670,6 @@ export class DataService {
   // "/back/personal/coord/coord.js?_="+version
   // this is ssame coord
 
-
-
-  // заряды
-  private getCharge(id: number) {
-    if (id === 1) { // chargeEnergo
-      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3" }];
-    }
-    if (id === 2) {//"chargeInformo") 
-      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3" }];
-    }
-    if (id === 4) { // "chargeTime"
-      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3" }];
-    };
-  };
 
   coordinates: CoordsModel = {
     matrix: { name: "Матрица", filename: "matrix.mp3" },
@@ -1232,7 +1223,6 @@ export class NextModel {
 export class NameIdModel {
   public Id: number;
   public Name: string;
-  public Type?: string; //remove ?
   public Url?: string; ///
 }
 
@@ -1262,6 +1252,11 @@ export class CoordsModel {
 export class CoordModel {
   name: string;
   filename: string;
+}
+
+export class PlayListModel {
+  title: string;
+  src: string;
 }
 
 
