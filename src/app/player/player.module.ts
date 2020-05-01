@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { PlayerPageRoutingModule } from './player-routing.module';
 import { PlayerPage } from './player.page';
+import { DownloadComponent } from '../download/download.component';
 
 
 @NgModule({
@@ -14,7 +15,7 @@ import { PlayerPage } from './player.page';
     IonicModule,
     PlayerPageRoutingModule,
   ],
-  declarations: [PlayerPage],
+  declarations: [PlayerPage, DownloadComponent],
   providers: []
 })
 export class PlayerPageModule {}
