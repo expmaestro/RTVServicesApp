@@ -8,7 +8,10 @@
 </ion-header>
 
 <ion-content>
-
+  <ion-button (click)="play()">Play</ion-button>
+  <ion-button (click)="pause()">Pause</ion-button>
+  <ion-button (click)="stop(true)">Stop</ion-button>
+  
   <app-download [playlist]="playlist"></app-download>
 
   <ion-list>
@@ -22,11 +25,12 @@
       </ion-item>
     </ng-container>
 
-    <ion-item *ngFor="let music of playlist; let index= index;">
-      <ion-avatar slot="start">
-        <img src="https://img.icons8.com/flat_round/2x/play--v1.png" (click)="play()">
-      </ion-avatar>
-      <ion-label>
+    <ion-item *ngFor="let music of playlist; let index = index;">
+      <!-- <ion-avatar slot="start">
+        <img src="https://img.icons8.com/flat_round/2x/play--v1.png" (click)="play(music)">
+      </ion-avatar> -->
+     
+      <ion-label [class.bold]="currentIndex === index" (click)="play(index)">
         <h2>{{ index + 1 }}. {{ music.title }}</h2>
       </ion-label>
     </ion-item>
