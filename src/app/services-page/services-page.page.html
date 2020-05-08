@@ -13,11 +13,22 @@
     </ion-item>
   </div>
 
-  <ion-card *ngFor="let service of services">
+  <!-- <ion-card *ngFor="let service of services">
     <ion-card-header (click)="next(service)">
       <ion-card-title style="font-size: 14px;">
         {{ service.Name }}
       </ion-card-title>
     </ion-card-header>
-  </ion-card>
+  </ion-card> -->
+
+  <ion-list>   
+   
+    <ion-item *ngFor="let service of services" (click)="next(service)" >     
+      <ion-label>
+        <h2  style="font-size: 14px;">{{ service.Name }}</h2>
+        
+      </ion-label>
+    </ion-item>
+    
+  </ion-list>
 </ion-content>

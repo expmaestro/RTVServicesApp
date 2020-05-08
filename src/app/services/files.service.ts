@@ -37,6 +37,17 @@ export class FilesService {
       });
   }
 
+  fileExist(fileName: string): Promise<boolean> {
+    return this.file.checkFile(this.file.dataDirectory + `${this.audioFolder}/`, fileName).then(() => {
+      console.log('File exists');
+      return true;
+
+    }, (error: FileError) => {
+      console.log('File does not exist');
+      return false;
+    });
+  }
+
   needDonwload() {
     return true;
   }

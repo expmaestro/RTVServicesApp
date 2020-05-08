@@ -1,12 +1,16 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { DataService, PlayListModel } from '../services/data.service';
 import { FormControl } from '@angular/forms';
-import { Platform, LoadingController, AlertController } from '@ionic/angular';
+import { Platform, LoadingController, AlertController, IonRange } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
-import { Media, MediaObject, MEDIA_STATUS, MediaError, MEDIA_ERROR } from '@ionic-native/media/ngx';
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription, from } from 'rxjs';
 import { BaseComponent } from '../services/base-component';
+import { MusicControls } from '@ionic-native/music-controls/ngx';
+import { environment } from 'src/environments/environment';
+import { NetworkService } from '../services/network.service';
+import { LoadingService } from '../services/loading.service';
+import { Howl } from 'howler';
 
 @Component({
   selector: 'app-player',
@@ -14,28 +18,39 @@ import { BaseComponent } from '../services/base-component';
   styleUrls: ['./player.page.scss'],
 })
 export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
+  @ViewChild('range', { static: false }) range: IonRange;
   playlist: PlayListModel[] = [];
   typeId = 0;
   segments: UrlSegment[];
   secretName = new FormControl('');
   secretNameWarning: string = '';
-  file: MediaObject;
   isStopped = true;
-  currentIndex = 0;
-  onSucessSubscribe$: Subscription;
-  firstRun = true;
+  currentIndex = -1;
   stopAudio = false;
+  duration = 0;
+  seekTime = 0;
+  progress: FormControl = new FormControl('expmaestro');
+  private win: any = window;
+  id = null;
+  private platformReady = false;
+
+  player: Howl = null;
+  isPlaying = false;
 
   constructor(private activatedRoute: ActivatedRoute,
     private dataService: DataService,
     private platform: Platform,
-    private loadingCtrl: LoadingController,
+    private loadingService: LoadingService,
     private fileService: FilesService,
-    private media: Media,
-    private changeRef: ChangeDetectorRef) {
+    private changeRef: ChangeDetectorRef,
+    private musicControl: MusicControls,
+    private networkService: NetworkService) {
     super();
     this.platform.ready().then(() => {
-      if (this.platform.is("android") || this.platform.is("ios")) {
+      if (
+        this.platform.is("android") ||
+        this.platform.is("ios")) {
+        // this.platformReady = true; //TODO: remove this
       }
     });
   }
@@ -65,112 +80,220 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     }
   }
 
-  play(index) {
-
-    // if (!playNext) {
-    //   this.stop();
-    // }
-    this.firstRun = true;
-    if (this.isStopped) {
-      this.initPlayer(index);
-    } else {
-      this.currentIndex = index;
-      this.stop(false);
+  async play(index: number, stopInTheEnd: boolean = true) {
+    if (index > this.playlist.length - 1) return; //auto stop
+    if (stopInTheEnd && index === 0) {
+      this.currentIndex = -1;
+      return;
     }
-    // this.onSucessSubscribe$ = this.file.onSuccess.subscribe((res) => {
 
-    //   console.log(`music onSuccess end`);
-    //   // this.file.release();
-    // });
+    if (this.isPlaying) {
+      this.upload();
+    }
 
-
-  }
-
-  private initPlayer(index: number) {
-    if (this.currentIndex + 1 >= this.playlist.length) return;
-
-    this.currentIndex = this.firstRun ? index : index + 1;
-    this.firstRun = false;
+    this.currentIndex = index;
     this.changeRef.detectChanges();
+    const src = this.playlist[this.currentIndex].src;
+    const fileName = src.split('/').pop(); //duplicate
+    const fileExist = this.platformReady
+      ? await this.fileService.fileExist(fileName)
+      : false;
+    let filePathOrUrl = fileExist
+      ? this.convertFileSrc(this.fileService.getFullFilePath(fileName))
+      : environment.cdn + src + '';
 
-    const fileName = this.playlist[this.currentIndex].src.split('/').pop(); //duplicate
-    // const filePath = this.fileService.getFullFilePath(fileName.pop());//duplicate
-    //  console.log(filePath);
-    // console.log(fileName);
-    //'https://s64408.cdn.ngenix.net/ngenix/audio/ozarin/polotno.mp3'
-    //https://s64408.cdn.ngenix.net/ngenix/coord/rasstoyanie_v_stradastey/stradasteyaDistance.mp3
-    this.file = this.media.create(this.fileService.getFullFilePath(fileName));
-    this.onSucessSubscribe$ = this.file.onStatusUpdate.safeSubscribe(this, (status: MEDIA_STATUS) => {
-      switch (status) {
-        case 1: // STARTING
-          break;
-        case 2:   // 2: RUNNING(playing) 
-          break;
-        case 3:   // 3: PAUSED
-          break;
-        case 4:   // 4: STOPPED
-          if (!this.stopAudio) {
-            this.isStopped = true;
-            this.initPlayer(this.currentIndex);
-          }
-          break;
-        default:
-          break;
+    console.log(filePathOrUrl);
+    if (this.player) {
+      this.player.stop();
+    }
+
+    this.player = new Howl({
+      src: [filePathOrUrl],
+      html5: true,
+
+
+      onloaderror: async (e) => {
+        //ERR_INTERNET_DISCONNECTED
+        await this.networkService.isConnected();
+        console.log('onloaderror')
+      },
+      onplayerror: () => {
+        console.log('onplayerror')
+      },
+      onplay: () => {
+        console.log('onPlay');
+        this.isPlaying = true;
+        this.duration = this.player.duration();
+        this.updateProgress();
+      },
+      onend: () => {
+        this.next(true);
+        console.log('onEnd');
+      },
+      onpause: () => {
+        console.log('onpause');
+      },
+      onstop: () => {
+        console.log('onstop');
+      },
+      onmute: () => {
+        console.log('onmute');
+      },
+      onvolume: () => {
+        console.log('onvolume');
+      },
+      onrate: () => {
+        console.log('onrate');
+      },
+      onseek: () => {
+        console.log('onseek');
+      },
+      onfade: () => {
+        console.log('onfade');
+      },
+      onunlock: () => {
+        console.log('onunlock');
       }
-      console.log(MEDIA_STATUS[status]);
-    }, (error) => console.log(error));
+    })
+    this.id = this.player.play();
+  }
 
-    this.file.play({ playAudioWhenScreenIsLocked: true });
-    this.isStopped = false;
+  togglePlayer(pause) {
+    this.isPlaying = !pause;
+    if (pause) {
+      this.player.pause();
+    } else {
+      if (this.currentIndex === -1) {
+        this.play(0, false);
+      } else {
+        this.player.play();
+      }
+    }
+  }
 
-    // get file duration
+  convertFileSrc(url) {
+    if (!url) {
+      return url;
+    }
+    if (url.indexOf('/') === 0) {
+      return this.win.WEBVIEW_SERVER_URL + '/_app_file_' + url;
+    }
+    if (url.indexOf('file://') === 0) {
+      return this.win.WEBVIEW_SERVER_URL + url.replace('file://', '/_app_file_');
+    }
+    if (url.indexOf('content://') === 0) {
+      return this.win.WEBVIEW_SERVER_URL + url.replace('content:/', '/_app_content_');
+    }
+    return url;
+  };
+
+  secondsToHms(d) {
+    if (!d) return '00:00';
+    d = Number(d);
+    var h = Math.floor(d / 3600);
+    var m = Math.floor(d % 3600 / 60);
+    var s = Math.floor(d % 3600 % 60);
+
+    var hDisplay = h > 0 ? h : "";
+    var mDisplay = (m < 10 ? '0' : '') + m;
+    var sDisplay = (s < 10 ? "0" : "") + s;
+    return (hDisplay ? hDisplay + ':' : '') + mDisplay + ':' + sDisplay;
+  }
+
+  seek() {
+    let newValue = +this.range.value;
+    let val = this.duration * (newValue) / 10000;
+    this.player.seek(val)
+  }
+
+  updateProgress() {
+    if (!this.id) return;
+    let seekTime = this.player.seek();
+    if (typeof seekTime === 'number') {
+      this.seekTime = seekTime;
+      this.progress.setValue((this.seekTime / this.duration) * 10000 || 0)
+    }
+
     setTimeout(() => {
-      let duration = this.file.getDuration();
-      console.log('duration: ' + duration);
-    }, 2000)
-
-    this.file.getCurrentPosition().then((position) => {
-      // console.log(position); 
-    });
-
-    this.file.onError.safeSubscribe(this, (error) => {
-      console.log(error);
-    });
-  }
-
-  pause() {
-    console.log('pause');
-    this.file.pause();
-    let duration = this.file.getDuration();
-    console.log(duration);
-    this.file.getCurrentPosition().then((position) => {
-      console.log(position);
-    });
-  }
-
-  stop(stop) {
-    this.stopAudio = stop;
-    if (!this.file) return;
-    //debugger;
-    this.file.stop();
-    this.file.release();
+      this.updateProgress()
+    }, 300)
   }
 
   prev() {
-
+    this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.playlist.length - 1;
+    this.play(this.currentIndex);
   }
-  next() {
 
+  next(stopInTheEnd = false) {
+    this.currentIndex = this.currentIndex + 1 >= this.playlist.length ? 0 : this.currentIndex + 1;
+    this.play(this.currentIndex, stopInTheEnd);
+  }
+
+
+  prevOld() {
+    this.currentIndex = this.currentIndex - 1 >= 0 ? this.currentIndex - 1 : this.playlist.length - 1;
+    this.play(this.currentIndex);
+    // console.log(this.currentIndex);
+  }
+
+  nextOld() {
+    this.currentIndex = this.currentIndex + 1 >= this.playlist.length ? 0 : this.currentIndex + 1;
+    this.play(this.currentIndex);
+    console.log(this.currentIndex);
+  }
+
+  musicControlSettings() {
+    this.musicControl.create({
+      track: 'Time is Running Out',		// optional, default : ''
+      artist: 'Muse',						// optional, default : ''
+      album: 'Absolution',     // optional, default: ''
+      cover: 'albums/absolution.jpg',		// optional, default : nothing
+      // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
+      //			 or a remote url ('http://...', 'https://...', 'ftp://...')
+      isPlaying: true,							// optional, default : true
+      dismissable: true,							// optional, default : false
+
+      // hide previous/next/close buttons:
+      hasPrev: false,		// show previous button, optional, default: true
+      hasNext: false,		// show next button, optional, default: true
+      hasClose: true,		// show close button, optional, default: false
+
+      // iOS only, optional
+
+      duration: 60, // optional, default: 0
+      elapsed: 10, // optional, default: 0
+      hasSkipForward: true, //optional, default: false. true value overrides hasNext.
+      hasSkipBackward: true, //optional, default: false. true value overrides hasPrev.
+      skipForwardInterval: 15, //optional. default: 0.
+      skipBackwardInterval: 15, //optional. default: 0.
+      hasScrubbing: false, //optional. default to false. Enable scrubbing from control center progress bar 
+
+      // Android only, optional
+      // text displayed in the status bar when the notification (and the ticker) are updated
+      ticker: 'Now playing "Time is Running Out"',
+      //All icons default to their built-in android equivalents
+      //The supplied drawable name, e.g. 'media_play', is the name of a drawable found under android/res/drawable* folders
+      playIcon: 'media_play',
+      pauseIcon: 'media_pause',
+      prevIcon: 'media_prev',
+      nextIcon: 'media_next',
+      closeIcon: 'media_close',
+      notificationIcon: 'notification'
+    });
+
+    // const onSuccess = (r) => {
+    //   console.log(r)
+    // }
+  }
+
+  private upload() {
+    if (!this.player) return;
+    this.player.unload();
   }
 
   ngOnDestroy() {
-    console.log('destroy player');
-    if (this.onSucessSubscribe$) {
-      this.onSucessSubscribe$.unsubscribe();
-    }
-    if (this.file) {
-      this.stop(true)
-    }
+    this.upload();
+    this.id = null;
   }
 
   ngOnInit() {
