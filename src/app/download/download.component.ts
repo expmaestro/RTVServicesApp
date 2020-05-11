@@ -1,10 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
-import { LoadingController, Platform, AlertController } from '@ionic/angular';
+import { LoadingController, Platform, AlertController, ToastController } from '@ionic/angular';
 import { PlayListModel } from '../services/data.service';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 @Component({
   selector: 'app-download',
@@ -17,16 +18,24 @@ export class DownloadComponent implements OnInit {
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject = this.fileTransfer.create();
   private loading: any;
-  constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController, 
-    private platform: Platform, private fileService: FilesService, private file: File, 
-    private alertController: AlertController,) { }
+  constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController,
+    private platform: Platform, private fileService: FilesService, private file: File,
+    private alertController: AlertController,
+    private toastController: ToastController,
+    public backgroundMode : BackgroundMode    
+    ) {
+
+  }
 
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        this.updateFileList();
+        this.backgroundMode.enable();
+        //this.updateFileList();        
       }
     });
+
+
   }
 
   updateFileList() {
@@ -36,7 +45,13 @@ export class DownloadComponent implements OnInit {
   }
 
   async download(playList = null) {
+    // var networkState = navigator.connection.type;
+    // console.log(networkState);
     this.needToDownloadFiles = playList ? playList : [...this.playlist]
+    // this.needToDownloadFiles = [{
+    //   src: 'http://speedtest.tis-dialog.ru/test10',
+    //   title: "big-file1"
+    // }]
     const download_retry = async (model, url: string, filePath: string, retryCount) => {
 
       for (let i = 0; i < retryCount; i++) {
@@ -54,7 +69,9 @@ export class DownloadComponent implements OnInit {
                 console.log("=======================error========================");
                 console.log("download error source " + error1.source);
                 console.log("download error target " + error1.target);
-                console.log("upload error code" + error1.code);
+                console.log("download error code: " + error1.code);
+                console.log("download exception: " + error1.exception);
+                console.log('download failed: ' + JSON.stringify(error1)); 
                 throw (error1);
               })
         } catch (err) {
@@ -73,13 +90,14 @@ export class DownloadComponent implements OnInit {
       while (this.needToDownloadFiles.length > 0) {
 
         this.loading = await this.loadingCtrl.create({
-          message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length + 1}</b> файлов`
+          message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length}</b> файлов`
         });
         await this.loading.present();
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.src;
+        // const fullUrl = currentDownloaded.src;
         const fileName = currentDownloaded.src.split('/');
-        const filePath = this.fileService.getPath(fileName.pop());
+        const filePath = this.fileService.getFullFilePath(fileName.pop());
 
         return await download_retry(currentDownloaded, fullUrl, filePath, 3)
           .then(async (t) => {
@@ -88,15 +106,29 @@ export class DownloadComponent implements OnInit {
           })
           .catch((e) => {
             console.log('popup');
+
+
             let textError = '';
             switch (e.code) {
-              case 1: textError = 'Файл не найден на сервере'; break; // FileTransferError.FILE_NOT_FOUND_ERR
+              case 1: textError = 'Файл не найден на сервере'; break; // FileTransferError.FILE_NOT_FOUND_ERR Сервер не доступен либо файл не найден на сервере
               case 2: textError = 'INVALID_URL_ERR'; break; // FileTransferError.INVALID_URL_ERR
-              case 3: textError = 'Нет соединения, или недостаточно места'; break; // FileTransferError.CONNECTION_ERR // inet or space
+              case 3:
+
+                if (e.exception && e.exception.includes('ENOSPC')) {
+                  textError = 'Недостаточно места';
+                } else
+                  if (e.exception && e.exception.includes('Unable to resolve')) {
+                    textError = 'Нет соединения с сервером';
+                    //Нет соединения, или недостаточно места
+                  } else if (e.exception && e.exception.includes('Connection reset by peer')) {
+                    textError = 'Сервер разорвал соединение';
+                  }
+
+                break; // FileTransferError.CONNECTION_ERR
               case 4: textError = 'ABORT_ERR'; break; // FileTransferError.ABORT_ERR
               case 5: textError = 'NOT_MODIFIED_ERR'; break;  // FileTransferError.NOT_MODIFIED_ERR
             }
-            this.downloadFileError(`Мы не можем скачать файл: <b>${currentDownloaded.title}</b> <br> Причина: <b>${textError}</b>`);
+            this.downloadFileError(`Не удается скачать файл: <b>${currentDownloaded.title}</b> <br> Причина: <b>${textError}</b>`);
           })
           .finally(() => this.loading.dismiss())
       }
@@ -115,25 +147,32 @@ export class DownloadComponent implements OnInit {
     this.file.removeRecursively(this.file.dataDirectory, this.fileService.getAudioFolder).then(
       async (entry) => {
         console.log("Successful cleared...");
-        this.updateFileList()
-        await this.loading.dismiss();
-
+        this.presentToast();
       },
       async (error) => {
         if (error.message === 'NOT_FOUND_ERR') {
-          alert('Already removed');
+          this.presentToast();
         }
         console.log(error);
+
+      }).finally(async () => {
         this.updateFileList()
         await this.loading.dismiss();
-      }).catch(c => console.log(c));
+      })
   }
 
+  private async presentToast() {
+    const toast = await this.toastController.create({
+      message: 'Медиа кэш очищен успешно.',
+      duration: 2000
+    });
+    toast.present();
+  }
 
 
   private async downloadFileError(message: string) {
     const alert = await this.alertController.create({
-      header: 'Ошибка!',
+      header: 'Ошибка',
       //subHeader: message,
       message: message,
       buttons: [
