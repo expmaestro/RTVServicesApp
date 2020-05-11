@@ -1,7 +1,8 @@
 {
   "name": "RTVServicesApp",
   "integrations": {
-    "cordova": {}
+    "cordova": {},
+    "capacitor": {}
   },
   "type": "angular"
 }

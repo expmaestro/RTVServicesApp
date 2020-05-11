@@ -3,11 +3,17 @@
   <component name="ChangeListManager">
     <list default="true" id="f6b295f2-1268-42a6-8e50-6962af2cc078" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ionic.config.json" beforeDir="false" afterPath="$PROJECT_DIR$/ionic.config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/app.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/login/login.page.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/login/login.page.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/login/login.page.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/login/login.page.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/environments/environment.prod.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/environments/environment.prod.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/environments/environment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/environments/environment.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/download/download.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/download/download.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/download/download.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/download/download.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/player/player.page.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/player/player.page.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/player/player.page.scss" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/player/player.page.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/player/player.page.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/player/player.page.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/services/files.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/files.service.ts" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -52,7 +58,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
