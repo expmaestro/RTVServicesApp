@@ -66,7 +66,7 @@ export class LoginPage implements OnInit {
 
   private async wrongPassword(message: string) {
     const alert = await this.alertController.create({
-      header: 'Ошибка!',
+      header: 'Ошибка',
       //subHeader: message,
       message: message,
       buttons: ['OK']
@@ -74,5 +74,7 @@ export class LoginPage implements OnInit {
 
     await alert.present();
   }
+
+ 
 
 }

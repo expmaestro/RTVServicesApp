@@ -14,7 +14,7 @@ import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
-import { MusicControls } from '@ionic-native/music-controls/ngx';
+//import { MusicControls } from '@ionic-native/music-controls/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 
 @NgModule({
@@ -31,7 +31,7 @@ import { HTTP } from '@ionic-native/http/ngx';
     FileTransfer,
     HTTP,
     File,
-    MusicControls,
+   // MusicControls,
     Network,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
