@@ -6,13 +6,14 @@ import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { BaseComponent } from '../services/base-component';
 
 @Component({
   selector: 'app-download',
   templateUrl: './download.component.html',
   styleUrls: ['./download.component.scss'],
 })
-export class DownloadComponent implements OnInit {
+export class DownloadComponent extends BaseComponent implements OnInit {
   @Input() public playlist;
   fileListInFolder = [];
   needToDownloadFiles: PlayListModel[] = [];
@@ -22,25 +23,21 @@ export class DownloadComponent implements OnInit {
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
     private toastController: ToastController,
-    public backgroundMode : BackgroundMode    
-    ) {
-
+    public backgroundMode: BackgroundMode
+  ) {
+    super();
   }
 
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
         this.backgroundMode.enable();
-        //this.updateFileList();        
+        //this.updateFileList();  
+
+        this.fileService.getFileList().safeSubscribe(this, (r) => {
+          this.fileListInFolder = r;
+        })
       }
-    });
-
-
-  }
-
-  updateFileList() {
-    this.fileService.getFileList().then((r) => {
-      this.fileListInFolder = r;
     });
   }
 
@@ -71,7 +68,7 @@ export class DownloadComponent implements OnInit {
                 console.log("download error target " + error1.target);
                 console.log("download error code: " + error1.code);
                 console.log("download exception: " + error1.exception);
-                console.log('download failed: ' + JSON.stringify(error1)); 
+                console.log('download failed: ' + JSON.stringify(error1));
                 throw (error1);
               })
         } catch (err) {
@@ -88,16 +85,13 @@ export class DownloadComponent implements OnInit {
 
     const downloadPlayLsit = async () => {
       while (this.needToDownloadFiles.length > 0) {
-
         this.loading = await this.loadingCtrl.create({
           message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length}</b> файлов`
         });
         await this.loading.present();
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.src;
-        // const fullUrl = currentDownloaded.src;
-        const fileName = currentDownloaded.src.split('/');
-        const filePath = this.fileService.getFullFilePath(fileName.pop());
+        const filePath = this.fileService.getFullFilePath(this.fileService.getFileNameFromSrc(currentDownloaded.src));
 
         return await download_retry(currentDownloaded, fullUrl, filePath, 3)
           .then(async (t) => {
@@ -106,8 +100,6 @@ export class DownloadComponent implements OnInit {
           })
           .catch((e) => {
             console.log('popup');
-
-
             let textError = '';
             switch (e.code) {
               case 1: textError = 'Файл не найден на сервере'; break; // FileTransferError.FILE_NOT_FOUND_ERR Сервер не доступен либо файл не найден на сервере
@@ -135,7 +127,7 @@ export class DownloadComponent implements OnInit {
     }
 
     await downloadPlayLsit()
-      .finally(() => this.updateFileList());
+      .finally(() => this.fileService.updateFiles());
   }
 
   async clear() {
@@ -156,7 +148,7 @@ export class DownloadComponent implements OnInit {
         console.log(error);
 
       }).finally(async () => {
-        this.updateFileList()
+        this.fileService.updateFiles();
         await this.loading.dismiss();
       })
   }
