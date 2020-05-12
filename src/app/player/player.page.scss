@@ -6,3 +6,15 @@ ion-content, ion-list, ion-item {
     // --background: var(--ion-color-dark);
     // --ion-background-color: var(--ion-color-dark)
 }
+
+.time-slider {
+    width: 100%; // !important;
+    // margin-left:5px;
+    // margin-right:5px;
+  }
+
+  ::ng-deep .disableAnimation *{
+    transition: none !important;
+   }
+
+  

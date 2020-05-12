@@ -5,6 +5,7 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { BaseComponent } from './services/base-component';
 import { NetworkService } from './services/network.service';
+import { FilesService } from './services/files.service';
 
 
 @Component({
@@ -18,7 +19,8 @@ export class AppComponent extends BaseComponent {
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private network: Network,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private filesService: FilesService,
   ) {
     super();
     this.initializeApp();
@@ -30,10 +32,19 @@ export class AppComponent extends BaseComponent {
 
     this.network.onDisconnect().safeSubscribe(this, s => setTimeout(() => {
       this.networkService.setState = false;
-      console.log('Network disconnected: ' + this.network.type) 
+      console.log('Network disconnected: ' + this.network.type)
       console.log(navigator.onLine);
     }, 0));
-    
+
+    this.platform.ready().then(() => {
+      if (
+        this.platform.is("android") ||
+        this.platform.is("ios")) {
+
+        this.filesService.updateFiles();
+      }
+    });
+
   }
 
   initializeApp() {

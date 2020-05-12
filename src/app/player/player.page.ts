@@ -6,7 +6,7 @@ import { Platform, LoadingController, AlertController, IonRange } from '@ionic/a
 import { FilesService } from '../services/files.service';
 import { BehaviorSubject, Subscription, from } from 'rxjs';
 import { BaseComponent } from '../services/base-component';
-import { MusicControls } from '@ionic-native/music-controls/ngx';
+//import { MusicControls } from '@ionic-native/music-controls/ngx';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from '../services/network.service';
 import { LoadingService } from '../services/loading.service';
@@ -24,12 +24,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   segments: UrlSegment[];
   secretName = new FormControl('');
   secretNameWarning: string = '';
-  isStopped = true;
   currentIndex = -1;
-  stopAudio = false;
-  duration = 0;
   seekTime = 0;
-  progress: FormControl = new FormControl('expmaestro');
+  progress = 0;
+  isUpdateProgress$ = new BehaviorSubject<boolean>(false);
+  duration = 1;
   private win: any = window;
   id = null;
   private platformReady = false;
@@ -43,14 +42,16 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     private loadingService: LoadingService,
     private fileService: FilesService,
     private changeRef: ChangeDetectorRef,
-    private musicControl: MusicControls,
+    // private musicControl: MusicControls,
     private networkService: NetworkService) {
     super();
     this.platform.ready().then(() => {
       if (
         this.platform.is("android") ||
         this.platform.is("ios")) {
-        // this.platformReady = true; //TODO: remove this
+
+        console.log('Pl ready')
+         this.platformReady = true; //TODO: remove this
       }
     });
   }
@@ -81,9 +82,13 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   }
 
   async play(index: number, stopInTheEnd: boolean = true) {
-    if (index > this.playlist.length - 1) return; //auto stop
+    if (index > this.playlist.length - 1) {
+      this.isPlaying = false;
+      return; //auto stop
+    }
     if (stopInTheEnd && index === 0) {
       this.currentIndex = -1;
+      this.isPlaying = false;
       return;
     }
 
@@ -94,7 +99,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.currentIndex = index;
     this.changeRef.detectChanges();
     const src = this.playlist[this.currentIndex].src;
-    const fileName = src.split('/').pop(); //duplicate
+    const fileName = this.fileService.getFileNameFromSrc(src);
     const fileExist = this.platformReady
       ? await this.fileService.fileExist(fileName)
       : false;
@@ -110,30 +115,33 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.player = new Howl({
       src: [filePathOrUrl],
       html5: true,
-
-
       onloaderror: async (e) => {
         //ERR_INTERNET_DISCONNECTED
         await this.networkService.isConnected();
         console.log('onloaderror')
       },
       onplayerror: () => {
-        console.log('onplayerror')
+        console.log('onplayerror');
+        this.isUpdateProgress$.next(false);
       },
       onplay: () => {
+        this.isUpdateProgress$.next(true);
         console.log('onPlay');
         this.isPlaying = true;
         this.duration = this.player.duration();
         this.updateProgress();
       },
       onend: () => {
+        this.isUpdateProgress$.next(false);
         this.next(true);
         console.log('onEnd');
       },
       onpause: () => {
+        this.isUpdateProgress$.next(false);
         console.log('onpause');
       },
       onstop: () => {
+        this.isUpdateProgress$.next(false);
         console.log('onstop');
       },
       onmute: () => {
@@ -188,7 +196,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   };
 
   secondsToHms(d) {
-    if (!d) return '00:00';
+    if (!d || d === 1) return '00:00';
     d = Number(d);
     var h = Math.floor(d / 3600);
     var m = Math.floor(d % 3600 / 60);
@@ -200,28 +208,37 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     return (hDisplay ? hDisplay + ':' : '') + mDisplay + ':' + sDisplay;
   }
 
-  seek() {
+  seek(type) {
+    console.log(type);
     let newValue = +this.range.value;
-    let val = this.duration * (newValue) / 10000;
-    this.player.seek(val)
+    this.player.seek(newValue);
   }
 
+  onSliderChangeEnd(change) {
+    this.player.seek(change.value);
+  }
+
+  timeOutId: any;
   updateProgress() {
+    console.log('upd');
     if (!this.id) return;
     let seekTime = this.player.seek();
-    if (typeof seekTime === 'number') {
-      this.seekTime = seekTime;
-      this.progress.setValue((this.seekTime / this.duration) * 10000 || 0)
-    }
+    if (typeof seekTime === 'number' && this.seekTime !== seekTime) {
 
-    setTimeout(() => {
+      this.seekTime = seekTime;
+      //  console.log(this.seekTime)
+      this.progress = this.seekTime || 0;
+      // this.progress2.next(this.seekTime || 0)
+    }
+    this.timeOutId = setTimeout(() => {
       this.updateProgress()
-    }, 300)
+    }, 200)
   }
 
   prev() {
+    // debugger;
     this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.playlist.length - 1;
-    this.play(this.currentIndex);
+    this.play(this.currentIndex, false);
   }
 
   next(stopInTheEnd = false) {
@@ -230,56 +247,44 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   }
 
 
-  prevOld() {
-    this.currentIndex = this.currentIndex - 1 >= 0 ? this.currentIndex - 1 : this.playlist.length - 1;
-    this.play(this.currentIndex);
-    // console.log(this.currentIndex);
-  }
-
-  nextOld() {
-    this.currentIndex = this.currentIndex + 1 >= this.playlist.length ? 0 : this.currentIndex + 1;
-    this.play(this.currentIndex);
-    console.log(this.currentIndex);
-  }
-
   musicControlSettings() {
-    this.musicControl.create({
-      track: 'Time is Running Out',		// optional, default : ''
-      artist: 'Muse',						// optional, default : ''
-      album: 'Absolution',     // optional, default: ''
-      cover: 'albums/absolution.jpg',		// optional, default : nothing
-      // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
-      //			 or a remote url ('http://...', 'https://...', 'ftp://...')
-      isPlaying: true,							// optional, default : true
-      dismissable: true,							// optional, default : false
+    // this.musicControl.create({
+    //   track: 'Time is Running Out',		// optional, default : ''
+    //   artist: 'Muse',						// optional, default : ''
+    //   album: 'Absolution',     // optional, default: ''
+    //   cover: 'albums/absolution.jpg',		// optional, default : nothing
+    //   // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
+    //   //			 or a remote url ('http://...', 'https://...', 'ftp://...')
+    //   isPlaying: true,							// optional, default : true
+    //   dismissable: true,							// optional, default : false
 
-      // hide previous/next/close buttons:
-      hasPrev: false,		// show previous button, optional, default: true
-      hasNext: false,		// show next button, optional, default: true
-      hasClose: true,		// show close button, optional, default: false
+    //   // hide previous/next/close buttons:
+    //   hasPrev: false,		// show previous button, optional, default: true
+    //   hasNext: false,		// show next button, optional, default: true
+    //   hasClose: true,		// show close button, optional, default: false
 
-      // iOS only, optional
+    //   // iOS only, optional
 
-      duration: 60, // optional, default: 0
-      elapsed: 10, // optional, default: 0
-      hasSkipForward: true, //optional, default: false. true value overrides hasNext.
-      hasSkipBackward: true, //optional, default: false. true value overrides hasPrev.
-      skipForwardInterval: 15, //optional. default: 0.
-      skipBackwardInterval: 15, //optional. default: 0.
-      hasScrubbing: false, //optional. default to false. Enable scrubbing from control center progress bar 
+    //   duration: 60, // optional, default: 0
+    //   elapsed: 10, // optional, default: 0
+    //   hasSkipForward: true, //optional, default: false. true value overrides hasNext.
+    //   hasSkipBackward: true, //optional, default: false. true value overrides hasPrev.
+    //   skipForwardInterval: 15, //optional. default: 0.
+    //   skipBackwardInterval: 15, //optional. default: 0.
+    //   hasScrubbing: false, //optional. default to false. Enable scrubbing from control center progress bar 
 
-      // Android only, optional
-      // text displayed in the status bar when the notification (and the ticker) are updated
-      ticker: 'Now playing "Time is Running Out"',
-      //All icons default to their built-in android equivalents
-      //The supplied drawable name, e.g. 'media_play', is the name of a drawable found under android/res/drawable* folders
-      playIcon: 'media_play',
-      pauseIcon: 'media_pause',
-      prevIcon: 'media_prev',
-      nextIcon: 'media_next',
-      closeIcon: 'media_close',
-      notificationIcon: 'notification'
-    });
+    //   // Android only, optional
+    //   // text displayed in the status bar when the notification (and the ticker) are updated
+    //   ticker: 'Now playing "Time is Running Out"',
+    //   //All icons default to their built-in android equivalents
+    //   //The supplied drawable name, e.g. 'media_play', is the name of a drawable found under android/res/drawable* folders
+    //   playIcon: 'media_play',
+    //   pauseIcon: 'media_pause',
+    //   prevIcon: 'media_prev',
+    //   nextIcon: 'media_next',
+    //   closeIcon: 'media_close',
+    //   notificationIcon: 'notification'
+    // });
 
     // const onSuccess = (r) => {
     //   console.log(r)
@@ -300,6 +305,20 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
       this.segments = segments;
       this.getPlayList();
+    });
+
+    this.isUpdateProgress$.safeSubscribe(this, (r) => {
+      if (!r) {
+        clearInterval(this.timeOutId);
+      }
+    });
+
+    this.fileService.getFileList().safeSubscribe(this, files => {
+      if (!files) return;
+      console.log(files)
+      this.playlist.forEach(f => {
+        f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.src));
+      });
     });
   }
 }

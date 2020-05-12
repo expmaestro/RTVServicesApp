@@ -65,22 +65,23 @@ export class DataService {
     }
 
     if (typeId === 100) {
-      const playlist = { title: "Скафандриальная гимнастика (утро)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_probuzhdenie.mp3" };
+      const playlist = {
+         title: "Скафандриальная гимнастика (утро)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_probuzhdenie.mp3", isDownload: false };
       return [playlist];
     }
 
     if (typeId === 200) {
-      const playlist = { title: "Скафандриальная гимнастика (вечер)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_podgotovka_ko_snu.mp3" };
+      const playlist = { title: "Скафандриальная гимнастика (вечер)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_podgotovka_ko_snu.mp3", isDownload: false };
       return [playlist];
     }
     if (typeId === 11) { // chargeEnergo
-      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3" }];
+      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3",  isDownload: false }];
     }
     if (typeId === 12) {//"chargeInformo") 
-      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3" }];
+      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3",  isDownload: false }];
     }
     if (typeId === 13) { // "chargeTime"
-      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3" }];
+      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3",  isDownload: false }];
     };
 
     return [];
@@ -1257,6 +1258,7 @@ export class CoordModel {
 export class PlayListModel {
   title: string;
   src: string;
+  isDownload: boolean;
 }
 
 

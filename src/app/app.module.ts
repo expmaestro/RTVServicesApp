@@ -16,12 +16,13 @@ import { Network } from '@ionic-native/network/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 //import { MusicControls } from '@ionic-native/music-controls/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
   imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, 
-    HttpClientModule, // why only here
+    HttpClientModule, BrowserAnimationsModule, // why only here
   ],
   providers: [
     StatusBar,

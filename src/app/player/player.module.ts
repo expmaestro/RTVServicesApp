@@ -5,6 +5,7 @@ import { IonicModule } from '@ionic/angular';
 import { PlayerPageRoutingModule } from './player-routing.module';
 import { PlayerPage } from './player.page';
 import { DownloadComponent } from '../download/download.component';
+import { MatSliderModule } from '@angular/material/slider';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { DownloadComponent } from '../download/download.component';
     ReactiveFormsModule,
     IonicModule,
     PlayerPageRoutingModule,
+    MatSliderModule
   ],
   declarations: [PlayerPage, DownloadComponent],
   providers: []

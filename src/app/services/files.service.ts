@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { File, FileReader, FileError, FileEntry } from '@ionic-native/file/ngx';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 
 @Injectable({
@@ -10,6 +11,7 @@ export class FilesService {
   constructor(private file: File) { }
 
   private audioFolder = 'audio';
+  public files$ = new BehaviorSubject<any>(null);
 
   get getAudioFolder(): string {
     return this.audioFolder;
@@ -19,7 +21,25 @@ export class FilesService {
     return this.file.dataDirectory + `${this.audioFolder}/` + fileName;
   }
 
-  getFileList() { //observable
+  getFileNameFromSrc(src): string {
+    if (!src) return '';
+    const fileName = src.split('/');
+    return fileName.pop();
+  }
+
+  public updateFiles() {
+    this.getFileListFromFolder().then((r) => {
+      this.files$.next(r);
+    });
+  }
+
+
+  public getFileList(): Observable<any> {
+    return this.files$.asObservable();
+  }
+
+  private getFileListFromFolder() { //observable
+    //debugger;
     return this.file.listDir(this.file.dataDirectory, this.audioFolder)
       .then((files) => {
         console.log(files.length);
@@ -46,9 +66,5 @@ export class FilesService {
       console.log('File does not exist');
       return false;
     });
-  }
-
-  needDonwload() {
-    return true;
   }
 }
