@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="services"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Profile</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="logout()">
+        <ion-icon (click)="logout();" name="exit-outline"></ion-icon>
+      </ion-button>
+
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <ion-list *ngIf="data">
+    <ion-item *ngIf="data.USER_FIO">
+      <ion-label>
+        <h2>{{ data.USER_FIO }}</h2>
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.lobr">
+      <ion-label>
+        {{ data.lobr.name}}: {{ data.lobr.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.matrix">
+      <ion-label>
+        {{ data.matrix.name}}: {{ data.matrix.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.oblik">
+      <ion-label>
+        {{ data.oblik.name}}: {{ data.oblik.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.obraz">
+      <ion-label>
+        {{ data.obraz.name}}: {{ data.obraz.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.rPosition">
+      <ion-label>
+        {{ data.rPosition.name}}: {{ data.rPosition.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.robl">
+      <ion-label>
+        {{ data.robl.name}}: {{ data.robl.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.softSignPosition">
+      <ion-label>
+        {{ data.softSignPosition.name}}: {{ data.softSignPosition.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.solidSignPosition">
+      <ion-label>
+        {{ data.solidSignPosition.name}}: {{ data.solidSignPosition.value}}
+      </ion-label>
+    </ion-item>
+
+    <ion-item *ngIf="data.stradasteya">
+      <ion-label>
+        {{ data.stradasteya.name}}: {{ data.stradasteya.value}}
+      </ion-label>
+    </ion-item>
+
+  </ion-list>
+</ion-content>
