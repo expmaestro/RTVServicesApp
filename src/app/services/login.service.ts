@@ -6,28 +6,18 @@ import { HTTP } from '@ionic-native/http/ngx';
 @Injectable({
   providedIn: 'root'
 })
+
 export class LoginService {
 
-  constructor(private http: HttpClient, private nativeHttp: HTTP) { }
+  constructor(private http: HttpClient) { }
 
-  login(login, password, data1) {
-    const data: any = new FormData();
-    // let options = new HttpOptions({ headers: headers, withCredentials: true });
-    //let headers = new HttpHeaders().append('Access-Control-Allow-Credentials', 'true');
-    data.append("login", login);
-    data.append("password", password);
-    let t = {
-      login: login,
-      password: password
-    }
-    return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=newToken `, data1 );
+  login(login, password) {
+    const requestPayloadData = JSON.stringify({ login: login, password: password });
+    return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=newToken`, requestPayloadData);
   }
 
-  loginByToken(token) {
-    const data: any = new FormData();
-    data.append("token", '111');
-    return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=newToken `, data);
+  getToken(token) {
+    return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=auth `, JSON.stringify({ token: token }));
   }
-  
- 
+
 }
