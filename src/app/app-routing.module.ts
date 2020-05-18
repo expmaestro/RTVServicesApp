@@ -6,7 +6,7 @@ import { ChoiceComponent } from './services-page/choice/choice.component';
 import { PlayerPage } from './player/player.page';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'services', pathMatch: 'full' },
   {
     path: 'login',
     loadChildren: () => import('./login/login.module').then(m => m.LoginPageModule)
@@ -56,7 +56,13 @@ const routes: Routes = [
         loadChildren: () => import('./player/player.module').then(m => m.PlayerPageModule),
       },
     ]
+  },
+  {
+    path: 'profile',
+    canActivate: [AuthGuardService],
+    loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
   }
+
 
   // {
   //   path: 'player',
