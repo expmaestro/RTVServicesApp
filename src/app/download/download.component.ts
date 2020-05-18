@@ -130,37 +130,6 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       .finally(() => this.fileService.updateFiles());
   }
 
-  async clear() {
-    console.log('clear')
-    this.loading = await this.loadingCtrl.create({
-      message: 'Пожалуйста подождите...'
-    });
-    await this.loading.present();
-    this.file.removeRecursively(this.file.dataDirectory, this.fileService.getAudioFolder).then(
-      async (entry) => {
-        console.log("Successful cleared...");
-        this.presentToast();
-      },
-      async (error) => {
-        if (error.message === 'NOT_FOUND_ERR') {
-          this.presentToast();
-        }
-        console.log(error);
-
-      }).finally(async () => {
-        this.fileService.updateFiles();
-        await this.loading.dismiss();
-      })
-  }
-
-  private async presentToast() {
-    const toast = await this.toastController.create({
-      message: 'Медиа кэш очищен успешно.',
-      duration: 2000
-    });
-    toast.present();
-  }
-
 
   private async downloadFileError(message: string) {
     const alert = await this.alertController.create({
