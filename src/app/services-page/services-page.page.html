@@ -4,12 +4,12 @@
     <ion-label color="primary">Озаригн</ion-label>
   </ion-item>
 
-  <div class="ion-text-center">
-    <ion-item lines="none" class="inline">
+  <div class="ion-text-center" >
+    <ion-item lines="none" class="inline" [routerLink]="['/profile']">
       <ion-avatar slot="start">
         <img src="assets/img/avatar.svg">
       </ion-avatar>
-      Василий Пупкин
+      <span *ngIf="data?.USER_FIO">{{ data.USER_FIO }} </span>
     </ion-item>
   </div>
 
