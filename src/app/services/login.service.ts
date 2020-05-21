@@ -16,8 +16,12 @@ export class LoginService {
     return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=newToken`, requestPayloadData);
   }
 
-  getToken(token) {
-    return this.http.post(environment.apiUrl + `/back/srv/mobile/user.php?action=auth `, JSON.stringify({ token: token }));
+  getRefreshToken(token) {
+    return this.http.post<any>(environment.apiUrl + `/back/srv/mobile/user.php?action=auth`, JSON.stringify({ token: token }));
   }
+
+  logout() {
+    return this.http.get(environment.apiUrl + `/back/srv/mobile/user.php?action=logout`);
+  } 
 
 }
