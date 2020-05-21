@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { SettingsService, Profile } from '../services/settings.service';
+import { SettingsService } from '../services/settings.service';
 import { LoginService } from '../services/login.service';
 import { NavController, ToastController, LoadingController, AlertController } from '@ionic/angular';
 import { File } from '@ionic-native/file/ngx';
 import { FilesService } from '../services/files.service';
 import { NetworkService } from '../services/network.service';
 import { BaseComponent } from '../services/base-component';
+import { Profile } from '../backend/interfaces';
 
 @Component({
   selector: 'app-profile',
@@ -20,13 +21,12 @@ export class ProfilePage extends BaseComponent implements OnInit {
     private file: File, private fileService: FilesService, private toastController: ToastController,
     private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController) {
     super();
-    this.settingsService.getProfileDataWithRequest();
+    this.settingsService.getUserData();
   }
 
   async logout() {
     let isConneted = await this.networkService.pingApiRequest();
     if (isConneted) {
-      //Вы уверены, что хотите выйти? Выйти \ Отмена
       this.logoutAlert('', 'Вы уверены, что хотите выйти?', true);
     } else {
       this.logoutAlert('Нет сети', 'Вы уверены, что хотите выйти?<br><br>Для того, чтобы авторизоваться заново потребуется подключение к сети', false);
@@ -36,7 +36,6 @@ export class ProfilePage extends BaseComponent implements OnInit {
   private async logoutAlert(header: string, message: string, needRequest: boolean) {
     const alert = await this.alertController.create({
       header: header,
-      //subHeader: message,
       message: message,
       buttons: [
         {
@@ -52,10 +51,12 @@ export class ProfilePage extends BaseComponent implements OnInit {
             if (needRequest) {
               this.loginService.logout().subscribe((r) => {
                 this.settingsService.authToken = null;
+                //TODO: clear storage
                 this.nav.navigateRoot('/login');
               });
             } else {
               this.settingsService.authToken = null;
+              //TODO: clear storage
               this.nav.navigateRoot('/login');
             }
           }
@@ -84,7 +85,6 @@ export class ProfilePage extends BaseComponent implements OnInit {
       async (error) => {
         if (error.message === 'NOT_FOUND_ERR') {
           // already cleared
-          // this.presentToast('Ошибка, попробуйте еще раз');
           this.presentToast('Медиа кэш очищен успешно.');
         }
         console.log(error);
@@ -123,7 +123,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
   ngOnInit() {
     // this.settingsService.getUserInfo().subscribe((r: any) => this.data = r.data);
-    this.settingsService.getProfileData.safeSubscribe(this, r => {
+    this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
       this.data = r;
       this.prepareData();
     });
@@ -147,8 +147,8 @@ export class ProfilePage extends BaseComponent implements OnInit {
   private getEnumId(type: string) {
     let obj = this.variants.data[type].enum;
     this.data[type].enumId = Object.keys(obj).find(x => this.data[type].value === obj[x]);
-    console.log(this.data[type].enumId);
   }
+
   public variants =
     {
       "data": {
@@ -501,9 +501,15 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
 }
 
-export class Test {
-  data: VariantsObj
+export class Services {
+  id: string;
+  name: string;
+  paid: boolean;
+  position: string;
+  products: Array<string>
 }
+
+
 export class VariantsObj {
   matrix: VariantsObjData;
   rPosition: VariantsObjData;

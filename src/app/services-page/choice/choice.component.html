@@ -14,7 +14,7 @@
       Items
     </ion-list-header>
    
-    <ion-item *ngFor="let item of model.Items" (click)="choice(item, model.Next)">
+    <ion-item button *ngFor="let item of model.Items" (click)="choice(item, model.Next)">
       <!-- <ion-avatar slot="start">
         <img src="https://img.icons8.com/flat_round/2x/play--v1.png">
       </ion-avatar> -->

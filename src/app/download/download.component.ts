@@ -5,7 +5,6 @@ import { PlayListModel } from '../services/data.service';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
-import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { BaseComponent } from '../services/base-component';
 
 @Component({
@@ -23,7 +22,6 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
     private toastController: ToastController,
-    public backgroundMode: BackgroundMode
   ) {
     super();
   }
@@ -31,7 +29,6 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        this.backgroundMode.enable();
         //this.updateFileList();  
 
         this.fileService.getFileList().safeSubscribe(this, (r) => {

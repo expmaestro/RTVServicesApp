@@ -6,6 +6,7 @@ import { Network } from '@ionic-native/network/ngx';
 import { BaseComponent } from './services/base-component';
 import { NetworkService } from './services/network.service';
 import { FilesService } from './services/files.service';
+import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 
 
 @Component({
@@ -21,8 +22,9 @@ export class AppComponent extends BaseComponent {
     private network: Network,
     private networkService: NetworkService,
     private filesService: FilesService,
+    public backgroundMode: BackgroundMode
   ) {
-    super();
+    super();    
     this.initializeApp();
     this.network.onConnect().safeSubscribe(this, s => setTimeout(() => {
       this.networkService.setState = true;
@@ -52,6 +54,7 @@ export class AppComponent extends BaseComponent {
       this.statusBar.styleLightContent();
       // this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.backgroundMode.enable();
     });
   }
 }

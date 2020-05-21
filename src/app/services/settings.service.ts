@@ -3,17 +3,27 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { BaseComponent } from './base-component';
-import { map, catchError } from "rxjs/operators";
+import { Services } from '../profile/profile.page';
+import { Profile } from '../backend/interfaces';
+import { UserSettingsService } from './user-settings.service';
 
 const RTVTokenStorageKey = "_RTVLongToken";
-const profileStorageKey = '_userName';
+const profileStorageKey = '_profileData';
+const servicesStorageKey = '_servicesData';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService extends BaseComponent {
-  userData$ = new BehaviorSubject(null);
-  constructor(private http: HttpClient) { super(); }
+  userData$ = new BehaviorSubject({});
+  services$ = new BehaviorSubject(Array<Services>());
+  constructor(private http: HttpClient, private userSettingsService:UserSettingsService) {
+    super();
+    let profile = localStorage.getItem(profileStorageKey);
+    this.userData$.next(profile ? JSON.parse(profile) : {});
+    let storageData = localStorage.getItem(servicesStorageKey);
+    this.services$.next(storageData ? JSON.parse(storageData) : []);
+  }
 
   IsLoggedIn(): Promise<boolean> {
     return new Promise(resolve => {
@@ -29,7 +39,20 @@ export class SettingsService extends BaseComponent {
     window.localStorage.setItem(RTVTokenStorageKey, token ? token : "");
   }
 
-  getUserInfo() {
+  servicesApi() {
+    return this.http.get(environment.apiUrl + `/back/srv/mobile/service.php?action=list`)
+  }
+
+  getServices() {
+    this.servicesApi().safeSubscribe(this, (r: any) => {
+      this.setServicesData = r.data;
+    },
+      (e) => {
+        // this.services$.next(this.getServicesDataFromCache);
+      });
+  }
+
+  userDataApi() {
     return this.http.get(environment.apiUrl + `/back/srv/mobile/user.php?action=profile`);
   }
 
@@ -37,26 +60,19 @@ export class SettingsService extends BaseComponent {
     let body = {};
     body[type] = enumId;
     return this.http.post<any>(environment.apiUrl + `/back/srv/mobile/user.php?action=profile`, JSON.stringify(body));
-  }
+  } 
 
-  get getUserDataFromStorage(): Profile {
-    let storageData = localStorage.getItem(profileStorageKey);
-
-    return JSON.parse(storageData);
-  }
-
-
-  get getProfileData() {
+  get getProfileDataAsync() {
     return this.userData$.asObservable();
   }
 
-  getProfileDataWithRequest() {
-    this.getUserInfo().safeSubscribe(this, (r: any) => {
+  getUserData() {
+    this.userDataApi().safeSubscribe(this, (r: any) => {
       this.setProfileData = r.data;
-    }, 
-    (e) => {
-      this.setProfileData = this.getUserDataFromStorage;
-    })
+    },
+      (e) => {
+        console.log(e);
+      });
   }
 
   set setProfileData(data: Profile) {
@@ -66,27 +82,15 @@ export class SettingsService extends BaseComponent {
     }
   }
 
-}
+  set setServicesData(data) {
+    window.localStorage.setItem(servicesStorageKey, data ? JSON.stringify(data) : "");
+    if (data) {
+      this.services$.next(data);
+    }
+  }
 
+  get getServicesDataAsync() {
+    return this.services$.asObservable();
+  } 
 
-export class Profile {
-  USER_FIO: string;
-  USER_ID: string;
-
-  matrix: CoordVal;
-  rPosition: CoordVal;
-  softSignPosition: CoordVal;
-  solidSignPosition: CoordVal;
-  obraz: CoordVal;
-  oblik: CoordVal;
-  lobr: CoordVal;
-  robl: CoordVal;
-  stradasteya: CoordVal;
-}
-
-export class CoordVal {
-  id: string;
-  name: string;
-  value: string;
-  enumId: string;
 }

@@ -8,23 +8,34 @@ import { StatusBar } from '@ionic-native/status-bar/ngx';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthGuardService } from './services/auth-guard.service';
 import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { Network } from '@ionic-native/network/ngx';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 //import { MusicControls } from '@ionic-native/music-controls/ngx';
+
 import { HTTP } from '@ionic-native/http/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { InterceptorService } from './services/interceptor.service';
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, 
-    HttpClientModule, BrowserAnimationsModule, // why only here
+  imports: [
+    BrowserModule,
+    IonicModule.forRoot(),
+    AppRoutingModule, 
+    HttpClientModule,
+    BrowserAnimationsModule,
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService,
+      multi: true
+    },
     StatusBar,
     SplashScreen,
     BackgroundMode,
@@ -32,7 +43,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     FileTransfer,
     HTTP,
     File,
-   // MusicControls,
+    //MusicControls,
     Network,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CoordBaseService } from './coord-base.service';
 import { BehaviorSubject } from 'rxjs';
+import { CoordsModel } from '../backend/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class DataService {
   constructor(private coordBaseService: CoordBaseService) {
   }
 
-  get getServices(): Array<ServiceModel> {
+  get getAllServices(): Array<ServiceModel> {
     return this.services;
   }
 
@@ -37,50 +38,55 @@ export class DataService {
     return [year, month, day].join('-');
   }
 
-  getPlayList(typeId: number, secretName: string, params: string[]): Array<PlayListModel> {
-    if (typeId === 1) { // Завод времен календарей
+  getServiceName(serviceId: number) {
+    let service = this.services.find(x => x.Id === serviceId);
+    return service ? service.Name : '';
+  }
+
+  getPlayList(serviceId: number, secretName: string, params: string[]): Array<PlayListModel> {
+    if (serviceId === 1) { // Завод времен календарей
       let dateFormat = this.formatDate();
       console.log(dateFormat);
       return this.getCalendar(dateFormat, params[0], params[1], this.coordinates)
     }
 
-    if (typeId === 10) // черпачек
+    if (serviceId === 10) // черпачек
     {
       return this.getScoop(params[0], params[1], this.coordinates);
     }
 
-    if (typeId === 2) { // Приближение к Ключевым координатам
+    if (serviceId === 2) { // Приближение к Ключевым координатам
       return this.getCoordKey(secretName, this.coordinates);
     }
 
-    if (typeId === 3) { // Приближение к Лучевым координатам
+    if (serviceId === 3) { // Приближение к Лучевым координатам
       return this.getCoordRay(this.coordinates);
     }
 
-    if (typeId === 4) { // Приближение к Основным координатам
+    if (serviceId === 4) { // Приближение к Основным координатам
 
       let r1: NameIdModel = this.getRadasteyaForCoordBase("Радастея")[params[1]];
       let z: NameIdModel = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
       return this.getCoordBase('voprosa.mp3__Страдастея Вопроса', r1.Url, z.Url);
     }
 
-    if (typeId === 100) {
+    if (serviceId === 5) {
       const playlist = {
          title: "Скафандриальная гимнастика (утро)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_probuzhdenie.mp3", isDownload: false };
       return [playlist];
     }
 
-    if (typeId === 200) {
+    if (serviceId === 7) {
       const playlist = { title: "Скафандриальная гимнастика (вечер)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_podgotovka_ko_snu.mp3", isDownload: false };
       return [playlist];
     }
-    if (typeId === 11) { // chargeEnergo
+    if (serviceId === 8) { // chargeEnergo
       return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3",  isDownload: false }];
     }
-    if (typeId === 12) {//"chargeInformo") 
+    if (serviceId === 9) {//"chargeInformo") 
       return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3",  isDownload: false }];
     }
-    if (typeId === 13) { // "chargeTime"
+    if (serviceId === 6) { // "chargeTime"
       return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3",  isDownload: false }];
     };
 
@@ -90,7 +96,9 @@ export class DataService {
   private services: Array<ServiceModel> = [
     {
       Name: 'Завод времен календарей',
-      Id: 1,
+      paid: false,
+      position: 1,
+      Id: 1, //+
       Next: {
         Items: [
           { Name: 'Белое время', Id: 0 },
@@ -109,7 +117,9 @@ export class DataService {
     },
     {
       Name: 'Черпачок',
-      Id: 10,
+      paid: false,
+      position: 2,
+      Id: 10, //+
       Next: {
         Items: [
           { Name: 'Ритмологичность', Id: 1 },
@@ -126,36 +136,26 @@ export class DataService {
           Next: null
         }
       }
-    },
-
-    {
-      Name: 'ЭнергозаряД +',
-      Id: 11, // unknown 
-      Next: null
-    },
-    {
-      Name: 'ИнформозаряД + ',
-      Id: 12, // unknown 
-      Next: null
-    },
-    {
-      Name: 'Времени заряД +',
-      Id: 13, // unknown 
-      Next: null
-    },
+    },    
     {
       Name: 'Приближение к Ключевым координатам',
-      Id: 2,
+      paid: false,
+      position: 4,
+      Id: 2, // +
       Next: null, // unknown 
     },
     {
       Name: 'Приближение к Лучевым координатам',
-      Id: 3,
+      paid: false,
+      position: 5,
+      Id: 3, // +
       Next: null, // unknown 
     },
     {
       Name: 'Приближение к Основным координатам',
-      Id: 4,
+      paid: false,
+      position: 6,
+      Id: 4, // +
       Next: {
         Items: [
           { Name: 'Страдастея Вопроса', Id: 1, Url: 'voprosa.mp3__Страдастея Вопроса' },
@@ -173,14 +173,39 @@ export class DataService {
 
     {
       Name: 'Скафандриальная гимнастика (утро) +',
-      Id: 100,// unknown 
+      paid: false,
+      position: 7,
+      Id: 5,// unknown 
       Next: null
     },
     {
       Name: 'Скафандриальная гимнастика (вечер) +',
-      Id: 200,// unknown 
+      paid: false,
+      position: 7,
+      Id: 7,// unknown 
       Next: null 
-    }
+    },
+    {
+      Name: 'ЭнергозаряД +',
+      paid: false,
+      position: 8,
+      Id: 8, // + 
+      Next: null
+    },
+    {
+      Name: 'ИнформозаряД + ',
+      paid: false,
+      position: 10,
+      Id: 9, // + 
+      Next: null
+    },
+    {
+      Name: 'Времени заряД +',
+      paid: false,
+      position: 11,
+      Id: 6, // + 
+      Next: null
+    },
   ];
 
   private getRadasteyaForCoordBase(name): Array<NameIdModel> {
@@ -1212,6 +1237,8 @@ export class ServiceModel {
   public Id: number;
   public Name: string;
   public Next: NextModel;
+  public paid: boolean;
+  public position: number;
 }
 
 
@@ -1227,33 +1254,6 @@ export class NameIdModel {
   public Url?: string; ///
 }
 
-
-export class CoordsModel {
-  matrix: CoordModel;
-  obraz: CoordModel;
-  oblik: CoordModel;
-  lobr: CoordModel;
-  robl: CoordModel;
-  stradasteya: CoordModel;
-  radasteya: CoordModel;
-  zituord: CoordModel;
-  keyObraz: CoordModel;
-  keyOblik: CoordModel;
-  keyLobr: CoordModel;
-  keyRobl: CoordModel;
-  stradasteyaDistance: CoordModel;
-  radasteyaCanvas: CoordModel;
-  zituordCanvas: CoordModel;
-  stradasteyaOpposite: CoordModel;
-  stradasteyaOppositeDistance: CoordModel;
-  stradasteyaParam: CoordModel;
-}
-
-
-export class CoordModel {
-  name: string;
-  filename: string;
-}
 
 export class PlayListModel {
   title: string;

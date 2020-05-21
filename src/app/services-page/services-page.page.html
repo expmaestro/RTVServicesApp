@@ -4,31 +4,31 @@
     <ion-label color="primary">Озаригн</ion-label>
   </ion-item>
 
-  <div class="ion-text-center" >
+  <div class="ion-text-center">
     <ion-item lines="none" class="inline" [routerLink]="['/profile']">
       <ion-avatar slot="start">
         <img src="assets/img/avatar.svg">
       </ion-avatar>
-      <span *ngIf="data?.USER_FIO">{{ data.USER_FIO }} </span>
+      <span *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }} </span>
     </ion-item>
-  </div>
+  </div> 
 
-  <!-- <ion-card *ngFor="let service of services">
-    <ion-card-header (click)="next(service)">
-      <ion-card-title style="font-size: 14px;">
-        {{ service.Name }}
-      </ion-card-title>
-    </ion-card-header>
-  </ion-card> -->
+  <ion-list>
+    <ng-container *ngFor="let service of services">
+      <ion-item button *ngIf="service.paid" (click)="next(service)">
+        <ion-label>
+          <h2 style="font-size: 14px;">{{ service.Name }}</h2>
+        </ion-label>        
+      </ion-item>
+      <ion-item *ngIf="!service.paid">
+        <ion-label>
+          <h2 style="font-size: 14px;">{{ service.Name }}</h2>
+        </ion-label>
+        <ion-button href="{{apiUrl}}#personal=services&service={{service.Id}}&" fill="clear">
+          <ion-icon slot="icon-only" name="cart-outline" color="primary"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ng-container>
 
-  <ion-list>   
-   
-    <ion-item *ngFor="let service of services" (click)="next(service)" >     
-      <ion-label>
-        <h2  style="font-size: 14px;">{{ service.Name }}</h2>
-        
-      </ion-label>
-    </ion-item>
-    
   </ion-list>
 </ion-content>
