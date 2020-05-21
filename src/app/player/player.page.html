@@ -43,7 +43,7 @@
     <ion-row>
 
       <ion-col size="12" class="ion-text-center">
-        <ion-button fill="clear" [disabled]="currentIndex < 1" (click)="prevTrack()" color="light">
+        <ion-button fill="clear" [disabled]="disablePver()" (click)="prevTrack()" color="light">
           <ion-icon name="play-skip-back-outline"></ion-icon>
         </ion-button>
 
@@ -55,7 +55,7 @@
           <ion-icon slot="icon-only" name="pause"></ion-icon>
         </ion-button>
 
-        <ion-button fill="clear" [disabled]="currentIndex === playlist.length - 1" (click)="nextTrack()" color="light">
+        <ion-button fill="clear" [disabled]="disableNext()" (click)="nextTrack()" color="light">
           <ion-icon name="play-skip-forward-outline"></ion-icon>
         </ion-button>
       </ion-col>

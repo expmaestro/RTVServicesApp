@@ -257,13 +257,13 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   }
 
   prevTrack() {
-    if (this.currentIndex < 1) return; //btn disable too
+    if (this.disablePver()) return; //btn disable too
     this.currentIndex = this.currentIndex > 0 ? this.currentIndex - 1 : this.playlist.length - 1;
     this.play(this.currentIndex, false);
   }
 
   nextTrack(stopInTheEnd = false) {
-    if (!stopInTheEnd && this.currentIndex === this.playlist.length - 1) return; //btn disable too
+    if (!stopInTheEnd && this.disableNext()) return; //btn disable too
     this.currentIndex = this.currentIndex + 1 >= this.playlist.length ? 0 : this.currentIndex + 1;
     this.play(this.currentIndex, stopInTheEnd);
   }
@@ -414,6 +414,14 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.id = null;
   }
 
+  disablePver() {
+    return this.currentIndex < 1;
+  }
+
+  disableNext() {
+    return this.currentIndex === this.playlist.length - 1;
+  }
+
   ngOnInit() {
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
       this.segments = segments;
@@ -437,5 +445,8 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.src));
       });
     });
+
+
+    
   }
 }
