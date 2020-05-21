@@ -6,6 +6,7 @@ import { AlertController, LoadingController, NavController } from '@ionic/angula
 import { Router } from '@angular/router';
 import { BaseComponent } from '../services/base-component';
 import { SettingsService } from '../services/settings.service';
+import { NetworkService } from '../services/network.service';
 @Component({
     selector: 'app-login',
     templateUrl: './login.page.html',
@@ -25,7 +26,8 @@ export class LoginPage extends BaseComponent implements OnInit {
         private loadingCtrl: LoadingController,
         private route: Router,
         private nav: NavController,
-        private settingsService: SettingsService) {
+        private settingsService: SettingsService,
+        private networkService: NetworkService) {
         super();
     }
 
@@ -45,20 +47,11 @@ export class LoginPage extends BaseComponent implements OnInit {
                 this.settingsService.authToken = token;
                 console.log(token);
                 if (response.status === 'success') {
-                    this.loginService.getRefreshToken(token).safeSubscribe(this, async (r: any) => {
-                        if (r.status === 'success') {
-                            let sessionId = r.data.PHPSESSID;
-                            this.settingsService.refreshToken = sessionId;
-                            await this.loading.dismiss();
-                        } else {
-                            let er = r.errors.length > 0
-                                ? r.errors[0].message
-                                : 'Ошибка авторизации';
-                            await this.loading.dismiss();
-                            await this.showError(er);
-                        }
-                        console.log(r);
-                    });
+                    this.settingsService.userDataApi().safeSubscribe(this, (r: any) => {
+                        this.settingsService.setProfileData = r.data;
+                        this.nav.navigateRoot('/services');
+                    })
+
                 } else {
                     let error = response.errors.length > 0
                         ? response.errors[0].message
@@ -66,29 +59,13 @@ export class LoginPage extends BaseComponent implements OnInit {
                     await this.loading.dismiss();
                     await this.showError(error);
                 }
-                // console.log(x.get('Set-Cookie'))
-                // let d = x.replace(/'/g, '"');
-
-                // var parsed = JSON.parse(d);
-                // console.log(parsed);
-                // console.log(parsed.AUTHORIZED)
-                // if (parsed.AUTHORIZED) {
-                // this.loginService.init().subscribe(x => {
-                //   console.log(x);
-                // },
-                //    (err) => {
-                //     await this.loading.dismiss();
-                //     console.log(err);
-                //   });
-                // } else {
-                //   this.wrongPassword(parsed.MESSAGE);
-                // }
                 await this.loading.dismiss();
                 // this.route.navigate(['/services']);
-                // this.nav.navigateRoot('/services');
+
             }, async (error) => {
                 console.log(error);
                 await this.loading.dismiss();
+                await this.networkService.isConnected();
             });
     }
 
@@ -103,6 +80,6 @@ export class LoginPage extends BaseComponent implements OnInit {
         await alert.present();
     }
 
-
+    //{"status":"error","data":[],"errors":[{"message":"Not Authorized","code":0,"customData":null}]}
 
 }
