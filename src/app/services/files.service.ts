@@ -63,7 +63,7 @@ export class FilesService {
       return true;
 
     }, (error: FileError) => {
-      console.log('File does not exist');
+      //console.log('File does not exist');
       return false;
     });
   }
