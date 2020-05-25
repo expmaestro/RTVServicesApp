@@ -60,8 +60,6 @@ export class PlayerPage extends BaseComponent implements OnInit {
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
       this.segments = segments;
       this.getPlayList();
-      let key = segments.map((x) => Number(x.path));
-      //this.musicControlService.playlistKey$.next(key.join('-'));
       this.musicControlService.currentIndex$.safeSubscribe(this, (index) => {
         this.currentIndex = index;
       });
