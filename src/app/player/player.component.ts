@@ -163,7 +163,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     if (pause) {
       this.player.pause();
     } else {
-     // this.play(0, false);
+      // this.play(0, false);
       if (this.musicControlService.currentIndex$.value === -1) {
         this.play(0, false);
       } else {
@@ -400,22 +400,10 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     this.musicControlService.getPlaylist.safeSubscribe(this, (playlist) => {
       this.newPlayList = playlist;
 
-
       let playlistAreSame = this.currentPlaylist.length > 0 ?
         JSON.stringify(this.newPlayList.map(s => s.src)) === JSON.stringify(this.currentPlaylist.map(s => s.src))
         : true;
-        console.log(playlistAreSame);
       this.musicControlService.playlistAreSame$.next(playlistAreSame);
-      if (!playlistAreSame) {
-
-        this.fileService.getFileList().safeSubscribe(this, files => {
-          if (!files) return;
-          this.newPlayList.forEach(f => {
-            f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.src));
-          });
-        });
-      }
-
     })
 
     this.isUpdateProgress$.safeSubscribe(this, (r) => {

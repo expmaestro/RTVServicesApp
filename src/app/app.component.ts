@@ -55,6 +55,13 @@ export class AppComponent extends BaseComponent {
       // this.statusBar.styleDefault();
       this.splashScreen.hide();
       this.backgroundMode.enable();
+      this.backButtonEvent();
     });
+  }
+
+  backButtonEvent() {
+    this.platform.backButton.safeSubscribe(this, r => {
+     // navigator["app"].exitApp();
+    })
   }
 }

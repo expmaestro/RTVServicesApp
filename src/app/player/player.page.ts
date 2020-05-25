@@ -4,6 +4,7 @@ import { MusicControlService } from '../services/music-control.service';
 import { PlayListModel, DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormControl } from '@angular/forms';
+import { FilesService } from '../services/files.service';
 
 @Component({
   selector: 'app-player',
@@ -20,7 +21,7 @@ export class PlayerPage extends BaseComponent implements OnInit {
   playlistAreSame: boolean;
 
   constructor(private musicControlService: MusicControlService, private activatedRoute: ActivatedRoute,
-    private dataService: DataService, ) {
+    private dataService: DataService, private fileService: FilesService) {
     super()
   }
 
@@ -46,6 +47,12 @@ export class PlayerPage extends BaseComponent implements OnInit {
       let params = this.segments.filter((param, index) => index > 0).map((x) => x.path);
       this.playlist = this.dataService.getPlayList(this.typeId, this.secretName.value, params);
       this.musicControlService.playlist$.next(this.playlist);
+      this.fileService.getFileList().safeSubscribe(this, files => {
+        if (!files) return;
+        this.playlist.forEach(f => {
+          f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.src));
+        });
+      });
       this.musicControlService.sectionName$.next(this.dataService.getServiceName(Number(this.segments.length > 0 ? this.segments[0].path : 0)));
       console.log(this.playlist);
     }
