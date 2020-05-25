@@ -12,6 +12,7 @@ export class ChoiceComponent implements OnInit {
   model: NextModel = { Items: [], Next: null };
   id: number;
   params?: Array<number> = [];
+  subSectionName: string;
   constructor(private nav: NavController, private router: Router, private activatedRoute: ActivatedRoute, private dataService: DataService) { }
 
   choice(item: any, next: NextModel) {
@@ -29,6 +30,7 @@ export class ChoiceComponent implements OnInit {
       this.id = Number(segments[0].path);
       this.params = segments.filter((f, i) => i > 0).map((x) => Number(x.path));
       this.model = this.dataService.getItems(this.id, this.params);
+      this.subSectionName = this.dataService.getSubServiceName(this.id, this.params);
     });
   }
 }

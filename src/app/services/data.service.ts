@@ -43,6 +43,26 @@ export class DataService {
     return service ? service.Name : '';
   }
 
+  getSubServiceName(serviceId: number, params: number[]) {   
+    let services = this.services.find(x => x.Id === serviceId);
+    let name = services.Name;
+    if (params.length === 0) return name;
+  
+    let next: NextModel;
+   // let last = params.pop();
+    params.forEach(el => {
+      if (!next) {
+        next = services.Next;
+      } else
+      {
+        next = next.Next;
+
+      }
+    });
+    return next.Items.find(f => f.Id === params[params.length - 1]).Name;
+  //  return next.Items.find(f => f.Id === last).Name;
+  }
+
   getPlayList(serviceId: number, secretName: string, params: string[]): Array<PlayListModel> {
     if (serviceId === 1) { // Завод времен календарей
       let dateFormat = this.formatDate();
@@ -72,7 +92,8 @@ export class DataService {
 
     if (serviceId === 5) {
       const playlist = {
-         title: "Скафандриальная гимнастика (утро)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_probuzhdenie.mp3", isDownload: false };
+        title: "Скафандриальная гимнастика (утро)", src: "/ngenix/audio/Skafandrialnaya_gimnastika_probuzhdenie.mp3", isDownload: false
+      };
       return [playlist];
     }
 
@@ -81,13 +102,13 @@ export class DataService {
       return [playlist];
     }
     if (serviceId === 8) { // chargeEnergo
-      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3",  isDownload: false }];
+      return [{ title: "ЭнергозаряД", src: "/ngenix/audio/Energozaryad.mp3", isDownload: false }];
     }
     if (serviceId === 9) {//"chargeInformo") 
-      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3",  isDownload: false }];
+      return [{ title: "ИнформозаряД", src: "/ngenix/audio/informozaryad.mp3", isDownload: false }];
     }
     if (serviceId === 6) { // "chargeTime"
-      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3",  isDownload: false }];
+      return [{ title: "Времени заряД", src: "/ngenix/audio/timezaryad.mp3", isDownload: false }];
     };
 
     return [];
@@ -136,7 +157,7 @@ export class DataService {
           Next: null
         }
       }
-    },    
+    },
     {
       Name: 'Приближение к Ключевым координатам',
       paid: false,
@@ -183,7 +204,7 @@ export class DataService {
       paid: false,
       position: 7,
       Id: 7,// unknown 
-      Next: null 
+      Next: null
     },
     {
       Name: 'ЭнергозаряД +',

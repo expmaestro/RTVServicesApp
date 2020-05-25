@@ -19,6 +19,7 @@ import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InterceptorService } from './services/interceptor.service';
+import { LayoutPagePageModule } from './layout-page/layout-page.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -29,6 +30,7 @@ import { InterceptorService } from './services/interceptor.service';
     AppRoutingModule, 
     HttpClientModule,
     BrowserAnimationsModule,
+    LayoutPagePageModule
   ],
   providers: [
     {

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="services"></ion-back-button>
     </ion-buttons>
-    <ion-title>Player</ion-title>
+    <ion-title>Плейлист</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -11,7 +11,7 @@
 
   <app-download [playlist]="playlist"></app-download>
 
-  <ion-list>
+  <ion-list> 
     <ng-container *ngIf="typeId === 2">
       <ion-item lines="none">
         <ion-input type="text" placeholder="Сокровенное имя" [formControl]="secretName"></ion-input>
@@ -22,71 +22,11 @@
       </ion-item>
     </ng-container>
 
-    <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index, false)">
-      <!-- <ion-avatar slot="start">
-        <img src="https://img.icons8.com/flat_round/2x/play--v1.png" (click)="play(music)">
-      </ion-avatar> -->
-
-      <ion-label [color]="index === currentIndex ? 'primary' : 'ligth'">
+    <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index)"> 
+      <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
         <h2>{{ index + 1 }}. {{ music.title }}</h2>
       </ion-label>
       <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
     </ion-item>    
   </ion-list>
-
-
 </ion-content>
-
-
-<ion-footer class="ion-no-border">
-  <ion-toolbar color="dark">
-    <ion-row>
-
-      <ion-col size="12" class="ion-text-center">
-        <ion-button fill="clear" [disabled]="disablePver()" (click)="prevTrack()" color="light">
-          <ion-icon name="play-skip-back-outline"></ion-icon>
-        </ion-button>
-
-        <ion-button fill="clear" (click)="togglePlayer(false)" *ngIf="!(isPlaying$ | async)" color="light">
-          <ion-icon slot="icon-only" name="play"></ion-icon>
-        </ion-button>
-
-        <ion-button fill="clear" (click)="togglePlayer(true)" *ngIf="isPlaying$ | async" color="light">
-          <ion-icon slot="icon-only" name="pause"></ion-icon>
-        </ion-button>
-
-        <ion-button fill="clear" [disabled]="disableNext()" (click)="nextTrack()" color="light">
-          <ion-icon name="play-skip-forward-outline"></ion-icon>
-        </ion-button>
-      </ion-col>
-
-      <!-- <ion-col size="12">
-        <ion-range #range [formControl]="progress" min="0" step="1" [max]="duration" color="success"
-          (touchend)="seek('touchend')" (mouseup)="seek('mouseup')">
-        </ion-range>
-      </ion-col> -->
-
-      <ion-col size="12">
-        <mat-slider class="time-slider"  
-         color="primary"  [min]="0" [max]="duration" step="1" [value]="progress"
-          (input)="onSliderChangeEnd($event)"
-          [disabled]="currentIndex === -1"
-         ></mat-slider>
-      </ion-col>
-      
-      <ion-col size="6" class="ion-text-left" style="font-size: 10px;">
-        {{secondsToHms(seekTime)}}
-      </ion-col>
-      <ion-col size="6" class="ion-text-right" style="font-size: 10px;">
-        {{secondsToHms(duration)}}
-      </ion-col>
-    </ion-row>
-  </ion-toolbar>
-</ion-footer>
-
-<!-- <ion-footer>
-  <ion-toolbar>
-    <ion-title>Footer</ion-title>
-    
-  </ion-toolbar>
-</ion-footer> -->
