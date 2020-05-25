@@ -1,9 +1,13 @@
 <ion-footer class="ion-no-border" *ngIf="currentPlaylist.length > 0">
-  <ion-toolbar color="dark">
-
-    <ion-row style="height: 135px;">
-
-      <ion-col size="12" class="ion-text-center">
+  <ion-toolbar color="dark">    
+    <ion-row>
+      <ion-col size="12" style="padding-bottom: 0;">
+        <span>{{ sectionName }}</span>
+      </ion-col>
+      <ion-col size="6" style="padding-top: 0;">
+        <ion-note>{{ trackName }}</ion-note>
+      </ion-col>
+      <ion-col size="6" class="ion-text-center" style="padding-top: 0;">
         <ion-button fill="clear" [disabled]="disablePrev()" (click)="prevTrack()" color="light">
           <ion-icon name="play-skip-back-outline"></ion-icon>
         </ion-button>
@@ -19,9 +23,9 @@
         <ion-button fill="clear" [disabled]="disableNext()" (click)="nextTrack()" color="light">
           <ion-icon name="play-skip-forward-outline"></ion-icon>
         </ion-button>
-      </ion-col> 
+      </ion-col>
 
-      <ion-col size="12">
+      <ion-col size="12" style="padding-top: 0;">
         <mat-slider class="time-slider" color="primary" [min]="0" [max]="duration" step="1" [value]="progress"
           (input)="onSliderChangeEnd($event)" [disabled]="currentIndex === -1"></mat-slider>
       </ion-col>

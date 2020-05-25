@@ -32,6 +32,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   private platformReady = false;
   private win: any = window;
   private sectionName = '';
+  private trackName = '';
   player: Howl = null;
 
   constructor(
@@ -111,7 +112,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         this.isUpdateProgress$.next(false);
       },
       onplay: () => {
-        this.musicControlSettings(this.sectionName);
+        this.musicControlSettings();
         MusicControls.updateIsPlaying(true);
         this.isUpdateProgress$.next(true);
         console.log('onPlay');
@@ -236,11 +237,12 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
 
-  musicControlSettings(serviceName: string) {
+  musicControlSettings() {
+    this.trackName = this.currentPlaylist[this.musicControlService.currentIndex$.value].title;
     MusicControls.create({
-      track: serviceName,		// optional, default : ''
-      artist: this.currentPlaylist[this.musicControlService.currentIndex$.value].title,// 'Muse',						// optional, default : ''
-      album: this.currentPlaylist[this.musicControlService.currentIndex$.value].title,     // optional, default: ''
+      track: this.sectionName,		// optional, default : ''
+      artist: this.trackName,// 'Muse',						// optional, default : ''
+      album: this.trackName,     // optional, default: ''
       cover: '',		// optional, default : nothing
       // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
       //			 or a remote url ('http://...', 'https://...', 'ftp://...')
