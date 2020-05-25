@@ -6,7 +6,6 @@ import { FilesService } from '../services/files.service';
 import { BehaviorSubject, Subscription, from } from 'rxjs';
 import { distinctUntilChanged, filter } from 'rxjs/operators';
 import { BaseComponent } from '../services/base-component';
-//import { MusicControls } from '@ionic-native/music-controls/ngx';
 import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from '../services/network.service';
