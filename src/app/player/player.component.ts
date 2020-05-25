@@ -23,7 +23,6 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   @ViewChild('range', { static: false }) range: IonRange;
   newPlayList: PlayListModel[] = [];
   currentPlaylist: PlayListModel[] = [];
-  // playlistKey = '';
   seekTime = 0;
   progress = 0;
   isUpdateProgress$ = new BehaviorSubject<boolean>(false);
