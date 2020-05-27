@@ -7,6 +7,8 @@ import { BaseComponent } from './services/base-component';
 import { NetworkService } from './services/network.service';
 import { FilesService } from './services/files.service';
 import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+import { AppMinimize } from '@ionic-native/app-minimize/ngx';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -22,10 +24,13 @@ export class AppComponent extends BaseComponent {
     private network: Network,
     private networkService: NetworkService,
     private filesService: FilesService,
-    public backgroundMode: BackgroundMode
+    private backgroundMode: BackgroundMode,
+    private appMinimize: AppMinimize,
+    private router: Router
   ) {
-    super();    
+    super();
     this.initializeApp();
+
     this.network.onConnect().safeSubscribe(this, s => setTimeout(() => {
       this.networkService.setState = true;
       console.log('Network connected: ' + this.network.type);
@@ -60,8 +65,10 @@ export class AppComponent extends BaseComponent {
   }
 
   backButtonEvent() {
-    this.platform.backButton.safeSubscribe(this, r => {
-     // navigator["app"].exitApp();
-    })
+    this.platform.backButton.safeSubscribe(this, () => {
+      if (this.router.url === '/services' || this.router.url === '/login') {
+        this.appMinimize.minimize();
+      }
+    });
   }
 }

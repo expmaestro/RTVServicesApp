@@ -20,6 +20,7 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InterceptorService } from './services/interceptor.service';
 import { LayoutPagePageModule } from './layout-page/layout-page.module';
+import { AppMinimize } from '@ionic-native/app-minimize/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -45,6 +46,7 @@ import { LayoutPagePageModule } from './layout-page/layout-page.module';
     FileTransfer,
     HTTP,
     File,
+    AppMinimize,
     //MusicControls,
     Network,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
