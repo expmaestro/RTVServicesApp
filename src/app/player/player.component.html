@@ -12,11 +12,11 @@
           <ion-icon name="play-skip-back-outline"></ion-icon>
         </ion-button>
 
-        <ion-button fill="clear" (click)="togglePlayer(false)" *ngIf="!(isPlaying$ | async)" color="light">
+        <ion-button fill="clear" (click)="play()" [disabled]="state?.error" *ngIf="!state?.playing" color="light">
           <ion-icon slot="icon-only" name="play"></ion-icon>
         </ion-button>
 
-        <ion-button fill="clear" (click)="togglePlayer(true)" *ngIf="isPlaying$ | async" color="light">
+        <ion-button fill="clear" (click)="pause()" *ngIf="state?.playing" color="light">
           <ion-icon slot="icon-only" name="pause"></ion-icon>
         </ion-button>
 
@@ -26,15 +26,17 @@
       </ion-col>
 
       <ion-col size="12" style="padding-top: 0;">
-        <mat-slider class="time-slider" color="primary" [min]="0" [max]="duration" step="1" [value]="progress"
-          (input)="onSliderChangeEnd($event)" [disabled]="currentIndex === -1"></mat-slider>
+        <mat-slider class="time-slider" color="primary" [min]="0" [max]="state?.duration" step="1" [value]="state?.currentTime"
+          (input)="onSliderChangeEnd($event)" 
+        
+          ></mat-slider>
       </ion-col>
 
       <ion-col size="6" class="ion-text-left" style="font-size: 10px;">
-        {{secondsToHms(seekTime)}}
+        {{ state?.readableCurrentTime }}
       </ion-col>
       <ion-col size="6" class="ion-text-right" style="font-size: 10px;">
-        {{secondsToHms(duration)}}
+        {{ state?.readableDuration }}
       </ion-col>
     </ion-row>
   </ion-toolbar>

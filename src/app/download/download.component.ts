@@ -14,7 +14,6 @@ import { BaseComponent } from '../services/base-component';
 })
 export class DownloadComponent extends BaseComponent implements OnInit {
   @Input() public playlist;
-  fileListInFolder = [];
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject = this.fileTransfer.create();
   private loading: any;
@@ -29,11 +28,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        //this.updateFileList();  
-
-        this.fileService.getFileList().safeSubscribe(this, (r) => {
-          this.fileListInFolder = r;
-        })
+        //this.updateFileList();          
       }
     });
   }

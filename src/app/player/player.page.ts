@@ -46,14 +46,14 @@ export class PlayerPage extends BaseComponent implements OnInit {
       this.typeId = Number(this.segments[0].path);
       let params = this.segments.filter((param, index) => index > 0).map((x) => x.path);
       this.playlist = this.dataService.getPlayList(this.typeId, this.secretName.value, params);
-      this.musicControlService.playlist$.next(this.playlist);
+      this.musicControlService.setPlayList = this.playlist;
       this.fileService.getFileList().safeSubscribe(this, files => {
         if (!files) return;
         this.playlist.forEach(f => {
           f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.src));
         });
       });
-      this.musicControlService.sectionName$.next(this.dataService.getServiceName(Number(this.segments.length > 0 ? this.segments[0].path : 0)));
+      this.musicControlService.setSectionName(this.dataService.getServiceName(Number(this.segments.length > 0 ? this.segments[0].path : 0)));
       console.log(this.playlist);
     }
   }
@@ -63,20 +63,16 @@ export class PlayerPage extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
-
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
       this.segments = segments;
       this.getPlayList();
-      this.musicControlService.currentIndex$.safeSubscribe(this, (index) => {
+      this.musicControlService.getCurrentIndex().safeSubscribe(this, (index) => {
         this.currentIndex = index;
       });
 
       this.musicControlService.playlistAreSame$.safeSubscribe(this, (same) => {
-        this.playlistAreSame = same
+        this.playlistAreSame = same;
       });
-
     });
   }
-
-
 }

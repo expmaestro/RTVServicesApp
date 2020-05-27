@@ -17,7 +17,7 @@ const servicesStorageKey = '_servicesData';
 export class SettingsService extends BaseComponent {
   userData$ = new BehaviorSubject({});
   services$ = new BehaviorSubject(Array<Services>());
-  constructor(private http: HttpClient, private userSettingsService:UserSettingsService) {
+  constructor(private http: HttpClient, private userSettingsService: UserSettingsService) {
     super();
     let profile = localStorage.getItem(profileStorageKey);
     this.userData$.next(profile ? JSON.parse(profile) : {});
@@ -46,10 +46,7 @@ export class SettingsService extends BaseComponent {
   getServices() {
     this.servicesApi().safeSubscribe(this, (r: any) => {
       this.setServicesData = r.data;
-    },
-      (e) => {
-        // this.services$.next(this.getServicesDataFromCache);
-      });
+    });
   }
 
   userDataApi() {
@@ -60,7 +57,7 @@ export class SettingsService extends BaseComponent {
     let body = {};
     body[type] = enumId;
     return this.http.post<any>(environment.apiUrl + `/back/srv/mobile/user.php?action=profile`, JSON.stringify(body));
-  } 
+  }
 
   get getProfileDataAsync() {
     return this.userData$.asObservable();
@@ -91,6 +88,6 @@ export class SettingsService extends BaseComponent {
 
   get getServicesDataAsync() {
     return this.services$.asObservable();
-  } 
+  }
 
 }
