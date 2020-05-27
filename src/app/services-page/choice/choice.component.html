@@ -1,12 +1,11 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar color="dark">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="services"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ subSectionName }}</ion-title>
   </ion-toolbar>
 </ion-header>
-
 
 <ion-content>
   <ion-list>
@@ -16,7 +15,7 @@
 
     <ion-item button *ngFor="let item of model.Items" (click)="choice(item, model.Next)">
       <ion-label>
-        <h2>{{ item.Name }}</h2>
+        {{ item.Name }}
       </ion-label>
     </ion-item>
 

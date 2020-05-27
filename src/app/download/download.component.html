@@ -4,6 +4,8 @@
   <ion-button (click)="download()">
     <ion-icon slot="start" name="download-outline"></ion-icon>
     Загрузить
-  </ion-button> 
-  
+  </ion-button>
+  <!-- if one file
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
+  <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
 </div>

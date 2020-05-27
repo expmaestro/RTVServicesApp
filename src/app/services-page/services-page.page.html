@@ -11,18 +11,18 @@
       </ion-avatar>
       <span *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }} </span>
     </ion-item>
-  </div> 
+  </div>
 
   <ion-list>
     <ng-container *ngFor="let service of services">
       <ion-item button *ngIf="service.paid" (click)="next(service)">
         <ion-label>
-          <h2 style="font-size: 14px;">{{ service.Name }}</h2>
-        </ion-label>        
+          {{ service.Name }}
+        </ion-label>
       </ion-item>
       <ion-item *ngIf="!service.paid">
         <ion-label>
-          <h2 style="font-size: 14px;">{{ service.Name }}</h2>
+          {{ service.Name }}
         </ion-label>
         <ion-button href="{{apiUrl}}#personal=services&service={{service.Id}}&" fill="clear">
           <ion-icon slot="icon-only" name="cart-outline" color="primary"></ion-icon>

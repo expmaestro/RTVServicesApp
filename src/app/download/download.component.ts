@@ -15,7 +15,8 @@ import { BaseComponent } from '../services/base-component';
 export class DownloadComponent extends BaseComponent implements OnInit {
   @Input() public playlist;
   needToDownloadFiles: PlayListModel[] = [];
-  fileTransferCreate: FileTransferObject = this.fileTransfer.create();
+  fileTransferCreate: FileTransferObject;
+  progress = 0;
   private loading: any;
   constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController,
     private platform: Platform, private fileService: FilesService, private file: File,
@@ -23,12 +24,14 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     private toastController: ToastController,
   ) {
     super();
+    
   }
 
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        //this.updateFileList();          
+        //this.updateFileList();     
+        this.fileTransferCreate = this.fileTransfer.create();    
       }
     });
   }
@@ -53,6 +56,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
               (entry) => {
                 console.log("Successful download: " + url);
                 //console.log("download complete: " + entry.toURL());
+                this.progress = Math.round(100 / this.playlist.length * (this.playlist.length + 1 - this.needToDownloadFiles.length));
                 this.loading.dismiss();
               }).catch((error1) => {
                 console.log("=======================error========================");
@@ -80,6 +84,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
         this.loading = await this.loadingCtrl.create({
           message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length}</b> файлов`
         });
+       
         await this.loading.present();
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.src;

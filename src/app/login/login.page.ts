@@ -16,8 +16,8 @@ export class LoginPage extends BaseComponent implements OnInit {
 
     private loading: any;
     public loginForm = new FormGroup({
-        login: new FormControl('expmaestro', [Validators.required]),
-        password: new FormControl('3M3AeGwK', [Validators.required]),
+        login: new FormControl(environment.userName, [Validators.required]),
+        password: new FormControl(environment.password, [Validators.required]),
     });
     apiUrl: any;
     constructor(

@@ -5,7 +5,9 @@
 export const environment = {
   apiUrl: 'https://rithm-time.tv',
   cdn: 'https://s64408.cdn.ngenix.net',
-  production: false
+  production: false,
+  userName: 'expmaestro',
+  password: '3M3AeGwK'
 };
 
 /*

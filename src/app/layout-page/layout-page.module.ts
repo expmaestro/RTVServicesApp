@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { LayoutPagePageRoutingModule } from './layout-page-routing.module';
 import { LayoutPagePage } from './layout-page.page';
 import { PlayerComponent } from '../player/player.component';
-import { MatSliderModule } from '@angular/material/slider';
+import { MaterialModule } from '../material.module';
 
 @NgModule({
   imports: [
@@ -15,7 +15,7 @@ import { MatSliderModule } from '@angular/material/slider';
     FormsModule,
     IonicModule,
     LayoutPagePageRoutingModule,
-    MatSliderModule
+    MaterialModule
   ],
   declarations: [
     LayoutPagePage,
