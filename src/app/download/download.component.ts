@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
 import { LoadingController, Platform, AlertController, ToastController } from '@ionic/angular';
-import { PlayListModel } from '../services/data.service';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
+import { PlayListModel } from '../backend/interfaces';
 
 @Component({
   selector: 'app-download',
@@ -24,14 +24,14 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     private toastController: ToastController,
   ) {
     super();
-    
+
   }
 
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
         //this.updateFileList();     
-        this.fileTransferCreate = this.fileTransfer.create();    
+        this.fileTransferCreate = this.fileTransfer.create();
       }
     });
   }
@@ -84,7 +84,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
         this.loading = await this.loadingCtrl.create({
           message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length}</b> файлов`
         });
-       
+
         await this.loading.present();
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.src;

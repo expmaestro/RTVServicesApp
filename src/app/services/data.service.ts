@@ -1,25 +1,26 @@
 import { Injectable } from '@angular/core';
 import { CoordBaseService } from './coord-base.service';
 import { BehaviorSubject } from 'rxjs';
-import { CoordsModel } from '../backend/interfaces';
+import { CoordsModel, ServiceModel, NextModel, PlayListModel, NameIdModel } from '../backend/interfaces';
+import { SettingsService } from './settings.service';
+import { BaseComponent } from './base-component';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DataService {
+export class DataService extends BaseComponent {
   coordBase = this.coordBaseService.coordBase;
-  constructor(private coordBaseService: CoordBaseService) {
-  }
-
-  get getAllServices(): Array<ServiceModel> {
-    return this.services;
+  services: Array<ServiceModel> = [];
+  constructor(private coordBaseService: CoordBaseService, private settings: SettingsService) {
+    super();
+    this.settings.getServicesDataAsync.safeSubscribe(this, d => this.services = d)
   }
 
   getItems(id: number, params: number[]): NextModel {
-    let data = this.services.find(f => f.Id === id);
-    let current = data.Next;
+    let data = this.services.find(f => Number(f.id) === id);
+    let current = data.next;
     params.forEach(element => {
-      current = current.Next;
+      current = current.next;
     });
     return current;
   }
@@ -39,28 +40,24 @@ export class DataService {
   }
 
   getServiceName(serviceId: number) {
-    let service = this.services.find(x => x.Id === serviceId);
-    return service ? service.Name : '';
+    let service = this.services.find(x => Number(x.id) === serviceId);
+    return service ? service.name : '';
   }
 
-  getSubServiceName(serviceId: number, params: number[]) {   
-    let services = this.services.find(x => x.Id === serviceId);
-    let name = services.Name;
+  getSubServiceName(serviceId: number, params: number[]) {
+    let services = this.services.find(x => Number(x.id) === serviceId);
+    let name = services.name;
     if (params.length === 0) return name;
-  
+
     let next: NextModel;
-   // let last = params.pop();
     params.forEach(el => {
       if (!next) {
-        next = services.Next;
-      } else
-      {
-        next = next.Next;
-
+        next = services.next;
+      } else {
+        next = next.next;
       }
     });
-    return next.Items.find(f => f.Id === params[params.length - 1]).Name;
-  //  return next.Items.find(f => f.Id === last).Name;
+    return next.items.find(f => f.id === params[params.length - 1]).name;
   }
 
   getPlayList(serviceId: number, secretName: string, params: string[]): Array<PlayListModel> {
@@ -85,9 +82,9 @@ export class DataService {
 
     if (serviceId === 4) { // Приближение к Основным координатам
 
-      let r1: NameIdModel = this.getRadasteyaForCoordBase("Радастея")[params[1]];
-      let z: NameIdModel = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
-      return this.getCoordBase('voprosa.mp3__Страдастея Вопроса', r1.Url, z.Url);
+      let r1: any = this.getRadasteyaForCoordBase("Радастея")[params[1]];
+      let z: any = this.getRadasteyaForCoordBase("Зитуорд")[params[2]];
+      return this.getCoordBase('voprosa.mp3__Страдастея Вопроса', r1.url, z.url);
     }
 
     if (serviceId === 5) {
@@ -114,127 +111,16 @@ export class DataService {
     return [];
   }
 
-  private services: Array<ServiceModel> = [
-    {
-      Name: 'Завод времен календарей',
-      paid: false,
-      position: 1,
-      Id: 1, //+
-      Next: {
-        Items: [
-          { Name: 'Белое время', Id: 0 },
-          { Name: 'Черное время', Id: 1 },
-          { Name: 'Серое время', Id: 2 },
-          { Name: 'Время Зари', Id: 3 },
-          { Name: 'Вертикальный календарь', Id: 4 },
-        ],
-        Next: {
-          Items: [
-            { Name: 'Личное', Id: 0 },
-            { Name: 'Общее', Id: 1 }],
-          Next: null
-        }
-      }
-    },
-    {
-      Name: 'Черпачок',
-      paid: false,
-      position: 2,
-      Id: 10, //+
-      Next: {
-        Items: [
-          { Name: 'Ритмологичность', Id: 1 },
-          { Name: 'Озарённость', Id: 2 },
-          { Name: 'Радастейность', Id: 3 },
-          { Name: 'Лучистость', Id: 4 },
-          { Name: 'Зитуордэнность', Id: 5 },
-          { Name: 'Радастовость', Id: 6 },
-        ],
-        Next: {
-          Items: [
-            { Name: 'Опускание', Id: 1 },
-            { Name: 'Поднятие', Id: 2 }],
-          Next: null
-        }
-      }
-    },
-    {
-      Name: 'Приближение к Ключевым координатам',
-      paid: false,
-      position: 4,
-      Id: 2, // +
-      Next: null, // unknown 
-    },
-    {
-      Name: 'Приближение к Лучевым координатам',
-      paid: false,
-      position: 5,
-      Id: 3, // +
-      Next: null, // unknown 
-    },
-    {
-      Name: 'Приближение к Основным координатам',
-      paid: false,
-      position: 6,
-      Id: 4, // +
-      Next: {
-        Items: [
-          { Name: 'Страдастея Вопроса', Id: 1, Url: 'voprosa.mp3__Страдастея Вопроса' },
-          { Name: 'Страдастея', Id: 2, Url: 'stradasteya.mp3__Страдастея' }
-        ],
-        Next: {
-          Items: this.getRadasteyaForCoordBase("Радастея"),
-          Next: {
-            Items: this.getRadasteyaForCoordBase("Зитуорд"),
-            Next: null
-          }
-        }
-      }
-    },
-
-    {
-      Name: 'Скафандриальная гимнастика (утро) +',
-      paid: false,
-      position: 7,
-      Id: 5,// unknown 
-      Next: null
-    },
-    {
-      Name: 'Скафандриальная гимнастика (вечер) +',
-      paid: false,
-      position: 7,
-      Id: 7,// unknown 
-      Next: null
-    },
-    {
-      Name: 'ЭнергозаряД +',
-      paid: false,
-      position: 8,
-      Id: 8, // + 
-      Next: null
-    },
-    {
-      Name: 'ИнформозаряД + ',
-      paid: false,
-      position: 10,
-      Id: 9, // + 
-      Next: null
-    },
-    {
-      Name: 'Времени заряД +',
-      paid: false,
-      position: 11,
-      Id: 6, // + 
-      Next: null
-    },
-  ];
-
   private getRadasteyaForCoordBase(name): Array<NameIdModel> {
-    let array: Array<NameIdModel> = [];
+    let array: Array<any> = [];
     let index = 0;
     for (var key in this.coordBase) {
       if (this.coordBase[key].name.indexOf(name) != -1) {
-        array.push({ Id: index, Name: this.coordBase[key].name, Url: this.coordBase[key].filename + "__" + this.coordBase[key].name });
+        array.push({
+          id: index,
+          name: this.coordBase[key].name,
+          url: this.coordBase[key].filename + "__" + this.coordBase[key].name
+        });
         index++;
       };
     };
@@ -1207,81 +1093,4 @@ export class DataService {
     }
   }
 
-  //========================== end время календарей=============================
-
-
-
-
-  //Тут если что соответствие ид товаров и сервисов
-  obj = {
-    catalog: [{
-      id: "1",
-      name: "Завод времен календарей",
-      product: ["226106", "226146", "226137", "226117"],
-      position: "1"
-    }, {
-      id: "10",
-      name: "Черпачок",
-      product: ["226162", "226152", "226158", "226185"],
-      position: "2"
-    }/*, {
-      id: "11",
-      name: "Полотна «Всё о времени»",
-      product: ["226195", "226193", "226203", "226223"],
-      position: "2"
-    }*/, {
-      id: "2",
-      name: "Приближение к Ключевым координатам",
-      product: ["55627"],
-      position: "4"
-    }, {
-      id: "3",
-      name: "Приближение к Лучевым координатам",
-      product: ["61927"],
-      position: "5"
-    }, {
-      id: "4",
-      name: "Приближение к Основным координатам",
-      product: ["62206"],
-      position: "6"
-    }],
-    services: [],
-    coord: []
-  };
 }
-
-
-
-
-
-export class ServiceModel {
-  public Id: number;
-  public Name: string;
-  public Next: NextModel;
-  public paid: boolean;
-  public position: number;
-}
-
-
-export class NextModel {
-  Items: Array<NameIdModel>;
-  Next: NextModel;
-}
-
-
-export class NameIdModel {
-  public Id: number;
-  public Name: string;
-  public Url?: string; ///
-}
-
-
-export class PlayListModel {
-  title: string;
-  src: string;
-  isDownload: boolean;
-}
-
-
-
-

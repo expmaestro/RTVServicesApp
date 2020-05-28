@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { Router, ActivatedRoute, UrlSegment } from '@angular/router';
-import { NextModel, DataService } from 'src/app/services/data.service';
+import { DataService } from 'src/app/services/data.service';
+import { NextModel, NameIdModel } from 'src/app/backend/interfaces';
 
 @Component({
   selector: 'app-choice',
@@ -9,14 +10,14 @@ import { NextModel, DataService } from 'src/app/services/data.service';
   styleUrls: ['./choice.component.scss'],
 })
 export class ChoiceComponent implements OnInit {
-  model: NextModel = { Items: [], Next: null };
+  model: NextModel = { items: [], next: null };
   id: number;
   params?: Array<number> = [];
   subSectionName: string;
   constructor(private nav: NavController, private router: Router, private activatedRoute: ActivatedRoute, private dataService: DataService) { }
 
-  choice(item: any, next: NextModel) {
-    this.params.push(item.Id);
+  choice(item: NameIdModel, next: NextModel) {
+    this.params.push(item.id);
     if (next) {
       this.router.navigate([`/services/${this.id}/${(this.params.join('/'))}`]);
     }

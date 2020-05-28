@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
-import { PlayListModel } from './data.service';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { PlayListModel } from '../backend/interfaces';
 
 @Injectable({
   providedIn: 'root'

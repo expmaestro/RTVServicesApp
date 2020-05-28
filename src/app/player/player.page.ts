@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, NgZone } from '@angular/core';
 import { BaseComponent } from '../services/base-component';
 import { MusicControlService } from '../services/music-control.service';
-import { PlayListModel, DataService } from '../services/data.service';
+import { DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { FilesService } from '../services/files.service';
+import { PlayListModel } from '../backend/interfaces';
 
 @Component({
   selector: 'app-player',

@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, NgZone, Input } from '@angular/core';
 
-import { DataService, PlayListModel } from '../services/data.service';
 import { Platform, } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
 import { BehaviorSubject, timer } from 'rxjs';
@@ -12,6 +11,7 @@ import { environment } from 'src/environments/environment';
 import { NetworkService } from '../services/network.service';
 //import { Howl } from 'howler';
 import { MusicControlService, StreamState } from '../services/music-control.service';
+import { PlayListModel } from '../backend/interfaces';
 
 @Component({
   selector: 'player',

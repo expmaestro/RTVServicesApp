@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { BaseComponent } from './base-component';
-import { Services } from '../profile/profile.page';
-import { Profile } from '../backend/interfaces';
+import { Profile, ServiceModel, } from '../backend/interfaces';
 import { UserSettingsService } from './user-settings.service';
 
 const RTVTokenStorageKey = "_RTVLongToken";
@@ -15,8 +14,8 @@ const servicesStorageKey = '_servicesData';
   providedIn: 'root'
 })
 export class SettingsService extends BaseComponent {
-  userData$ = new BehaviorSubject({});
-  services$ = new BehaviorSubject(Array<Services>());
+  private userData$ = new BehaviorSubject({});
+  private services$ = new BehaviorSubject(Array<ServiceModel>());
   constructor(private http: HttpClient, private userSettingsService: UserSettingsService) {
     super();
     let profile = localStorage.getItem(profileStorageKey);

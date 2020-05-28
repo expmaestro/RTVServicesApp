@@ -494,43 +494,6 @@ export class ProfilePage extends BaseComponent implements OnInit {
         }
       }
     }
-
-
-
-
-
 }
 
-export class Services {
-  id: string;
-  name: string;
-  paid: boolean;
-  position: string;
-  products: Array<string>
-}
-
-
-export class VariantsObj {
-  matrix: VariantsObjData;
-  rPosition: VariantsObjData;
-  softSignPosition: VariantsObjData;
-  solidSignPosition: VariantsObjData;
-  obraz: VariantsObjData;
-  oblik: VariantsObjData;
-  lobr: VariantsObjData;
-  robl: VariantsObjData;
-  stradasteya: VariantsObjData;
-}
-
-export class VariantsObjData {
-  name: string;
-  id: string;
-  enum: Array<KeyValuePair>
-}
-
-
-class KeyValuePair {
-  key: string;
-  value: string;
-}
 

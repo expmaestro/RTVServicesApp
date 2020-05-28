@@ -13,9 +13,9 @@
       Сделайте выбор:
     </ion-list-header>
 
-    <ion-item button *ngFor="let item of model.Items" (click)="choice(item, model.Next)">
+    <ion-item button *ngFor="let item of model.items" (click)="choice(item, model.next)">
       <ion-label>
-        {{ item.Name }}
+        {{ item.name }}
       </ion-label>
     </ion-item>
 

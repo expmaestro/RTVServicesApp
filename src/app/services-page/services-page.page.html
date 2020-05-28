@@ -17,14 +17,14 @@
     <ng-container *ngFor="let service of services">
       <ion-item button *ngIf="service.paid" (click)="next(service)">
         <ion-label>
-          {{ service.Name }}
+          {{ service.name }}
         </ion-label>
       </ion-item>
       <ion-item *ngIf="!service.paid">
         <ion-label>
-          {{ service.Name }}
+          {{ service.name }}
         </ion-label>
-        <ion-button href="{{apiUrl}}#personal=services&service={{service.Id}}&" fill="clear">
+        <ion-button href="{{apiUrl}}#personal=services&service={{service.id}}&" fill="clear">
           <ion-icon slot="icon-only" name="cart-outline" color="primary"></ion-icon>
         </ion-button>
       </ion-item>
