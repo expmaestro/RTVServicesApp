@@ -1,11 +1,12 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
-import { LoadingController, Platform, AlertController, ToastController } from '@ionic/angular';
+import { LoadingController, Platform, AlertController } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
 import { PlayListModel } from '../backend/interfaces';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-download',
@@ -13,18 +14,17 @@ import { PlayListModel } from '../backend/interfaces';
   styleUrls: ['./download.component.scss'],
 })
 export class DownloadComponent extends BaseComponent implements OnInit {
-  @Input() public playlist;
+  @Input() public playlist = [];
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
-  private loading: any;
   constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController,
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
-    private toastController: ToastController,
+    private zone: NgZone,
   ) {
     super();
-
+    console.log('donwload');
   }
 
   ngOnInit() {
@@ -32,11 +32,24 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       if (this.platform.is("android") || this.platform.is("ios")) {
         //this.updateFileList();     
         this.fileTransferCreate = this.fileTransfer.create();
+        if (this.playlist.length === 1) {
+          this.fileTransferCreate.onProgress(pr => {
+            this.zone.run(() => {
+              this.progress = Math.round(pr.loaded / pr.total * 100);
+            })
+
+          })
+        }
       }
     });
   }
 
   async download(playList = null) {
+    if (!playList) {
+      // this.isLoading = true;
+      this.progress = 0;
+    }
+
     // var networkState = navigator.connection.type;
     // console.log(networkState);
     this.needToDownloadFiles = playList ? playList : [...this.playlist]
@@ -47,7 +60,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     const download_retry = async (model, url: string, filePath: string, retryCount) => {
 
       for (let i = 0; i < retryCount; i++) {
-        const t = Math.floor(Math.random() * 2);
+        const t = Math.floor(Math.random() * 2); // Just for error test
         const url1 = url + (t > 0 ? '' : '');
         const filePath1 = filePath + (t > 0 ? '' : '');
         try {
@@ -57,35 +70,28 @@ export class DownloadComponent extends BaseComponent implements OnInit {
                 console.log("Successful download: " + url);
                 //console.log("download complete: " + entry.toURL());
                 this.progress = Math.round(100 / this.playlist.length * (this.playlist.length + 1 - this.needToDownloadFiles.length));
-                this.loading.dismiss();
-              }).catch((error1) => {
+              }).catch((error) => {
                 console.log("=======================error========================");
-                console.log("download error source " + error1.source);
-                console.log("download error target " + error1.target);
-                console.log("download error code: " + error1.code);
-                console.log("download exception: " + error1.exception);
-                console.log('download failed: ' + JSON.stringify(error1));
-                throw (error1);
+                console.log("download error source " + error.source);
+                console.log("download error target " + error.target);
+                console.log("download error code: " + error.code);
+                console.log("download exception: " + error.exception);
+                console.log('download failed: ' + JSON.stringify(error));
+                throw (error);
               })
-        } catch (err) {
+        } catch (error) {
           console.log(i);
           const isLastAttempt = i + 1 === retryCount;
           if (isLastAttempt) {
             console.log('sorry we can not downoload this file: ' + model.title);
-            throw err;
+            throw error;
           }
         }
-
       }
     };
 
     const downloadPlayLsit = async () => {
       while (this.needToDownloadFiles.length > 0) {
-        this.loading = await this.loadingCtrl.create({
-          message: `Пожалуйста подождите...<br>Скачанно <b>${this.playlist.length + 1 - this.needToDownloadFiles.length} из ${this.playlist.length}</b> файлов`
-        });
-
-        await this.loading.present();
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.src;
         const filePath = this.fileService.getFullFilePath(this.fileService.getFileNameFromSrc(currentDownloaded.src));
@@ -119,12 +125,18 @@ export class DownloadComponent extends BaseComponent implements OnInit {
             }
             this.downloadFileError(`Не удается скачать файл: <b>${currentDownloaded.title}</b> <br> Причина: <b>${textError}</b>`);
           })
-          .finally(() => this.loading.dismiss())
+          .finally(() => {
+            //this.loading.dismiss()
+          })
       }
     }
 
     await downloadPlayLsit()
-      .finally(() => this.fileService.updateFiles());
+      .finally(() => {
+        this.fileService.updateFiles();
+        // const source = timer(1000).safeSubscribe(this, () => this.isLoading = false);
+        //this.isLoading = false;
+      });
   }
 
 
@@ -140,6 +152,8 @@ export class DownloadComponent extends BaseComponent implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Confirm Cancel');
+            //this.isLoading = false;
+            this.needToDownloadFiles = [];
           }
         }, {
           text: 'Повторить',

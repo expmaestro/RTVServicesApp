@@ -5,7 +5,11 @@
     <ion-icon slot="start" name="download-outline"></ion-icon>
     Загрузить
   </ion-button>
-  <!-- if one file
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar> -->
-  <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+  <ion-list lines="none" *ngIf="needToDownloadFiles.length > 0">
+    <ion-item>
+      <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+    </ion-item>
+    Загрузка {{progress}}%
+  </ion-list>
+
 </div>
