@@ -24,8 +24,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   currentPlaylist: PlayListModel[] = [];
   isUpdateProgress$ = new BehaviorSubject<boolean>(false);
   private win: any = window;
-  private sectionName = '';
-  private trackName = '';
+  sectionName = '';
+  trackName = '';
   private stopPlaylistFlag = false;
 
   files: Array<any> = [];

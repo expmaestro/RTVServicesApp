@@ -59,7 +59,12 @@ export class AppComponent extends BaseComponent {
       this.statusBar.styleLightContent();
       // this.statusBar.styleDefault();
       this.splashScreen.hide();
+      this.backgroundMode.setDefaults({ silent: true });
       this.backgroundMode.enable();
+
+      this.backgroundMode.on('enable').subscribe(() => {
+        this.backgroundMode.disableWebViewOptimizations();
+      });
       this.backButtonEvent();
     });
   }
