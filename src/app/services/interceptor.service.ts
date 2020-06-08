@@ -112,5 +112,5 @@ export class InterceptorService implements HttpInterceptor {
 
 
 // er => {
-//   this.loginService.logount();
+//   this.loginService.logout();
 // }

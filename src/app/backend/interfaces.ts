@@ -1,4 +1,3 @@
-
 export class Profile {
   USER_FIO: string;
   USER_ID: string;
@@ -19,28 +18,6 @@ export class CoordVal {
   name: string;
   value: string;
   enumId: string;
-}
-
-
-export class CoordsModel {
-  matrix: CoordModel;
-  obraz: CoordModel;
-  oblik: CoordModel;
-  lobr: CoordModel;
-  robl: CoordModel;
-  stradasteya: CoordModel;
-  radasteya: CoordModel;
-  zituord: CoordModel;
-  keyObraz: CoordModel;
-  keyOblik: CoordModel;
-  keyLobr: CoordModel;
-  keyRobl: CoordModel;
-  stradasteyaDistance: CoordModel;
-  radasteyaCanvas: CoordModel;
-  zituordCanvas: CoordModel;
-  stradasteyaOpposite: CoordModel;
-  stradasteyaOppositeDistance: CoordModel;
-  stradasteyaParam: CoordModel;
 }
 
 export class CoordModel {
@@ -66,7 +43,6 @@ export class VariantsObjData {
   enum: Array<KeyValuePair>
 }
 
-
 class KeyValuePair {
   key: string;
   value: string;
@@ -75,11 +51,18 @@ class KeyValuePair {
 
 export class ServiceModel {
   id: number;
-  minutes_to_end: ""
+  minutes_to_end: string;
   name: string;
   next: NextModel | null;
   paid: boolean;
   position: number;
+  loadAll: true;
+}
+
+
+export class ServiceChoiceModel {
+  service: ServiceModel;
+  current: NextModel;
 }
 
 
@@ -94,12 +77,21 @@ export class NameIdModel {
   public name: string;
 }
 
-
-export class PlayListModel {
-  title: string;
-  src: string;
-  isDownload: boolean;
+export class ServicePlayListModel {
+  main: Array<PlayListModel>;
+  additional: any;
 }
 
+export class SectionPlayList {
+  playList: PlayListModel[];
+  sectionName: string;
+}
 
-
+export class PlayListModel {
+  id: string;
+  name: string;
+  path: string;
+  //type: string; // file or computed
+  isDownload: boolean;
+  condition: string; // "day", "month", "year","date", "dayMonth", "number"
+}

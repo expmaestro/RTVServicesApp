@@ -8,14 +8,17 @@ import { ServicesPagePageRoutingModule } from './services-page-routing.module';
 
 import { ServicesPagePage } from './services-page.page';
 import { ChoiceComponent } from './choice/choice.component';
+import { DownloadComponent } from '../download/download.component';
+import { MaterialModule } from '../material.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ServicesPagePageRoutingModule
+    ServicesPagePageRoutingModule,
+    MaterialModule
   ],
-  declarations: [ServicesPagePage, ChoiceComponent]
+  declarations: [ServicesPagePage, ChoiceComponent, DownloadComponent]
 })
 export class ServicesPagePageModule {}

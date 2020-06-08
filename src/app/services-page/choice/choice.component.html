@@ -8,16 +8,53 @@
 </ion-header>
 
 <ion-content>
+  <download *ngIf="service?.loadAll"  [playlist]="playlistToDownload"></download>
+
   <ion-list>
     <ion-list-header>
       Сделайте выбор:
     </ion-list-header>
-
-    <ion-item button *ngFor="let item of model.items" (click)="choice(item, model.next)">
-      <ion-label>
-        {{ item.name }}
-      </ion-label>
-    </ion-item>
-
+    <ng-container *ngIf="!isCalendar">
+      <ion-item button *ngFor="let item of model.items" (click)="choice(item, model.next)">
+        <ion-label>
+          {{ item.name }}
+        </ion-label>
+      </ion-item>
+    </ng-container>
   </ion-list>
+  <ng-container *ngIf="isCalendar">    
+
+    <div id="id__53_100" class="services-time-calendar__flipper-item services-time-calendar__flipper-item_active">
+      <div>
+        <div class="services-time-calendar__tablet" *ngIf="!isNextCalendarStep">
+          <div class="services-time-calendar__tablet-tile" (click)="choice(item, model.next)"
+            *ngFor="let item of model.items; let last = last" tabindex="1" data-id="0"> {{ item.name }}</div>
+          <!-- <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="1">Черное время</div>
+          <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="2">Серое время</div>
+          <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="3">Время Зари</div>
+          <div class="services-time-calendar__tablet-tile" tabindex="1" data-orientation="vertical" data-id="4">Вертикальный календарь</div> -->
+        </div>
+        <div id="id__53_94" *ngIf="isNextCalendarStep" class="services-time-calendar__tablet-popup services-time-calendar__tablet-popup_active"
+          style="">
+          <div id="id__53_95" class="services-time-calendar__flipper">
+            <div class="services-time-calendar__flipper-item">
+              <div class="services-time-calendar__tablet-content">
+                <div id="id__53_96">{{ subSectionName }}</div>
+                <div>
+                  <div id="id__53_97" class="services-time-calendar__tablet-button" (click)="choice(item, model.next)" *ngFor="let item of model.items; let last = last" data-id="0">{{ item.name }}
+                  </div>
+                  <!-- <div id="id__53_98" class="services-time-calendar__tablet-button" tabindex="1" data-id="1">Общее1</div> -->
+                </div>
+              </div>
+            </div>
+            <div id="id__53_99" class="services-time-calendar__flipper-item">test</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </ng-container>
+
+
 </ion-content>

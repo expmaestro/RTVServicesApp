@@ -9,10 +9,10 @@
 
 <ion-content>
 
-  <app-download [playlist]="playlist"></app-download>
+  <download [playlist]="playlistToDownload"></download>
 
   <ion-list>
-    <ng-container *ngIf="typeId === 2">
+    <ng-container *ngIf="service?.id == 3">
       <ion-item lines="none">
         <ion-input type="text" placeholder="Сокровенное имя" [formControl]="secretName"></ion-input>
         <ion-button (click)="setSecretName()" item-end class="ion-no-margin">Напитать</ion-button>
@@ -24,7 +24,7 @@
 
     <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index)">
       <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
-        {{ index + 1 }}. {{ music.title }}
+        {{ index + 1 }}. {{ music.name }}
       </ion-label>
       <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
     </ion-item>

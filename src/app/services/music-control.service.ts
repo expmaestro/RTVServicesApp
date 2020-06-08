@@ -1,33 +1,24 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
-import { PlayListModel } from '../backend/interfaces';
+import { SectionPlayList } from '../backend/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MusicControlService {
 
-  private playlist$ = new BehaviorSubject<PlayListModel[]>([]);
+  private playlist$ = new BehaviorSubject<SectionPlayList>({ playList: [], sectionName: '' });
   private currentIndex$ = new BehaviorSubject<number>(-1);
-  private sectionName$ = new BehaviorSubject<string>('');
   runTrack$ = new Subject<number>();
-  playlistAreSame$ = new BehaviorSubject<boolean>(true);
+  private playlistAreSame$ = new BehaviorSubject<boolean>(true);
 
   get getPlaylist() {
     return this.playlist$.asObservable();
   }
 
-  set setPlayList(value) {
-    this.playlist$.next(value);
-  }
-
-  getSectionName(): Observable<string> {
-    return this.sectionName$.asObservable();
-  }
-
-  setSectionName(val: string) {
-    this.sectionName$.next(val);
+  setPlayList(playList, sectionName) {
+    this.playlist$.next({ playList: playList, sectionName: sectionName });
   }
 
   get currentIndex() {
@@ -42,6 +33,9 @@ export class MusicControlService {
     return this.currentIndex$.asObservable();
   }
 
+  setPlaylistAreSame(val: boolean) {
+    this.playlistAreSame$.next(val);
+  }
 
   get playlistAreSame() {
     return this.playlistAreSame$.asObservable();
@@ -143,10 +137,8 @@ export class MusicControlService {
   }
 
   private updateStateEvents(event: Event): void {
-    window.localStorage.setItem('test', event.type);
-    // console.log(event.type)
+    //console.log(event.type)
     switch (event.type) {
-
       case 'durationchange':
         this.state.duration = this.audioObj.duration;
         this.state.readableDuration = this.formatTime(this.state.duration);

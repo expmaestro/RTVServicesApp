@@ -112,7 +112,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
   change(e, type) {
     console.log(e);
     console.log(e.target.value);
-    this.settingsService.updateUserCoord(type, e.target.value).subscribe((r) => {
+    this.settingsService.updateUserCoordApi(type, e.target.value).subscribe((r) => {
       this.settingsService.setProfileData = r.data;
       this.prepareData();
       this.presentToast('Данные успешно сохранены');
@@ -122,7 +122,6 @@ export class ProfilePage extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
-    // this.settingsService.getUserInfo().subscribe((r: any) => this.data = r.data);
     this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
       this.data = r;
       this.prepareData();

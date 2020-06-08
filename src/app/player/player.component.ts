@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, NgZone, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input } from '@angular/core';
 
 import { Platform, } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
@@ -9,9 +9,8 @@ import { BaseComponent } from '../services/base-component';
 import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from '../services/network.service';
-//import { Howl } from 'howler';
 import { MusicControlService, StreamState } from '../services/music-control.service';
-import { PlayListModel } from '../backend/interfaces';
+import { PlayListModel, SectionPlayList } from '../backend/interfaces';
 
 @Component({
   selector: 'player',
@@ -20,22 +19,22 @@ import { PlayListModel } from '../backend/interfaces';
 })
 export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy {
 
-  newPlayList: PlayListModel[] = [];
+  sectionPlayList: SectionPlayList = {
+    playList: [],
+    sectionName: ''
+  };
   currentPlaylist: PlayListModel[] = [];
   isUpdateProgress$ = new BehaviorSubject<boolean>(false);
   private win: any = window;
   sectionName = '';
   trackName = '';
   private stopPlaylistFlag = false;
-
-  files: Array<any> = [];
   state: StreamState;
 
   constructor(
     private platform: Platform,
     private zone: NgZone,
     private fileService: FilesService,
-    private changeRef: ChangeDetectorRef,
     private musicControlService: MusicControlService,
     private networkService: NetworkService) {
     super();
@@ -186,23 +185,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           break;
       }
     });
-  }
-
-  private toggle() {
-    if (this.state?.playing) {
-      this.pause();
-    } else {
-      this.play();
-    }
-  }
-
-  disablePrev() {
-    return this.musicControlService.currentIndex === 0;
-  }
-
-  disableNext() {
-    return this.musicControlService.currentIndex === this.currentPlaylist.length - 1;
-  }
+  }  
 
   ngOnDestroy() {
     this.destroyMusicControl();
@@ -223,24 +206,19 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
       });
 
     this.musicControlService.runTrack$.safeSubscribe(this, index => {
-      this.currentPlaylist = this.newPlayList;
-      this.openFile(index)
-      this.musicControlService.playlistAreSame$.next(true);
+      this.currentPlaylist = this.sectionPlayList.playList;
+      this.sectionName = this.sectionPlayList.sectionName;
+      this.openFile(index);
+      this.musicControlService.setPlaylistAreSame(true);
     });
 
-    this.musicControlService.getPlaylist.safeSubscribe(this, (playlist) => {
-      this.newPlayList = playlist;
-      this.files = playlist;
-
+    this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
+      this.sectionPlayList = data;
       let playlistAreSame = this.currentPlaylist.length > 0 ?
-        JSON.stringify(this.newPlayList.map(s => s.src)) === JSON.stringify(this.currentPlaylist.map(s => s.src))
+        JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
         : true;
-      this.musicControlService.playlistAreSame$.next(playlistAreSame);
+      this.musicControlService.setPlaylistAreSame(playlistAreSame);
     });
-
-    this.musicControlService.getSectionName().safeSubscribe(this, (name) => {
-      this.sectionName = name;
-    })
   }
 
   playStream(url) {
@@ -261,7 +239,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           case 'ended':
             if (this.disableNext()) {
               this.stopPlaylistFlag = true;
-              this.openFile(0);              
+              this.openFile(0);
             } else {
               this.nextTrack();
             }
@@ -279,8 +257,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     this.musicControlService.setCurrentIndex(index);
     this.musicControlService.stop();
 
-    const src = this.currentPlaylist[this.musicControlService.currentIndex].src;
-    this.trackName = this.currentPlaylist[this.musicControlService.currentIndex].title;
+    const src = this.currentPlaylist[this.musicControlService.currentIndex].path;
+    this.trackName = this.currentPlaylist[this.musicControlService.currentIndex].name;
     const fileName = this.fileService.getFileNameFromSrc(src);
     const fileExist = await this.fileService.fileExist(fileName);
     const filePathOrUrl = fileExist
@@ -289,7 +267,6 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     console.log(filePathOrUrl);
     this.playStream(filePathOrUrl);
     this.initMusicContols();
-
   }
 
   pause() {
@@ -306,5 +283,21 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   onSliderChangeEnd(change) {
     this.musicControlService.seekTo(change.value);
+  }
+
+  private toggle() {
+    if (this.state?.playing) {
+      this.pause();
+    } else {
+      this.play();
+    }
+  }
+
+  disablePrev() {
+    return this.musicControlService.currentIndex === 0;
+  }
+
+  disableNext() {
+    return this.musicControlService.currentIndex === this.currentPlaylist.length - 1;
   }
 }

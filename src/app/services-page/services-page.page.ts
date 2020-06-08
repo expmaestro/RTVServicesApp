@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { DataService } from '../services/data.service';
 import { SettingsService } from '../services/settings.service';
 import { BaseComponent } from '../services/base-component';
 import { Profile, ServiceModel } from '../backend/interfaces';
@@ -17,22 +16,25 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   public profile: Profile;
   apiUrl: any;
 
-  constructor(private nav: NavController, private router: Router, private dataService: DataService, private settingsService: SettingsService) {
+  constructor(private nav: NavController, private router: Router, private settingsService: SettingsService) {
     super();
     this.settingsService.getUserData();
-    this.settingsService.getServices();
+    // this.settingsService.getServices();
   }
 
   ngOnInit() {
     this.apiUrl = environment.apiUrl
-    this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
-      this.profile = r;
+    this.settingsService.getProfileDataAsync.safeSubscribe(this, (response: any) => {
+      this.profile = response;
     });
-
     this.settingsService.getServicesDataAsync.safeSubscribe(this, services => {
       this.services = services;
     });
   }
+
+  ionViewWillEnter () {
+    this.settingsService.getServices();
+  }  
 
   next(service: ServiceModel) {
     if (!service.paid) return;

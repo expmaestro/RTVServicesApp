@@ -8,7 +8,6 @@ import { Component, OnInit } from '@angular/core';
 export class LayoutPagePage implements OnInit {
 
   constructor() { 
-    console.log('Main layout constructor called');
   }
 
   ngOnInit() {

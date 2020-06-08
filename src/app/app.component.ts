@@ -59,17 +59,36 @@ export class AppComponent extends BaseComponent {
       this.statusBar.styleLightContent();
       // this.statusBar.styleDefault();
       this.splashScreen.hide();
-      this.backgroundMode.setDefaults({ silent: true });
-      this.backgroundMode.enable();
-
-      this.backgroundMode.on('enable').subscribe(() => {
-        this.backgroundMode.disableWebViewOptimizations();
-      });
-      this.backButtonEvent();
+      this.initBackgroundMode();
+      this.initBackButtonEvent();
     });
   }
 
-  backButtonEvent() {
+  initBackgroundMode() {
+    //this.backgroundMode.setDefaults({ silent: true });
+    this.backgroundMode.enable();
+    this.backgroundMode.configure({
+      // title: "MyApp",
+      // text: "The app is running in the background...",
+      resume: true,
+      hidden: true,
+      // bigText: false,
+      silent: true,
+    });
+    // this.backgroundMode.on("activate").subscribe(() => {
+    //   // this.backgroundMode.disableWebViewOptimizations();
+    //   // this.backgroundMode.disableBatteryOptimizations();
+    //   console.log("background activate !!!!");
+    // });
+
+    this.backgroundMode.on("enable").subscribe(() => {
+      this.backgroundMode.disableWebViewOptimizations();
+      this.backgroundMode.disableBatteryOptimizations();
+      console.log("background enable !!!!");
+    });
+  }
+
+  initBackButtonEvent() {
     this.platform.backButton.safeSubscribe(this, () => {
       if (this.router.url === '/services' || this.router.url === '/login') {
         this.appMinimize.minimize();

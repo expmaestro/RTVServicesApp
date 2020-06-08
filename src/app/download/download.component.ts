@@ -6,15 +6,14 @@ import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
 import { PlayListModel } from '../backend/interfaces';
-import { timer } from 'rxjs';
 
 @Component({
-  selector: 'app-download',
+  selector: 'download',
   templateUrl: './download.component.html',
   styleUrls: ['./download.component.scss'],
 })
 export class DownloadComponent extends BaseComponent implements OnInit {
-  @Input() public playlist = [];
+  @Input() public playlist: PlayListModel[] = [];
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
@@ -24,7 +23,6 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     private zone: NgZone,
   ) {
     super();
-    console.log('donwload');
   }
 
   ngOnInit() {
@@ -32,7 +30,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       if (this.platform.is("android") || this.platform.is("ios")) {
         //this.updateFileList();     
         this.fileTransferCreate = this.fileTransfer.create();
-        if (this.playlist.length === 1) {
+        if (this.playlist && this.playlist.length === 1) {
           this.fileTransferCreate.onProgress(pr => {
             this.zone.run(() => {
               this.progress = Math.round(pr.loaded / pr.total * 100);
@@ -57,7 +55,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     //   src: 'http://speedtest.tis-dialog.ru/test10',
     //   title: "big-file1"
     // }]
-    const download_retry = async (model, url: string, filePath: string, retryCount) => {
+    const download_retry = async (model: PlayListModel, url: string, filePath: string, retryCount) => {
 
       for (let i = 0; i < retryCount; i++) {
         const t = Math.floor(Math.random() * 2); // Just for error test
@@ -83,7 +81,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
           console.log(i);
           const isLastAttempt = i + 1 === retryCount;
           if (isLastAttempt) {
-            console.log('sorry we can not downoload this file: ' + model.title);
+            console.log('sorry we can not downoload this file: ' + model.name);
             throw error;
           }
         }
@@ -93,8 +91,8 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     const downloadPlayLsit = async () => {
       while (this.needToDownloadFiles.length > 0) {
         const currentDownloaded = this.needToDownloadFiles[0];
-        const fullUrl = environment.cdn + currentDownloaded.src;
-        const filePath = this.fileService.getFullFilePath(this.fileService.getFileNameFromSrc(currentDownloaded.src));
+        const fullUrl = environment.cdn + currentDownloaded.path;
+        const filePath = this.fileService.getFullFilePath(this.fileService.getFileNameFromSrc(currentDownloaded.path));
 
         return await download_retry(currentDownloaded, fullUrl, filePath, 3)
           .then(async (t) => {
@@ -123,7 +121,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
               case 4: textError = 'ABORT_ERR'; break; // FileTransferError.ABORT_ERR
               case 5: textError = 'NOT_MODIFIED_ERR'; break;  // FileTransferError.NOT_MODIFIED_ERR
             }
-            this.downloadFileError(`Не удается скачать файл: <b>${currentDownloaded.title}</b> <br> Причина: <b>${textError}</b>`);
+            this.downloadFileError(`Не удается скачать файл: <b>${currentDownloaded.name}</b> <br> Причина: <b>${textError}</b>`);
           })
           .finally(() => {
             //this.loading.dismiss()
