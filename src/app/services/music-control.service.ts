@@ -175,7 +175,7 @@ export class MusicControlService {
     this.state = this.initState();
   }
 
-  public initState() {
+  private initState(): StreamState {
     return {
       playing: false,
       readableCurrentTime: '00:00',
@@ -227,7 +227,7 @@ export class MusicControlService {
       prevIcon: 'ic_stat_skip_previous',
       nextIcon: 'ic_stat_skip_next',
       closeIcon: 'media_close',
-      notificationIcon: 'notification'
+      notificationIcon: 'ic_icon'
     }
   }
 }

@@ -47,8 +47,9 @@ export class LoginPage extends BaseComponent implements OnInit {
                 this.settingsService.authToken = token;
                 console.log(token);
                 if (response.status === 'success') {
-                    this.settingsService.userProfileApi().safeSubscribe(this, (r: any) => {
+                    this.settingsService.userProfileApi().safeSubscribe(this, async (r: any) => {
                         this.settingsService.setProfileData = r.data;
+                        await this.loading.dismiss();
                         this.nav.navigateRoot('/services');
                     })
 
@@ -59,7 +60,7 @@ export class LoginPage extends BaseComponent implements OnInit {
                     await this.loading.dismiss();
                     await this.showError(error);
                 }
-                await this.loading.dismiss();
+
             }, async (error) => {
                 console.log(error);
                 await this.loading.dismiss();

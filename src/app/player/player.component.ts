@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input, ChangeDetectorRef } from '@angular/core';
 
 import { Platform, } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
@@ -36,7 +36,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     private zone: NgZone,
     private fileService: FilesService,
     private musicControlService: MusicControlService,
-    private networkService: NetworkService) {
+    private networkService: NetworkService,
+    private cd: ChangeDetectorRef) {
     super();
 
     this.platform.ready().then(() => {
@@ -185,40 +186,11 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           break;
       }
     });
-  }  
-
-  ngOnDestroy() {
-    this.destroyMusicControl();
   }
+
 
   private destroyMusicControl() {
     MusicControls.destroy(onSuccess => { }, onError => { });
-  }
-
-  ngOnInit() {
-    this.musicControlService.getState()
-      .safeSubscribe(this, state => {
-        if (this.stopPlaylistFlag && state.canplay) {
-          this.pause();
-          this.stopPlaylistFlag = false;
-        }
-        this.state = state;
-      });
-
-    this.musicControlService.runTrack$.safeSubscribe(this, index => {
-      this.currentPlaylist = this.sectionPlayList.playList;
-      this.sectionName = this.sectionPlayList.sectionName;
-      this.openFile(index);
-      this.musicControlService.setPlaylistAreSame(true);
-    });
-
-    this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
-      this.sectionPlayList = data;
-      let playlistAreSame = this.currentPlaylist.length > 0 ?
-        JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
-        : true;
-      this.musicControlService.setPlaylistAreSame(playlistAreSame);
-    });
   }
 
   playStream(url) {
@@ -299,5 +271,42 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   disableNext() {
     return this.musicControlService.currentIndex === this.currentPlaylist.length - 1;
+  }
+
+  ngOnDestroy() {
+    console.log('destroy');
+    this.destroyMusicControl();
+    this.musicControlService.stop();
+    this.state.currentTime = 0;
+    this.state.readableCurrentTime = '00:00';
+    this.state.readableDuration = '00:00';
+    this.musicControlService.setCurrentIndex(-1);
+  }
+
+
+  ngOnInit() {
+    this.musicControlService.getState()
+      .safeSubscribe(this, state => {
+        if (this.stopPlaylistFlag && state.canplay) {
+          this.pause();
+          this.stopPlaylistFlag = false;
+        }
+        this.state = state;
+      });
+
+    this.musicControlService.runTrack$.safeSubscribe(this, index => {
+      this.currentPlaylist = this.sectionPlayList.playList;
+      this.sectionName = this.sectionPlayList.sectionName;
+      this.openFile(index);
+      this.musicControlService.setPlaylistAreSame(true);
+    });
+
+    this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
+      this.sectionPlayList = data;
+      let playlistAreSame = this.currentPlaylist.length > 0 ?
+        JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
+        : true;
+      this.musicControlService.setPlaylistAreSame(playlistAreSame);
+    });
   }
 }
