@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BaseComponent } from './base-component';
-import { Profile, ServiceModel, ServicePlayListModel, } from '../backend/interfaces';
+import { Profile, ServiceModel, ServicePlayListModel, ServicePlayListModelObject, } from '../backend/interfaces';
 
 const RTVTokenStorageKey = "_RTVLongToken";
 const profileStorageKey = '_profileData';
@@ -16,7 +16,7 @@ const servicePlayListStorageKey = '_servicesPlayListData';
 export class SettingsService extends BaseComponent {
   private userData$ = new BehaviorSubject({});
   private services$ = new BehaviorSubject(Array<ServiceModel>());
-  private servicePlayList$ = new BehaviorSubject<ServicePlayListModel>(null);
+  private servicePlayList$ = new BehaviorSubject<ServicePlayListModelObject>(null);
   constructor(private http: HttpClient) {
     super();
     let profile = localStorage.getItem(profileStorageKey);
@@ -49,14 +49,13 @@ export class SettingsService extends BaseComponent {
     });
   }
 
-  private getSericePlayListApi(service: ServiceModel, params: number[]) {
-    const next = service.loadAll ? '' : `&next=${params.join(',')}`
-    return this.http.get(environment.apiUrl + `/back/services/playlist/?serviceId=${service.id}${next}`);
+  private getSericePlayListApi(serviceId: number) {
+    return this.http.get(environment.apiUrl + `/back/services/playlist/?serviceId=${serviceId}&all=true`);
   }
 
-  getServicePlayList(service: ServiceModel, params: number[]) {
-    this.getSericePlayListApi(service, params).safeSubscribe(this, (data: any) => {
-      this.setServicePlayList(service, params, data);
+  getServicePlayList(serviceId: number) {
+    this.getSericePlayListApi(serviceId).safeSubscribe(this, (data: any) => {
+      this.setServicePlayList(serviceId, data);
     });
   }
 
@@ -101,24 +100,19 @@ export class SettingsService extends BaseComponent {
     return this.services$.asObservable();
   }
 
-  setServicePlayList(service: ServiceModel, params, data) {
-    if (data && data.main) {
-      window.localStorage.setItem(this.getServiceStorageKey(service, params), data ? JSON.stringify(data) : "");
+  setServicePlayList(serviceId: number, data) {
+    if (data && Object.keys(data).length > 0) {
+      window.localStorage.setItem(`${servicePlayListStorageKey};$serviceId=${serviceId};`, data ? JSON.stringify(data) : "");
       if (data) {
         this.servicePlayList$.next(data);
       }
     }
   }
 
-  getServicePlayListFromStorage(service: ServiceModel, params) {
-    let data = localStorage.getItem(this.getServiceStorageKey(service, params));
-    this.servicePlayList$.next(data ? JSON.parse(data) : null);
-  }
-
-  private getServiceStorageKey(service: ServiceModel, params) {
-    let hash = `serviceId=${service.id}-` + (service.loadAll ? '' : params.join('-'));
-    return `${servicePlayListStorageKey};${hash}`
-  }
+  getServicePlayListFromStorage(serviceId: number, params) {
+    let data = localStorage.getItem(`${servicePlayListStorageKey};$serviceId=${serviceId};`);
+    this.servicePlayList$.next(data ? JSON.parse(data) : null);  
+  } 
 
   getServicePlayListAsync(serviceId: number) {//
     return this.servicePlayList$.asObservable();

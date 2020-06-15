@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, UrlSegment } from '@angular/router';
 import { DataService } from 'src/app/services/data.service';
-import { NextModel, NameIdModel, PlayListModel, ServicePlayListModel, ServiceModel } from 'src/app/backend/interfaces';
+import { NextModel, NameIdModel, PlayListModel, ServicePlayListModel, ServiceModel, ServicePlayListModelObject } from 'src/app/backend/interfaces';
 import { SettingsService } from 'src/app/services/settings.service';
 import { BaseComponent } from 'src/app/services/base-component';
 import { distinctUntilChanged } from 'rxjs/operators';
@@ -18,6 +18,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   playlistToDownload: PlayListModel[] = [];
   params?: Array<number> = [];
   subSectionName: string;
+  subscription: any;
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
     private dataService: DataService,
     private settingsService: SettingsService) { super(); console.log('Choice: ctor'); }
@@ -39,35 +40,33 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   get isNextCalendarStep() {
     return this.serviceId === 1 && this.params.length === 1;
   }
-  subscription: any;
+
   ngOnInit() {
     console.log('Choice: Init');
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
 
       this.serviceId = Number(segments[0].path);
       this.params = segments.filter((f, i) => i > 0).map((x) => Number(x.path));
+      this.settingsService.getServicePlayListFromStorage(this.serviceId, this.params);
+      this.settingsService.getServicePlayList(this.serviceId);
       let temp = this.dataService.getItems(this.serviceId, this.params);
       this.service = temp.service;
-      this.model = temp.current;   
-      this.subSectionName = this.dataService.getSubServiceName(this.serviceId, this.params);     
+      this.model = temp.current;
+      this.subSectionName = this.dataService.getSubServiceName(this.serviceId, this.params);
     });
   }
 
   ionViewDidEnter() {
-    if (this.service.loadAll) {
-      this.settingsService.getServicePlayListFromStorage(this.service, this.params);
-      this.settingsService.getServicePlayList(this.service, this.params);
-      this.subscription = this.settingsService.getServicePlayListAsync(this.serviceId)
-        .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
-        .safeSubscribe(this, (servicePlayList: ServicePlayListModel) => {
-          console.log('getServicePlayListAsync');
-          console.log(servicePlayList);
-          this.playlistToDownload = [];
-          if (servicePlayList) {
-            this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
-          }
-        });
-    }
+    this.subscription = this.settingsService.getServicePlayListAsync(this.serviceId)
+      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .safeSubscribe(this, (servicePlayList: ServicePlayListModelObject) => {
+        console.log('getServicePlayListAsync, serviceId ', this.serviceId);
+        console.log(servicePlayList);
+        this.playlistToDownload = [];
+        if (servicePlayList) {
+          this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
+        }
+      });
   }
 
   ionViewWillLeave() {

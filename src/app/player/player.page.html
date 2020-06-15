@@ -9,7 +9,7 @@
 
 <ion-content>
 
-  <download [playlist]="playlistToDownload"></download>
+  <download [serviceId]="service?.id" [playlist]="playlistToDownload$ | async"></download>
 
   <ion-list>
     <ng-container *ngIf="service?.id == 3">

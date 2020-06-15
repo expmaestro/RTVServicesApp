@@ -56,7 +56,6 @@ export class ServiceModel {
   next: NextModel | null;
   paid: boolean;
   position: number;
-  loadAll: true;
 }
 
 
@@ -77,6 +76,10 @@ export class NameIdModel {
   public name: string;
 }
 
+export class ServicePlayListModelObject {
+  obj: {[key: string]: ServicePlayListModel}
+}
+
 export class ServicePlayListModel {
   main: Array<PlayListModel>;
   additional: any;
@@ -84,7 +87,7 @@ export class ServicePlayListModel {
 
 export class SectionPlayList {
   playList: PlayListModel[];
-  sectionName: string;
+  service: ServiceModel;
 }
 
 export class PlayListModel {

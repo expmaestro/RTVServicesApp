@@ -6,7 +6,7 @@ const appTokenKey = "appToken";
 
 export class UserSettingsService {
 
-  constructor() { } //remove TODO:
+  constructor() { }
 
   public get authToken() {
     return window.localStorage.getItem(appTokenKey);

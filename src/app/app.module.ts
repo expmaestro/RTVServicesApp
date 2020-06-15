@@ -13,7 +13,7 @@ import { AuthGuardService } from './services/auth-guard.service';
 import { FileTransfer } from '@ionic-native/file-transfer/ngx';
 import { File } from '@ionic-native/file/ngx';
 import { Network } from '@ionic-native/network/ngx';
-import { BackgroundMode } from '@ionic-native/background-mode/ngx';
+// import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 //import { MusicControls } from '@ionic-native/music-controls/ngx';
 
 import { HTTP } from '@ionic-native/http/ngx';
@@ -41,7 +41,7 @@ import { AppMinimize } from '@ionic-native/app-minimize/ngx';
     },
     StatusBar,
     SplashScreen,
-    BackgroundMode,
+    // BackgroundMode,
     AuthGuardService,
     FileTransfer,
     HTTP,

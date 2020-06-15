@@ -21,7 +21,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   sectionPlayList: SectionPlayList = {
     playList: [],
-    sectionName: ''
+    service: null
   };
   currentPlaylist: PlayListModel[] = [];
   isUpdateProgress$ = new BehaviorSubject<boolean>(false);
@@ -197,7 +197,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     this.musicControlService.playStream(url)
       .pipe(filter((f: any) => f.type !== 'timeupdate'))
       .subscribe(async events => {
-        console.log(events);
+        //console.log(events);
 
         switch (events.type) {
           case 'play':
@@ -232,9 +232,10 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     const src = this.currentPlaylist[this.musicControlService.currentIndex].path;
     this.trackName = this.currentPlaylist[this.musicControlService.currentIndex].name;
     const fileName = this.fileService.getFileNameFromSrc(src);
-    const fileExist = await this.fileService.fileExist(fileName);
+    console.log(fileName);
+    const fileExist = await this.fileService.fileExist(fileName, this.sectionPlayList.service.id);
     const filePathOrUrl = fileExist
-      ? this.convertFileSrc(this.fileService.getFullFilePath(fileName))
+      ? this.convertFileSrc(this.fileService.getFullFilePath(this.sectionPlayList.service.id, fileName))
       : environment.cdn + src + '';
     console.log(filePathOrUrl);
     this.playStream(filePathOrUrl);
@@ -294,12 +295,6 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         this.state = state;
       });
 
-    this.musicControlService.runTrack$.safeSubscribe(this, index => {
-      this.currentPlaylist = this.sectionPlayList.playList;
-      this.sectionName = this.sectionPlayList.sectionName;
-      this.openFile(index);
-      this.musicControlService.setPlaylistAreSame(true);
-    });
 
     this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
       this.sectionPlayList = data;
@@ -307,6 +302,21 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
         : true;
       this.musicControlService.setPlaylistAreSame(playlistAreSame);
+
+      this.musicControlService.runTrack$.safeSubscribe(this, index => {
+        this.runTrack(index);
+      });
+      if (this.musicControlService.currentIndex === -1 && data.playList.length > 0) {
+        console.log('Auto run track');
+        this.runTrack(0);
+      }
     });
+  }
+
+  private runTrack(index: number) {
+    this.currentPlaylist = this.sectionPlayList.playList;
+    this.sectionName = this.sectionPlayList.service.name;
+    this.openFile(index);
+    this.musicControlService.setPlaylistAreSame(true);
   }
 }

@@ -13,7 +13,8 @@ import { PlayListModel } from '../backend/interfaces';
   styleUrls: ['./download.component.scss'],
 })
 export class DownloadComponent extends BaseComponent implements OnInit {
-  @Input() public playlist: PlayListModel[] = [];
+  @Input() playlist: PlayListModel[] = [];
+  @Input() serviceId = 0;
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
@@ -30,14 +31,16 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       if (this.platform.is("android") || this.platform.is("ios")) {
         //this.updateFileList();     
         this.fileTransferCreate = this.fileTransfer.create();
-        if (this.playlist && this.playlist.length === 1) {
-          this.fileTransferCreate.onProgress(pr => {
+       // console.log(this.playlist)
+
+        this.fileTransferCreate.onProgress(pr => {
+          if (this.playlist && this.playlist.length === 1) {
             this.zone.run(() => {
               this.progress = Math.round(pr.loaded / pr.total * 100);
             })
+          }
+        })
 
-          })
-        }
       }
     });
   }
@@ -92,7 +95,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       while (this.needToDownloadFiles.length > 0) {
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = environment.cdn + currentDownloaded.path;
-        const filePath = this.fileService.getFullFilePath(this.fileService.getFileNameFromSrc(currentDownloaded.path));
+        const filePath = this.fileService.getFullFilePath(this.serviceId, this.fileService.getFileNameFromSrc(currentDownloaded.path));
 
         return await download_retry(currentDownloaded, fullUrl, filePath, 3)
           .then(async (t) => {
@@ -131,7 +134,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
 
     await downloadPlayLsit()
       .finally(() => {
-        this.fileService.updateFiles();
+        this.fileService.updateFiles(this.serviceId);
         // const source = timer(1000).safeSubscribe(this, () => this.isLoading = false);
         //this.isLoading = false;
       });

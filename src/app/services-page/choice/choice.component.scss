@@ -67,7 +67,7 @@
     transform: rotateY(180deg);
   }
   .services-time-calendar__flipper-item {
-    position: absolute;
+    //position: absolute;
     top: 0;
     left: 0;
     width: 100%;
@@ -120,7 +120,7 @@
     height: -moz-fit-content;
   }
   .services-time-calendar__tablet-popup {
-    position: absolute;
+  //  position: absolute;
     width: 200px;
     height: 105px;
     background: #fff;
@@ -131,7 +131,7 @@
     overflow: hidden;
   }
   .services-time-calendar__tablet-popup_active {
-    position: absolute;
+  //  position: absolute;
     top: 0;
     left: 0;
     width: 100%;

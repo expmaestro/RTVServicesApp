@@ -5,11 +5,12 @@ import { DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { FilesService } from '../services/files.service';
-import { ServicePlayListModel, PlayListModel, ServiceModel } from '../backend/interfaces';
+import { ServicePlayListModel, PlayListModel, ServiceModel, ServicePlayListModelObject } from '../backend/interfaces';
 import { SettingsService } from '../services/settings.service';
 import { NetworkService } from '../services/network.service';
-import { AlertController } from '@ionic/angular';
+import { AlertController, Platform } from '@ionic/angular';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-player',
@@ -17,12 +18,12 @@ import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
   styleUrls: ['./player.page.scss'],
 })
 export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
-  playlistToDownload: PlayListModel[] = [];
+  playlistToDownload$ = new BehaviorSubject<PlayListModel[]>([]);
   playlist: PlayListModel[] = [];
   segments: UrlSegment[];
   secretName = new FormControl('');
   secretNameWarning: string = '';
-  servicePlayList: ServicePlayListModel = { main: [], additional: {} }
+  servicePlayList: ServicePlayListModelObject;
   currentIndex = -1;
   playlistAreSame: boolean;
   params = [];
@@ -31,7 +32,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
 
   constructor(private musicControlService: MusicControlService, private activatedRoute: ActivatedRoute,
     private dataService: DataService, private fileService: FilesService, private settingsService: SettingsService,
-    private networkService: NetworkService, private alertController: AlertController) {
+    private networkService: NetworkService, private alertController: AlertController, private platform: Platform) {
     super();
     console.log('Player: ctor');
   }
@@ -59,95 +60,6 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.musicControlService.runTrack$.next(index);
   }
 
-  private getDate() {
-    var d = new Date(),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
-
-    return [year, month, day];
-  }
-
-  private buildComputedPlayList(playList: ServicePlayListModel, year, month, day, radasteyaId, zituordId, secretNameIndexes = []) {
-    if (!playList) return [];
-    if (!playList.main) return [];
-
-    let newPlayList: Array<PlayListModel> = [];
-    playList.main.forEach(main => {
-      if (main.id) {
-        let tempArr = []
-        switch (main.condition) {
-          case 'year': // 2020
-            tempArr = playList.additional[main.id][year];
-            break;
-          case 'month': // 09
-            tempArr = playList.additional[main.id][month];
-            break;
-          case 'day': //01
-            tempArr = playList.additional[main.id][day];
-            break;
-          case 'date': // "2020-12-01"
-            let fullDate = [year, month, day].join('-');
-            tempArr = playList.additional[main.id][fullDate];
-            break;
-          case 'dayMonth': // 01-31
-            let monthDay = [month, day].join('-');
-            tempArr = playList.additional[main.id][monthDay];
-            break;
-          case 'number':
-            if (main.id === 'zituord') {
-              tempArr = playList.additional[main.id][Number(zituordId)];
-            } else
-              if (main.id === 'radasteya') {
-                tempArr = playList.additional[main.id][Number(radasteyaId)];
-              }
-            break;
-        }
-        if (tempArr) {
-          tempArr.forEach(item => {
-            newPlayList.push({
-              id: main.id,
-              isDownload: false,
-              name: item.name ? item.name : main.name,
-              path: item.path,
-              condition: main.condition
-            });
-          });
-        }
-      } else {
-        // copy object for distinctUntilChanged
-        newPlayList.push({
-          id: main.id,
-          isDownload: main.isDownload,
-          name: main.name,
-          path: main.path,
-          condition: main.condition
-        });
-      }
-    });
-
-    secretNameIndexes.forEach(index => {
-      let t = playList.additional.secretName[index];
-      if (t) {
-        t.forEach(item => {
-          newPlayList.push({
-            id: '',
-            isDownload: false,
-            name: item.name,
-            path: item.path,
-            condition: ''
-          });
-        });
-      }
-    })
-    return newPlayList;
-  }
-
   private async noNetworkConnection(message: string) {
     const alert = await this.alertController.create({
       header: 'Ошибка',
@@ -173,8 +85,8 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         const serviceId = Number(this.segments[0].path);
         this.service = this.dataService.getService(serviceId)
         this.params = this.segments.filter((param, index) => index > 0).map((x) => Number(x.path));
-        this.settingsService.getServicePlayListFromStorage(this.service, this.params);
-        this.settingsService.getServicePlayList(this.service, this.params);
+        this.settingsService.getServicePlayListFromStorage(this.service.id, this.params);
+        this.settingsService.getServicePlayList(this.service.id);
       }
 
       this.musicControlService.getCurrentIndex().safeSubscribe(this, (index) => {
@@ -184,47 +96,60 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
       this.musicControlService.playlistAreSame.safeSubscribe(this, (same) => {
         this.playlistAreSame = same;
       });
-
-      this.subscription = this.settingsService.getServicePlayListAsync(this.service.id)
-        .pipe(distinctUntilChanged((prev, curr) => {
-          return JSON.stringify(prev) === JSON.stringify(curr);
-        }))
-        .safeSubscribe(this, async (servicePlayList: ServicePlayListModel) => {
-          this.servicePlayList = servicePlayList;
-          console.log('getServicePlayListAsync')
-
-          if (servicePlayList) {
-            this.getPlayList(servicePlayList);
-          }
-          else {
-            let isConneted = await this.networkService.pingApiRequest();
-            if (!isConneted) {
-              this.noNetworkConnection('Нет сети. Для того, чтобы продолжить подключитесь к сети');
-            } else {
-
-            }
-          }
-        })
     });
   }
 
-  private getPlayList(servicePlayList: ServicePlayListModel, secretNameArray = []) {
-    this.playlistToDownload = [];
-    const date = this.getDate();
-    this.playlist = this.buildComputedPlayList(servicePlayList, date[0], date[1], date[2], this.params[0], this.params[1], secretNameArray);
+  private getPlayList(servicePlayList: ServicePlayListModelObject, secretNameArray = []) {
+    let playlistToDownload = [];
+    let key = ''
+    if (this.service.id === 5) {
+      key = `${this.service.id}.1-1`;
+    } else {
+      key = `${this.service.id}.${this.params.length > 0 ? this.params.join('-') : '1-1'}`;
+    }
+    let subServicePlayList: ServicePlayListModel = servicePlayList[key];
+    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], secretNameArray);
     // console.log(this.playlist)
-    this.playlistToDownload = this.service.loadAll || this.service.id === 3 // (key coord)
-      ? this.dataService.getFilesToDownloads(this.service, servicePlayList)
-      : this.playlist;
-    console.log(this.playlist);
-    this.musicControlService.setPlayList(this.playlist, this.service.name);
-    this.fileService.getFileList().safeSubscribe(this, files => {
-      if (!files)
-        return;
-      this.playlist.forEach(f => {
-        f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.path));
+
+    playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
+    // console.table(this.playlistToDownload.map(m => m.path));
+    this.playlistToDownload$.next(playlistToDownload);
+    console.log(playlistToDownload);
+    this.musicControlService.setPlayList(this.playlist, this.service);
+    this.platform.ready().then(() => {
+      this.fileService.updateFiles(this.service.id);
+      this.fileService.getFileList(this.service.id).safeSubscribe(this, files => {
+        if (!files) return;
+        this.playlist.forEach(f => {
+          f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.path));
+        });
       });
     });
+
+  }
+
+  ionViewDidEnter() {
+    this.subscription = this.settingsService.getServicePlayListAsync(this.service.id)
+      .pipe(distinctUntilChanged((prev, curr) => {
+        return JSON.stringify(prev) === JSON.stringify(curr);
+      }))
+      .safeSubscribe(this, async (servicePlayList: ServicePlayListModelObject) => {
+        this.servicePlayList = servicePlayList;
+        console.log('getServicePlayListAsync, serviceId ', this.service.id);
+        console.log(servicePlayList)
+
+        if (servicePlayList) {
+          this.getPlayList(servicePlayList);
+        }
+        else {
+          let isConneted = await this.networkService.pingApiRequest();
+          if (!isConneted) {
+            this.noNetworkConnection('Нет сети. Для того, чтобы продолжить подключитесь к сети');
+          } else {
+
+          }
+        }
+      })
   }
 
   ionViewWillLeave() {

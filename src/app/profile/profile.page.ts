@@ -24,13 +24,15 @@ export class ProfilePage extends BaseComponent implements OnInit {
     this.settingsService.getUserData();
   }
 
-  async logout() {
-    let isConneted = await this.networkService.pingApiRequest();
-    if (isConneted) {
-      this.logoutAlert('', 'Вы уверены, что хотите выйти?', true);
-    } else {
-      this.logoutAlert('Нет сети', 'Вы уверены, что хотите выйти?<br><br>Для того, чтобы авторизоваться заново потребуется подключение к сети', false);
-    }
+  logout() {
+    this.networkService.pingApiRequest().then(isConneted => {
+      if (isConneted) {
+        this.logoutAlert('', 'Вы уверены, что хотите выйти?', true);
+      } else {
+        this.logoutAlert('Нет сети', 'Вы уверены, что хотите выйти?<br><br>Для того, чтобы авторизоваться заново потребуется подключение к сети', false);
+      }
+    });
+
   }
 
   private async logoutAlert(header: string, message: string, needRequest: boolean) {
@@ -90,7 +92,6 @@ export class ProfilePage extends BaseComponent implements OnInit {
         console.log(error);
 
       }).finally(async () => {
-        this.fileService.updateFiles();
         await this.loading.dismiss();
       })
   }

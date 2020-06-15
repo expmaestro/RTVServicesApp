@@ -1,24 +1,24 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
-import { SectionPlayList } from '../backend/interfaces';
+import { SectionPlayList, ServiceModel } from '../backend/interfaces';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MusicControlService {
 
-  private playlist$ = new BehaviorSubject<SectionPlayList>({ playList: [], sectionName: '' });
+  private playlist$ = new Subject<SectionPlayList>();
   private currentIndex$ = new BehaviorSubject<number>(-1);
-  runTrack$ = new Subject<number>();
+  runTrack$ = new Subject<number>(); // auto start from 0
   private playlistAreSame$ = new BehaviorSubject<boolean>(true);
 
   get getPlaylist() {
     return this.playlist$.asObservable();
   }
 
-  setPlayList(playList, sectionName) {
-    this.playlist$.next({ playList: playList, sectionName: sectionName });
+  setPlayList(playList, service: ServiceModel): void {
+    this.playlist$.next({  playList: playList, service: service });
   }
 
   get currentIndex() {
