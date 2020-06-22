@@ -3,12 +3,12 @@ import { BaseComponent } from '../services/base-component';
 import { MusicControlService } from '../services/music-control.service';
 import { DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { FormControl, Validators } from '@angular/forms';
 import { FilesService } from '../services/files.service';
 import { ServicePlayListModel, PlayListModel, ServiceModel, ServicePlayListModelObject } from '../backend/interfaces';
 import { SettingsService } from '../services/settings.service';
 import { NetworkService } from '../services/network.service';
-import { AlertController, Platform } from '@ionic/angular';
+import { AlertController, Platform, NavController } from '@ionic/angular';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
@@ -22,24 +22,28 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   playlist: PlayListModel[] = [];
   segments: UrlSegment[];
   secretName = new FormControl('');
-  secretNameWarning: string = '';
+  showPassword = false;
   servicePlayList: ServicePlayListModelObject;
   currentIndex = -1;
   playlistAreSame: boolean;
-  params = [];
+  params: number[] = [];
   service: ServiceModel;
   private subscription: any;
+  private profileSubscription: any;
+  title = '';
+  matrix = '';
 
   constructor(private musicControlService: MusicControlService, private activatedRoute: ActivatedRoute,
     private dataService: DataService, private fileService: FilesService, private settingsService: SettingsService,
-    private networkService: NetworkService, private alertController: AlertController, private platform: Platform) {
+    private networkService: NetworkService, private alertController: AlertController, private platform: Platform,
+    private nav: NavController) {
     super();
     console.log('Player: ctor');
   }
 
   setSecretName() {
+    console.log('setSecretName')
     const secretNameArray = [];
-    this.secretNameWarning = '';
     const letters: string[] = ["а", "о", "у", "я", "и", "е", "ы", "ъ", "ь", "р"];
     const noLetters = [...letters]
     const input: string = this.secretName.value.toLowerCase();
@@ -51,9 +55,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
       }
     }
     if (noLetters.length > 0) {
-      this.secretNameWarning = `Вы не ввели буквы: ${noLetters.join(', ')}`;
+      this.secretName.setErrors({ warning: `Вы не ввели буквы: ${noLetters.join(', ')}` });
     }
+    if (!this.secretName.valid) return;
     this.getPlayList(this.servicePlayList, secretNameArray);
+    this.play(0);
   }
 
   public play(index) {
@@ -76,6 +82,9 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
 
     await alert.present();
   }
+  otherTimeRedirect() {
+    this.nav.navigateRoot("/services/1");
+  }
 
   ngOnInit() {
     console.log('Player Init');
@@ -83,8 +92,10 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
       this.segments = segments;
       if (this.segments.length > 0) {
         const serviceId = Number(this.segments[0].path);
-        this.service = this.dataService.getService(serviceId)
+        this.service = this.dataService.getService(serviceId);
         this.params = this.segments.filter((param, index) => index > 0).map((x) => Number(x.path));
+        this.title = this.dataService.getFullSectionName(this.service, this.params);
+
         this.settingsService.getServicePlayListFromStorage(this.service.id, this.params);
         this.settingsService.getServicePlayList(this.service.id);
       }
@@ -99,6 +110,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     });
   }
 
+  showDownload() {
+    if (this.service?.id === 3 && this.playlist.length > 0) return false;
+    return this.service?.id !== 1 && this.service?.id !== 2 && this.service?.id !== 5;
+  }
+
   private getPlayList(servicePlayList: ServicePlayListModelObject, secretNameArray = []) {
     let playlistToDownload = [];
     let key = ''
@@ -108,14 +124,17 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
       key = `${this.service.id}.${this.params.length > 0 ? this.params.join('-') : '1-1'}`;
     }
     let subServicePlayList: ServicePlayListModel = servicePlayList[key];
-    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], secretNameArray);
+    //if(this.)
+
     // console.log(this.playlist)
 
     playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
     // console.table(this.playlistToDownload.map(m => m.path));
     this.playlistToDownload$.next(playlistToDownload);
+    if (this.service.id === 3 && secretNameArray.length === 0) return;
     console.log(playlistToDownload);
-    this.musicControlService.setPlayList(this.playlist, this.service);
+    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], secretNameArray);
+    this.musicControlService.setPlayList(this.playlist, this.service, this.params);
     this.platform.ready().then(() => {
       this.fileService.updateFiles(this.service.id);
       this.fileService.getFileList(this.service.id).safeSubscribe(this, files => {
@@ -149,7 +168,13 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
 
           }
         }
-      })
+      });
+
+    if (this.service.id === 3) {
+      this.profileSubscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
+        this.matrix = r.stradasteya.value;
+      });
+    }
   }
 
   ionViewWillLeave() {
@@ -157,6 +182,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
       this.subscription = null;
+    }
+
+    if (this.profileSubscription) {
+      this.profileSubscription.unsubscribe();
+      this.profileSubscription = null;
     }
   }
 

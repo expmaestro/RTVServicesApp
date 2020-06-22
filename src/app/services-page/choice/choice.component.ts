@@ -5,6 +5,7 @@ import { NextModel, NameIdModel, PlayListModel, ServicePlayListModel, ServiceMod
 import { SettingsService } from 'src/app/services/settings.service';
 import { BaseComponent } from 'src/app/services/base-component';
 import { distinctUntilChanged } from 'rxjs/operators';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-choice',
@@ -19,6 +20,10 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   params?: Array<number> = [];
   subSectionName: string;
   subscription: any;
+  profileSubscription: any;
+  stradasteya = '';
+  radasteya = new FormControl('');
+  zituord = new FormControl('');
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
     private dataService: DataService,
     private settingsService: SettingsService) { super(); console.log('Choice: ctor'); }
@@ -37,8 +42,8 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
     return this.serviceId === 1;
   }
 
-  get isNextCalendarStep() {
-    return this.serviceId === 1 && this.params.length === 1;
+  mainCoord() {
+    this.router.navigate([`/player/${this.serviceId}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
   }
 
   ngOnInit() {
@@ -52,7 +57,12 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       let temp = this.dataService.getItems(this.serviceId, this.params);
       this.service = temp.service;
       this.model = temp.current;
-      this.subSectionName = this.dataService.getSubServiceName(this.serviceId, this.params);
+      const serviceName = this.dataService.getSubServiceName(this.serviceId, this.params);
+      if (this.service.id === 2) {
+        this.subSectionName = `Черпачок ${serviceName}`;
+      } else {
+        this.subSectionName = serviceName;
+      }
     });
   }
 
@@ -67,6 +77,11 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
           this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
         }
       });
+    if (this.serviceId === 5) {
+      this.profileSubscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
+        this.stradasteya = r.stradasteya.value;
+      });
+    }
   }
 
   ionViewWillLeave() {
@@ -75,6 +90,10 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       this.subscription.unsubscribe();
       this.subscription = null;
       console.log('unsubscribe');
+    }
+
+    if (this.profileSubscription) {
+      this.profileSubscription.unsubscribe();
     }
   }
 

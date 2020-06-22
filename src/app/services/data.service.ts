@@ -44,6 +44,19 @@ export class DataService extends BaseComponent {
     return next.items.find(f => f.id === params[params.length - 1]).name;
   }
 
+  getFullSectionName(service: ServiceModel, params: number[]): string {
+    if (service.id === 1) {
+      let level1 = this.getSubServiceName(service.id, [params[0]]);
+      let level2 = this.getSubServiceName(service.id, params);
+      return `${level1} ${level2}`;
+    }
+    else if (service.id === 2) {
+      let level = this.getSubServiceName(service.id, [params[0]]);
+      return `${service.name} ${level} ${(params[1] === 1 ? '↓' : '↑')}`;
+    }
+    return service.name;
+  } 
+
 
   buildComputedPlayList(playList: ServicePlayListModel, radasteyaId, zituordId, secretNameIndexes = []): PlayListModel[] {
     if (!playList) return [];
@@ -190,7 +203,7 @@ export class DataService extends BaseComponent {
     return playlistToDownload;
   }
 
-  private getDate() {
+  getDate() {
     var d = new Date(),
       month = '' + (d.getMonth() + 1),
       day = '' + d.getDate(),

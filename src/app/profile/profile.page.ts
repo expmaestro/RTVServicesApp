@@ -17,6 +17,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
   public data: Profile = new Profile();
   private loading: any;
+  subscription: any;
   constructor(private settingsService: SettingsService, private loginService: LoginService, private nav: NavController,
     private file: File, private fileService: FilesService, private toastController: ToastController,
     private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController) {
@@ -74,6 +75,14 @@ export class ProfilePage extends BaseComponent implements OnInit {
       console.log(r));
   }
 
+  ionViewWillLeave() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+      this.subscription = null;
+    }
+  } 
+
+
   async clear() {
     console.log('clear')
     this.loading = await this.loadingCtrl.create({
@@ -123,7 +132,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
+    this.subscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
       this.data = r;
       this.prepareData();
     });

@@ -15,6 +15,8 @@ import { NetworkService } from '../services/network.service';
 export class LoginPage extends BaseComponent implements OnInit {
 
     private loading: any;
+    private process: boolean = false;
+    showPassword = false;
     public loginForm = new FormGroup({
         login: new FormControl(environment.userName, [Validators.required]),
         password: new FormControl(environment.password, [Validators.required]),
@@ -33,9 +35,14 @@ export class LoginPage extends BaseComponent implements OnInit {
 
     ngOnInit() {
         this.apiUrl = environment.apiUrl
-    }
+    }  
+    
 
     async login() {
+        console.log('login')
+        if (!this.loginForm.valid) return;
+        if (this.process) return;
+        this.process = true;
         this.loading = await this.loadingCtrl.create({
             message: 'Пожалуйста подождите...'
         });
@@ -50,6 +57,7 @@ export class LoginPage extends BaseComponent implements OnInit {
                     this.settingsService.userProfileApi().safeSubscribe(this, async (r: any) => {
                         this.settingsService.setProfileData = r.data;
                         await this.loading.dismiss();
+                        this.process = false;
                         this.nav.navigateRoot('/services');
                     })
 
@@ -58,12 +66,14 @@ export class LoginPage extends BaseComponent implements OnInit {
                         ? response.errors[0].message
                         : 'Ошибка авторизации';
                     await this.loading.dismiss();
+                    this.process = false;
                     await this.showError(error);
                 }
 
             }, async (error) => {
                 console.log(error);
                 await this.loading.dismiss();
+                this.process = false;
                 await this.networkService.isConnected();
             });
     }

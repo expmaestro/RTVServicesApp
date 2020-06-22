@@ -1,34 +1,69 @@
-<ion-content class="ion-padding">
-  <div class="ion-text-center">
-    <img src="assets/img/logo.png" alt="" />
-  </div>
+<ion-content class="ion-padding login-page ">
+  <form [formGroup]="loginForm" (ngSubmit)="login()" style="height: 100%;">
+    <ion-grid style=" display: flex; flex-flow: column; height: 100%;">
 
-  <form [formGroup]="loginForm" (ngSubmit)="login()">
-    <ion-list lines="full" class="ion-no-margin ion-no-padding">
-      <ion-item lines="none">
-        <ion-label position="floating">Логин</ion-label>
-        <ion-input type="text" formControlName="login"></ion-input>
-      </ion-item>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11">
+          <div class="ion-text-center">
+            <img src="assets/img/logo.png" alt="" />
+          </div>
+        </ion-col>
 
-      <ion-item lines="none">
-        <ion-label position="floating">Пароль</ion-label>
-        <ion-input type="password" formControlName="password"></ion-input>
-      </ion-item>
-    </ion-list>
+      </ion-row>
 
-    <ion-label class="forgot-password-url">
-      <a href="{{apiUrl}}/auth/?forgot_password=yes">Забыли пароль?</a>
-    </ion-label>
 
-    <div class="ion-padding">
-      <ion-button [disabled]="!loginForm.valid" expand="block" type="submit" class="ion-no-margin">Войти</ion-button>
-    </div>
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
+          <mat-form-field>
+            <mat-label>Логин</mat-label>
+            <input matInput formControlName="login" placeholder="Логин">
+            <mat-error *ngIf="!loginForm.controls.login.valid">
+              Заполните логин
+            </mat-error>
+          </mat-form-field>
 
-    <div>
-      <a href="{{apiUrl}}/auth/registration.php">Зарегистрироваться</a>
-    </div>      
-    <ion-label class="privacy-url">
-      <a href="{{apiUrl}}/home/privacy">Политика конфиденциальности</a>
-    </ion-label>
+        </ion-col>
+
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
+          <mat-form-field>
+            <mat-label>Пароль</mat-label>
+            <input matInput type="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+              placeholder="Пароль">
+            <button class="icon" type="button" mat-button matSuffix mat-icon-button aria-label="change"
+              (click)="showPassword = !showPassword">
+              <ion-icon *ngIf="!showPassword" name="eye"></ion-icon>
+              <ion-icon *ngIf="showPassword" name="eye-off"></ion-icon>
+            </button>
+            <mat-error *ngIf="!loginForm.controls.password.valid">
+              Заполните пароль
+            </mat-error>
+          </mat-form-field>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
+          <ion-button [disabled]="!loginForm.valid || process" expand="full" type="submit" class="ion-no-margin">Войти
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" class="ion-text-center ion-padding-top">
+          <a class="no-decoration" href="{{apiUrl}}/auth/?forgot_password=yes">Забыли пароль?</a>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
+        <ion-col size="11" class="ion-text-center ion-padding-top">
+          <span style="color: grey;">Ещё нет логина? </span> <a class="no-decoration"
+            href="{{apiUrl}}/auth/registration.php">Зарегистрироваться</a>
+        </ion-col>
+      </ion-row>
+
+    </ion-grid>
   </form>
 </ion-content>

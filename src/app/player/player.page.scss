@@ -1,20 +1,40 @@
+
+.player {
+    ion-button {
+        text-transform: initial;
+    }
+    mat-form-field {
+        width: 100%;
+    }
+
+    ion-icon {
+        //font-size: 27px;
+        color: #9c9c9c;
+    }
+
+    .icon {
+        font-size:  27px;;
+    }
+}
+
+ion-title {
+    line-height: 35px;
+}
+
 .bold {
     color: blue;
 }
 
-ion-content, ion-list, ion-item {
-    // --background: var(--ion-color-dark);
-    // --ion-background-color: var(--ion-color-dark)
-}
 
 .time-slider {
-    width: 100%; // !important;
+    width: 100%;
     // margin-left:5px;
     // margin-right:5px;
   }
 
-  ::ng-deep .disableAnimation *{
-    transition: none !important;
-   }
+//   ::ng-deep .disableAnimation *{
+//     transition: none !important;
+//    }
+
 
   

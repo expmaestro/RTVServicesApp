@@ -1,34 +1,45 @@
+<ion-header>
+  <ion-toolbar color="primary" [routerLink]="['/profile']">
+    <ion-avatar slot="start">
+      <img src="assets/img/avatar.svg">
+    </ion-avatar>
+    <ion-title *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
 <ion-content>
-
-  <ion-item class="ion-text-center" lines="none">
-    <ion-label color="primary">Озаригн</ion-label>
-  </ion-item>
-
-  <div class="ion-text-center">
-    <ion-item lines="none" class="inline" [routerLink]="['/profile']">
-      <ion-avatar slot="start">
-        <img src="assets/img/avatar.svg">
-      </ion-avatar>
-      <span *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }} </span>
+  <ion-card button="true" *ngFor="let service of services" (click)="next(service)" [class.not-paid]="!service.paid"
+    class="item-padding">
+    <ion-item  class="ion-no-padding" lines="none" color="transparent">
+      <img class="img" [src]="service.cover">
+      <ion-label class="new-line-text ion-no-margin">
+        <h4>{{ service.name }}</h4>
+        <!-- <p>{{ service.name }}</p> -->
+      </ion-label>
+      <ion-button fill="clear" *ngIf="!service.paid">
+        <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+      </ion-button>
     </ion-item>
-  </div>
+  </ion-card>
 
-  <ion-list>
-    <ng-container *ngFor="let service of services">
-      <ion-item button *ngIf="service.paid" (click)="next(service)">
-        <ion-label>
-          {{ service.name }}
-        </ion-label>
-      </ion-item>
-      <ion-item *ngIf="!service.paid">
-        <ion-label>
-          {{ service.name }}
-        </ion-label>
-        <ion-button href="{{apiUrl}}#personal=services&service={{service.id}}&" fill="clear">
-          <ion-icon slot="icon-only" name="cart-outline" color="primary"></ion-icon>
-        </ion-button>
-      </ion-item>
-    </ng-container>
 
-  </ion-list>
+  <!-- <ion-list>
+      <ng-container>
+        <ion-item button *ngIf="service.paid">
+          <ion-label>
+            {{ service.name }}
+          </ion-label>
+        </ion-item>
+        <ion-item *ngIf="!service.paid">
+          <ion-label>
+            {{ service.name }}
+          </ion-label>
+          <ion-button href="{{apiUrl}}#personal=services&service={{service.id}}&" fill="clear">
+            <ion-icon slot="icon-only" name="cart-outline" color="primary"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ng-container>
+
+    </ion-list> -->
 </ion-content>

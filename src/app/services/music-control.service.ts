@@ -17,8 +17,8 @@ export class MusicControlService {
     return this.playlist$.asObservable();
   }
 
-  setPlayList(playList, service: ServiceModel): void {
-    this.playlist$.next({  playList: playList, service: service });
+  setPlayList(playList, service: ServiceModel, params: number[]): void {
+    this.playlist$.next({  playList: playList, service: service,  params});
   }
 
   get currentIndex() {
@@ -192,12 +192,12 @@ export class MusicControlService {
   }
 
 
-  mediaControlSettings(sectionName, trackName, dismissable, isPlaying) {
-    return {
+  mediaControlSettings(sectionName, trackName, dismissable, isPlaying, url) {
+    return { 
       track: sectionName,		// optional, default : ''
       artist: trackName,// 'Muse',						// optional, default : ''
       album: trackName,     // optional, default: ''
-      cover: '',		// optional, default : nothing
+      cover: url,		// optional, default : nothing
       // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
       //			 or a remote url ('http://...', 'https://...', 'ftp://...')
       isPlaying: isPlaying,							// optional, default : true

@@ -56,6 +56,7 @@ export class ServiceModel {
   next: NextModel | null;
   paid: boolean;
   position: number;
+  cover: string;
 }
 
 
@@ -88,6 +89,7 @@ export class ServicePlayListModel {
 export class SectionPlayList {
   playList: PlayListModel[];
   service: ServiceModel;
+  params: number[];
 }
 
 export class PlayListModel {

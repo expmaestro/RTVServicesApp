@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
 import { PlayListModel } from '../backend/interfaces';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'download',
@@ -15,13 +16,14 @@ import { PlayListModel } from '../backend/interfaces';
 export class DownloadComponent extends BaseComponent implements OnInit {
   @Input() playlist: PlayListModel[] = [];
   @Input() serviceId = 0;
+  description = '';
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
   constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController,
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
-    private zone: NgZone,
+    private zone: NgZone, private dataService: DataService
   ) {
     super();
   }
@@ -29,20 +31,29 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        //this.updateFileList();     
+        this.setDescription();
         this.fileTransferCreate = this.fileTransfer.create();
-       // console.log(this.playlist)
-
-        this.fileTransferCreate.onProgress(pr => {
+        this.fileTransferCreate.onProgress(progress => {
           if (this.playlist && this.playlist.length === 1) {
             this.zone.run(() => {
-              this.progress = Math.round(pr.loaded / pr.total * 100);
+              this.progress = Math.round(progress.loaded / progress.total * 100);
             })
           }
-        })
-
+        });
       }
     });
+  }
+
+  private setDescription() {
+    if (this.serviceId === 1) {
+      const date = this.dataService.getDate();
+      this.description = `Загрузить завод времени на ${date[2]}.${date[1]}.${date[0]} для прослушивания без интернета`;
+    } else if (this.serviceId === 2) {
+      this.description = 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
+    } else {
+      this.description = 'Загрузить сервис для прослушивания без интернета';
+    }
+
   }
 
   async download(playList = null) {

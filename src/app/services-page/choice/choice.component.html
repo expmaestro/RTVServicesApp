@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="dark">
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="services"></ion-back-button>
     </ion-buttons>
@@ -7,54 +7,138 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <download [serviceId]="service?.id" [playlist]="playlistToDownload"></download>
+<ion-content class="choice-content ion-padding-bottom-custom">
 
-  <ion-list>
-    <ion-list-header>
-      Сделайте выбор:
-    </ion-list-header>
-    <ng-container *ngIf="!isCalendar">
-      <ion-item button *ngFor="let item of model.items" (click)="choice(item, model.next)">
-        <ion-label>
-          {{ item.name }}
-        </ion-label>
-      </ion-item>
+  <ion-grid style="display: flex; flex-flow: column; height: 100%;">
+
+    <ng-container *ngIf="serviceId === 1">
+      <ion-row class="ion-justify-content-center " *ngIf="model.items.length === 2">
+        <ion-col size="12" class="ion-no-padding">
+          <ion-button class="main-coord" disabled="true" size="large" expand="full" style="opacity: 1;">
+            <ion-label>
+              {{ subSectionName }}
+            </ion-label>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center ">
+
+        <ion-col [size]="model.items.length > 2 ? 10 : 12" class="ion-no-padding">
+          <ion-row class="ion-justify-content-center ">
+            <ion-col size="6" class="ion-no-padding">
+              <ion-button class="main-coord" size="large" expand="full" (click)="choice(model.items[0], model.next)">
+                <ion-label>
+                  {{ model.items[0].name }}
+                </ion-label>
+              </ion-button>
+
+            </ion-col>
+            <ion-col size="6" class="ion-no-padding">
+
+              <ion-button class="main-coord" size="large" expand="full" (click)="choice(model.items[1], model.next)">
+                <ion-label>
+                  {{ model.items[1].name }}
+                </ion-label>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+          <ion-row class="ion-justify-content-center " *ngIf="model.items.length > 2">
+            <ion-col size="6" class="ion-no-padding">
+              <ion-button class="main-coord" size="large" expand="full" (click)="choice(model.items[2], model.next)">
+                <ion-label>
+                  {{ model.items[2].name }}
+                </ion-label>
+              </ion-button>
+            </ion-col>
+            <ion-col size="6" class="ion-no-padding">
+              <ion-button class="main-coord" size="large" expand="full" (click)="choice(model.items[3], model.next)">
+                <ion-label>
+                  {{ model.items[3].name }}
+                </ion-label>
+              </ion-button>
+            </ion-col>
+          </ion-row>
+        </ion-col>
+        <ion-col class="ion-no-padding" size="2" *ngIf="model.items.length > 2">
+          <ion-button class="main-coord" size="large" expand="full" style="height: 96%;" (click)="choice(model.items[4], model.next)">
+            <ion-label style=" transform: rotate(-90deg); white-space: normal;">
+              {{ model.items[4].name }}
+            </ion-label>
+          </ion-button>
+        </ion-col>
+      </ion-row>
     </ng-container>
-  </ion-list>
-  <ng-container *ngIf="isCalendar">    
 
-    <div id="id__53_100" class="services-time-calendar__flipper-item services-time-calendar__flipper-item_active">
-      <div>
-        <div class="services-time-calendar__tablet" *ngIf="!isNextCalendarStep">
-          <div class="services-time-calendar__tablet-tile" (click)="choice(item, model.next)"
-            *ngFor="let item of model.items; let last = last" tabindex="1" data-id="0"> {{ item.name }}</div>
-          <!-- <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="1">Черное время</div>
-          <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="2">Серое время</div>
-          <div class="services-time-calendar__tablet-tile" tabindex="1" data-id="3">Время Зари</div>
-          <div class="services-time-calendar__tablet-tile" tabindex="1" data-orientation="vertical" data-id="4">Вертикальный календарь</div> -->
-        </div>
-        <div id="id__53_94" *ngIf="isNextCalendarStep" class="services-time-calendar__tablet-popup services-time-calendar__tablet-popup_active"
-          style="">
-          <div id="id__53_95" class="services-time-calendar__flipper">
-            <div class="services-time-calendar__flipper-item">
-              <div class="services-time-calendar__tablet-content">
-                <div id="id__53_96">{{ subSectionName }}</div>
-                <div>
-                  <div id="id__53_97" class="services-time-calendar__tablet-button" (click)="choice(item, model.next)" *ngFor="let item of model.items; let last = last" data-id="0">{{ item.name }}
-                  </div>
-                  <!-- <div id="id__53_98" class="services-time-calendar__tablet-button" tabindex="1" data-id="1">Общее1</div> -->
-                </div>
-              </div>
-            </div>
-            <div id="id__53_99" class="services-time-calendar__flipper-item">test</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ng-container *ngIf="serviceId === 2">
+      <ion-row class="ion-justify-content-center " *ngIf="model.items.length === 2">
+        <ion-col size="12" class="ion-no-padding">
+          <ion-button class="cherpachok" disabled="true" size="large" expand="full" style="opacity: 1;">
+            <ion-label>
+              {{ subSectionName }}
+            </ion-label>
+          </ion-button>
+        </ion-col>
+      </ion-row>
 
+      <ion-row class="ion-justify-content-center ">
+        <ion-col class="ion-no-padding" *ngFor="let item of model.items; let last = last" size="6">
+          <ion-button class="cherpachok" size="large" expand="full" (click)="choice(item, model.next)">
+            <ion-label>
+              {{item.name}}
+            </ion-label>
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ng-container>
 
-  </ng-container>
+    <ng-contrainer *ngIf="serviceId === 5">
+      <ion-row class="ion-justify-content-center ">
 
+        <ion-col class="ion-no-padding" size-xs="12" size-sm="12" size-md="12" size-lg="12" size-lg="12">
+          <ion-list>
 
+            <ion-item lines="full">
+              <ion-label>Страдастея</ion-label>
+              {{stradasteya}}
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Радастея</ion-label>
+              <ion-select [formControl]="radasteya" okText="OK" cancelText="Отмена">
+                <ion-select-option *ngFor="let item of model.items;" [value]="item">
+                  {{item.name}}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Зитуорд</ion-label>
+              <ion-select [formControl]="zituord" okText="OK" cancelText="Отмена">
+                <ion-select-option *ngFor="let item of model.next.items;" [value]="item">
+                  {{item.name}}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+          </ion-list>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
+          <ion-button [disabled]="!radasteya.value || !zituord.value" expand="full" color="primary" type="submit"
+            class="ion-no-margin" (click)="mainCoord()">
+            Напитать
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ng-contrainer>
+
+    <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
+      <ion-col>
+        <download [serviceId]="service?.id" [playlist]="playlistToDownload"></download>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

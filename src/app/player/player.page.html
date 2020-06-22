@@ -1,32 +1,88 @@
 <ion-header>
-  <ion-toolbar color="dark">
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="services"></ion-back-button>
     </ion-buttons>
-    <ion-title>Плейлист</ion-title>
+    <ion-title>{{ title }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="player">
 
-  <download [serviceId]="service?.id" [playlist]="playlistToDownload$ | async"></download>
 
-  <ion-list>
-    <ng-container *ngIf="service?.id == 3">
-      <ion-item lines="none">
-        <ion-input type="text" placeholder="Сокровенное имя" [formControl]="secretName"></ion-input>
-        <ion-button (click)="setSecretName()" item-end class="ion-no-margin">Напитать</ion-button>
-      </ion-item>
-      <ion-item *ngIf="secretNameWarning.length > 0" lines="none">
-        <ion-label item-start>{{ secretNameWarning }}</ion-label>
-      </ion-item>
-    </ng-container>
+  <ion-grid style="height: 100%; display: flex;  flex-flow: column;">
+    <ion-row *ngIf="service?.id !== 1 && service?.id !== 3" class="ion-justify-content-center">
+      <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
+        <ion-button expand="full" type="button" (click)="play(0)" class="ion-no-margin">Слушать
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-    <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index)">
-      <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
-        {{ index + 1 }}. {{ music.name }}
-      </ion-label>
-      <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
-    </ion-item>
-  </ion-list>
+    <ion-row *ngIf="service?.id === 1" class="ion-justify-content-center">
+      <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
+        <ion-button expand="full" type="button" (click)="otherTimeRedirect()" class="ion-no-margin">Завести другое
+          время
+        </ion-button>
+      </ion-col>
+    </ion-row>
+
+
+    <form *ngIf="service?.id === 3" (ngSubmit)="setSecretName()">
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
+          <ion-item lines="full">
+            <ion-label>Матрица</ion-label>
+            {{matrix}}
+          </ion-item>
+        </ion-col>
+      </ion-row>
+      <ion-row class="ion-justify-content-center">        
+        <ion-col size="12" size-xs="12" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
+          <mat-form-field>
+            <input matInput type="password" [type]="showPassword ? 'text' : 'password'" [formControl]="secretName"
+              placeholder="Сокровенное имя">
+            <button class="icon" type="button" mat-button matSuffix mat-icon-button
+              (click)="showPassword = !showPassword">
+              <ion-icon *ngIf="!showPassword" name="eye"></ion-icon>
+              <ion-icon *ngIf="showPassword" name="eye-off"></ion-icon>
+            </button>
+            <mat-error *ngIf="!secretName.valid">
+              {{ secretName.getError('warning')}}
+            </mat-error>
+          </mat-form-field>
+        </ion-col>
+      </ion-row>
+
+      <ion-row class="ion-justify-content-center">
+        <ion-col size="11" size-xs="11" size-sm="6" size-md="6" size-lg="3" size-lg="2" class="ion-padding-top">
+          <ion-button expand="full" type="submit" [disabled]='!secretName.valid' class="ion-no-margin">Напитать
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </form>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" size-xs="12" size-sm="6" size-md="6" size-lg="4" size-lg="2" class="ion-no-padding">
+        <ion-list>
+
+          <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index)" lines="full">
+            <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
+              {{ index + 1 }}. {{ music.name }}
+            </ion-label>
+            <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
+          </ion-item>
+
+        </ion-list>
+
+      </ion-col>
+    </ion-row>
+
+    <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
+      <ion-col>
+        <download
+        *ngIf="showDownload()"
+        [serviceId]="service?.id" [playlist]="playlistToDownload$ | async"></download>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

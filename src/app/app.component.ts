@@ -63,9 +63,9 @@ export class AppComponent extends BaseComponent {
   initBackgroundMode() {
 
 
-    var bg = this.window.cordova.plugins.backgroundMode;
-    bg.setDefaults({
-      text: 'App is running in background!',
+    var backgroundMode = this.window.cordova.plugins.backgroundMode;
+    backgroundMode.setDefaults({
+      text: 'Running in background!',
       hidden: true, //
       resume: true,
       color: '0098D9',
@@ -77,17 +77,17 @@ export class AppComponent extends BaseComponent {
       showWhen: false,
       silent: true,
     });
-    bg.enable();
-    bg.on('activate', function () {
-      bg.disableWebViewOptimizations();
+    backgroundMode.enable();
+    backgroundMode.on('activate', function () {
+      backgroundMode.disableWebViewOptimizations();
       // bg.disableBatteryOptimizations();
       console.log('actiate');
       console.log("background activate !!!!");
-      bg.isIgnoringBatteryOptimizations(function (isIgnoring) {
+      backgroundMode.isIgnoringBatteryOptimizations(function (isIgnoring) {
         console.log(`isIgnoring: ${isIgnoring}`);
       })
     });
-    bg.disableBatteryOptimizations();
+    backgroundMode.disableBatteryOptimizations();
     //bg.moveToBackground();
     // this.backgroundMode.enable();
     //this.window.cordova.plugins.backgroundMode.enable();

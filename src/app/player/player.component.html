@@ -1,15 +1,15 @@
 <ion-footer class="ion-no-border" *ngIf="currentPlaylist.length > 0">
-  <ion-toolbar color="dark">    
+  <ion-toolbar color="dark">
+    
     <ion-row>
-      <ion-col size="12" style="padding-bottom: 0;">
-        <span>{{ sectionName }}</span>
+    
+      <ion-col size="6" class="section-column">
+        <ion-note class="section-name block">{{ sectionName }}</ion-note>
+        <ion-note class="track-name">{{ trackName }}</ion-note>
       </ion-col>
-      <ion-col size="6" style="padding-top: 0;">
-        <ion-note>{{ trackName }}</ion-note>
-      </ion-col>
-      <ion-col size="6" class="ion-text-center" style="padding-top: 0;">
+      <ion-col size="6" class="ion-text-right ion-no-padding custom-padding">
         <ion-button fill="clear" [disabled]="disablePrev()" (click)="prevTrack()" color="light">
-          <ion-icon name="play-skip-back-outline"></ion-icon>
+          <ion-icon name="play-skip-back"></ion-icon>
         </ion-button>
 
         <ion-button fill="clear" (click)="play()" [disabled]="state?.error" *ngIf="!state?.playing" color="light">
@@ -21,23 +21,23 @@
         </ion-button>
 
         <ion-button fill="clear" [disabled]="disableNext()" (click)="nextTrack()" color="light">
-          <ion-icon name="play-skip-forward-outline"></ion-icon>
+          <ion-icon name="play-skip-forward"></ion-icon>
         </ion-button>
       </ion-col>
 
-      <ion-col size="12" style="padding-top: 0;">
-        <mat-slider class="time-slider" color="primary" [min]="0" [max]="state?.duration" step="1" [value]="state?.currentTime"
-          (input)="onSliderChangeEnd($event)" 
-        
-          ></mat-slider>
+      <ion-col size="6" class="ion-text-left ion-no-padding custom-padding" color="light">
+        <ion-note class="duration" >{{ state?.readableCurrentTime }}</ion-note>
+      </ion-col>
+      <ion-col size="6" class="ion-text-right padding-duration" color="light">
+        <ion-note class="duration" >{{ state?.readableDuration }}</ion-note>
       </ion-col>
 
-      <ion-col size="6" class="ion-text-left" style="font-size: 10px;">
-        {{ state?.readableCurrentTime }}
+      <ion-col size="12" class="ion-no-padding">
+        <mat-slider class="time-slider" color="primary" [min]="0" [max]="state?.duration" step="1"
+          [value]="state?.currentTime" (input)="onSliderChangeEnd($event)"></mat-slider>
       </ion-col>
-      <ion-col size="6" class="ion-text-right" style="font-size: 10px;">
-        {{ state?.readableDuration }}
-      </ion-col>
+
+
     </ion-row>
   </ion-toolbar>
 </ion-footer>

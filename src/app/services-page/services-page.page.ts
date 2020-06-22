@@ -14,7 +14,6 @@ import { environment } from 'src/environments/environment';
 export class ServicesPagePage extends BaseComponent implements OnInit {
   services: Array<ServiceModel> = [];
   public profile: Profile;
-  apiUrl: any;
 
   constructor(private nav: NavController, private router: Router, private settingsService: SettingsService) {
     super();
@@ -23,7 +22,6 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.apiUrl = environment.apiUrl
     this.settingsService.getProfileDataAsync.safeSubscribe(this, (response: any) => {
       this.profile = response;
     });
@@ -32,12 +30,15 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     });
   }
 
-  ionViewWillEnter () {
+  ionViewWillEnter() {
     this.settingsService.getServices();
-  }  
+  }
 
   next(service: ServiceModel) {
-    if (!service.paid) return;
+    if (!service.paid) {
+      window.location.href = `${environment.apiUrl}#personal=services&service=${service.id}&`;
+      return;
+    }
     if (service.next) {
       this.router.navigate([`/services/${service.id}`]);
     } else {

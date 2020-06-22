@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -17,7 +17,8 @@ import { MaterialModule } from '../material.module';
     FormsModule,
     IonicModule,
     ServicesPagePageRoutingModule,
-    MaterialModule
+    MaterialModule,
+    ReactiveFormsModule
   ],
   declarations: [ServicesPagePage, ChoiceComponent, DownloadComponent]
 })
