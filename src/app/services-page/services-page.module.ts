@@ -8,8 +8,8 @@ import { ServicesPagePageRoutingModule } from './services-page-routing.module';
 
 import { ServicesPagePage } from './services-page.page';
 import { ChoiceComponent } from './choice/choice.component';
-import { DownloadComponent } from '../download/download.component';
 import { MaterialModule } from '../material.module';
+import { SharedModule } from '../shared.module';
 
 @NgModule({
   imports: [
@@ -18,8 +18,9 @@ import { MaterialModule } from '../material.module';
     IonicModule,
     ServicesPagePageRoutingModule,
     MaterialModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SharedModule
   ],
-  declarations: [ServicesPagePage, ChoiceComponent, DownloadComponent]
+  declarations: [ServicesPagePage, ChoiceComponent]
 })
 export class ServicesPagePageModule {}

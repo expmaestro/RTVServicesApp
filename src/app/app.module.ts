@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InterceptorService } from './services/interceptor.service';
 import { LayoutPagePageModule } from './layout-page/layout-page.module';
 import { AppMinimize } from '@ionic-native/app-minimize/ngx';
+import { SharedModule } from './shared.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -31,7 +32,8 @@ import { AppMinimize } from '@ionic-native/app-minimize/ngx';
     AppRoutingModule, 
     HttpClientModule,
     BrowserAnimationsModule,
-    LayoutPagePageModule
+    LayoutPagePageModule,
+    SharedModule,
   ],
   providers: [
     {

@@ -4,8 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { PlayerPageRoutingModule } from './player-routing.module';
 import { PlayerPage } from './player.page';
-import { DownloadComponent } from '../download/download.component';
 import { MaterialModule } from '../material.module';
+import { SharedModule } from '../shared.module';
 
 
 @NgModule({
@@ -15,9 +15,10 @@ import { MaterialModule } from '../material.module';
     ReactiveFormsModule,
     IonicModule,
     PlayerPageRoutingModule, 
-    MaterialModule
+    MaterialModule,
+    SharedModule
   ],
-  declarations: [PlayerPage, DownloadComponent],
+  declarations: [PlayerPage],
   providers: []
 })
 export class PlayerPageModule { }
