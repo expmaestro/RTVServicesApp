@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef, ViewChild, NgZone } from '@angular/core';
 import { BaseComponent } from '../services/base-component';
-import { MusicControlService } from '../services/music-control.service';
+import { MusicControlService, StreamState } from '../services/music-control.service';
 import { DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormControl, Validators } from '@angular/forms';
@@ -9,7 +9,7 @@ import { ServicePlayListModel, PlayListModel, ServiceModel, ServicePlayListModel
 import { SettingsService } from '../services/settings.service';
 import { NetworkService } from '../services/network.service';
 import { AlertController, Platform, NavController } from '@ionic/angular';
-import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, filter, takeUntil, take } from 'rxjs/operators';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -25,13 +25,15 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   showPassword = false;
   servicePlayList: ServicePlayListModelObject;
   currentIndex = -1;
-  playlistAreSame: boolean;
+  playlistAreSame: boolean = undefined;
   params: number[] = [];
   service: ServiceModel;
   private subscription: any;
   private profileSubscription: any;
+  private samePlaylistSubscription: any;
   title = '';
   matrix = '';
+  state: StreamState;
 
   constructor(private musicControlService: MusicControlService, private activatedRoute: ActivatedRoute,
     private dataService: DataService, private fileService: FilesService, private settingsService: SettingsService,
@@ -88,6 +90,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('Player Init');
+    this.musicControlService.getState()
+      .safeSubscribe(this, state => {
+        this.state = state;
+      });
+
     this.activatedRoute.url.safeSubscribe(this, (segments: UrlSegment[]) => {
       this.segments = segments;
       if (this.segments.length > 0) {
@@ -96,16 +103,18 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         this.params = this.segments.filter((param, index) => index > 0).map((x) => Number(x.path));
         this.title = this.dataService.getFullSectionName(this.service, this.params);
 
-        this.settingsService.getServicePlayListFromStorage(this.service.id, this.params);
+        this.settingsService.getServicePlayListFromStorage(this.service.id);
         this.settingsService.getServicePlayList(this.service.id);
       }
 
       this.musicControlService.getCurrentIndex().safeSubscribe(this, (index) => {
-        this.currentIndex = index;
+        this.currentIndex = index;       
       });
 
-      this.musicControlService.playlistAreSame.safeSubscribe(this, (same) => {
+      this.samePlaylistSubscription = this.musicControlService.checkPlaylistAreSameAsync.safeSubscribe(this, (same) => {
         this.playlistAreSame = same;
+       // console.log(same)
+        console.log( ' this.musicControlService.checkPlaylistAreSameAsync.pipe(distinctUntilChanged())')
       });
     });
   }
@@ -132,7 +141,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     // console.table(this.playlistToDownload.map(m => m.path));
     this.playlistToDownload$.next(playlistToDownload);
     if (this.service.id === 3 && secretNameArray.length === 0) return;
-    console.log(playlistToDownload);
+   // console.log(playlistToDownload);
     this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], secretNameArray);
     this.musicControlService.setPlayList(this.playlist, this.service, this.params);
     this.platform.ready().then(() => {
@@ -158,6 +167,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         console.log(servicePlayList)
 
         if (servicePlayList) {
+          //console.log('!!!!!!!!!!!!!!!!!!!!!!!!!GEt play list!!!!!!!!!!!!!!!!!!!!')
           this.getPlayList(servicePlayList);
         }
         else {
@@ -187,6 +197,11 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     if (this.profileSubscription) {
       this.profileSubscription.unsubscribe();
       this.profileSubscription = null;
+    }
+
+    if (this.samePlaylistSubscription) {
+      this.samePlaylistSubscription.unsubscribe();
+      this.samePlaylistSubscription = null;
     }
   }
 

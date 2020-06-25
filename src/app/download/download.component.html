@@ -1,28 +1,41 @@
 <ion-grid class="download">
+  <ng-container *ngIf="alreadyLoaded !== undefined && !alreadyLoaded">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="11" class="ion-text-center">
+        {{ description }}
+      </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center">
-    <ion-col size="11" class="ion-text-center">
-      {{ description }}
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center" *ngIf="needToDownloadFiles.length === 0">
+      <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
+        <ion-button [disabled]="playlist.length == 0" expand="full" type="submit" class="ion-no-margin"
+          (click)="download()">
+          Загрузить
+        </ion-button>
+      </ion-col>
+    </ion-row>
 
-  <ion-row class="ion-justify-content-center" *ngIf="needToDownloadFiles.length === 0">
-    <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
-      <ion-button [disabled]="playlist.length == 0" expand="full" type="submit" class="ion-no-margin"
-        (click)="download()">
-        Загрузить
-      </ion-button>
-    </ion-col>
-  </ion-row>
+    <ion-row class="ion-justify-content-center" *ngIf="needToDownloadFiles.length > 0">
+      <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
+        <ion-item lines="none">
+          <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
+        </ion-item>
+        <div class="ion-text-center">Загрузка {{progress}}%</div>
 
-  <ion-row class="ion-justify-content-center" *ngIf="needToDownloadFiles.length > 0">
-    <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
-      <ion-item lines="none">
-        <mat-progress-bar  mode="determinate" [value]="progress"></mat-progress-bar>
-      </ion-item>
-      <div class="ion-text-center">Загрузка {{progress}}%</div>
-     
-    </ion-col>
+      </ion-col>
 
-  </ion-row>
+    </ion-row>
+  </ng-container>
+  <ng-container *ngIf="alreadyLoaded !== undefined && alreadyLoaded">
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="11" class="ion-text-center"  [innerHTML]="description">
+       
+      </ion-col>
+    </ion-row>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="11" class="ion-text-center">
+        <button mat-button color="primary" (click)="deleteMusic()">Удалить</button>
+      </ion-col>
+    </ion-row>
+  </ng-container>
 </ion-grid>

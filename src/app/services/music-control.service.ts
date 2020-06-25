@@ -11,7 +11,7 @@ export class MusicControlService {
   private playlist$ = new Subject<SectionPlayList>();
   private currentIndex$ = new BehaviorSubject<number>(-1);
   runTrack$ = new Subject<number>(); // auto start from 0
-  private playlistAreSame$ = new BehaviorSubject<boolean>(true);
+  private playlistAreSame$ = new Subject<boolean>();
 
   get getPlaylist() {
     return this.playlist$.asObservable();
@@ -37,7 +37,7 @@ export class MusicControlService {
     this.playlistAreSame$.next(val);
   }
 
-  get playlistAreSame() {
+  get checkPlaylistAreSameAsync() {
     return this.playlistAreSame$.asObservable();
   }
 
@@ -192,12 +192,12 @@ export class MusicControlService {
   }
 
 
-  mediaControlSettings(sectionName, trackName, dismissable, isPlaying, url) {
+  mediaControlSettings(sectionName, trackName, isPlaying, dismissable, cover) {
     return { 
       track: sectionName,		// optional, default : ''
       artist: trackName,// 'Muse',						// optional, default : ''
       album: trackName,     // optional, default: ''
-      cover: url,		// optional, default : nothing
+      cover: cover,		// optional, default : nothing
       // cover can be a local path (use fullpath 'file:///storage/emulated/...', or only 'my_image.jpg' if my_image.jpg is in the www folder of your app)
       //			 or a remote url ('http://...', 'https://...', 'ftp://...')
       isPlaying: isPlaying,							// optional, default : true

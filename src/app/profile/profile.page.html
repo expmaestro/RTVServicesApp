@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="dark">
+  <ion-toolbar color="primary">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="services"></ion-back-button>
     </ion-buttons>
@@ -25,22 +25,20 @@
   </div>
 
   <ion-list>
-    <ion-item>
-      <ion-label>Удалить сохранённые файлы</ion-label>
-      <ion-button fill="clear" (click)="clear()">
-        <ion-icon slot="start" name="trash"></ion-icon>
-      </ion-button>
+    <ion-item button="true" (click)="clear()" lines="full">
+      <ion-label>Удалить сохранённые файлы</ion-label>     
+      <ion-icon name="trash" slot="end"></ion-icon>
     </ion-item>
-    <ion-item lines="inset">
+    <!-- <ion-item lines="inset">
       <ion-label>Kill Session</ion-label>
       <ion-button fill="clear" (click)="imitateLogout()">
         <ion-icon slot="start" name="exit-outline"></ion-icon>
       </ion-button>
-    </ion-item>
+    </ion-item> -->
   </ion-list>
 
 
-  <ion-item-divider color="tertiary" class="ion-text-center">
+  <ion-item-divider color="primary" class="ion-text-center">
     <ion-label>
       Координаты
     </ion-label>

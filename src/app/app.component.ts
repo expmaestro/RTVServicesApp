@@ -8,6 +8,7 @@ import { NetworkService } from './services/network.service';
 // import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { AppMinimize } from '@ionic-native/app-minimize/ngx';
 import { Router } from '@angular/router';
+import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
 
 
 @Component({
@@ -79,6 +80,7 @@ export class AppComponent extends BaseComponent {
     });
     backgroundMode.enable();
     backgroundMode.on('activate', function () {
+      
       backgroundMode.disableWebViewOptimizations();
       // bg.disableBatteryOptimizations();
       console.log('actiate');
@@ -86,6 +88,10 @@ export class AppComponent extends BaseComponent {
       backgroundMode.isIgnoringBatteryOptimizations(function (isIgnoring) {
         console.log(`isIgnoring: ${isIgnoring}`);
       })
+    });
+    backgroundMode.on('deactivate ', function() {
+      console.log('deactivate!!!!!!!!!!!!!!!!!!!!');
+    //  MusicControls.destroy(onSuccess => { }, onError => { });
     });
     backgroundMode.disableBatteryOptimizations();
     //bg.moveToBackground();

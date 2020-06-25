@@ -16,7 +16,6 @@ import { Profile } from '../backend/interfaces';
 export class ProfilePage extends BaseComponent implements OnInit {
 
   public data: Profile = new Profile();
-  private loading: any;
   subscription: any;
   constructor(private settingsService: SettingsService, private loginService: LoginService, private nav: NavController,
     private file: File, private fileService: FilesService, private toastController: ToastController,
@@ -70,10 +69,10 @@ export class ProfilePage extends BaseComponent implements OnInit {
     await alert.present();
   }
 
-  imitateLogout() {
-    this.loginService.logout().subscribe((r) =>
-      console.log(r));
-  }
+  // imitateLogout() {
+  //   this.loginService.logout().subscribe((r) =>
+  //     console.log(r));
+  // }
 
   ionViewWillLeave() {
     if (this.subscription) {
@@ -84,25 +83,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
 
   async clear() {
-    console.log('clear')
-    this.loading = await this.loadingCtrl.create({
-      message: 'Пожалуйста подождите...'
-    });
-    await this.loading.present();
-    this.file.removeRecursively(this.file.dataDirectory, this.fileService.getAudioFolder).then(
-      async (entry) => {
-        this.presentToast('Медиа кэш очищен успешно.');
-      },
-      async (error) => {
-        if (error.message === 'NOT_FOUND_ERR') {
-          // already cleared
-          this.presentToast('Медиа кэш очищен успешно.');
-        }
-        console.log(error);
-
-      }).finally(async () => {
-        await this.loading.dismiss();
-      })
+    this.fileService.clear();
   }
 
   private async presentToast(message: string) {

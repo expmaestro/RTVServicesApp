@@ -12,7 +12,7 @@
   <ion-card button="true" *ngFor="let service of services" (click)="next(service)" [class.not-paid]="!service.paid"
     class="item-padding">
     <ion-item  class="ion-no-padding" lines="none" color="transparent">
-      <img class="img" [src]="service.cover">
+      <img class="img" *ngIf="service.coverLocalPath" [src]="service.coverLocalPath" (error)="errorHandler($event, service)">
       <ion-label class="new-line-text ion-no-margin">
         <h4>{{ service.name }}</h4>
         <!-- <p>{{ service.name }}</p> -->

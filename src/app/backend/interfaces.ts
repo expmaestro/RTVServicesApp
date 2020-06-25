@@ -57,6 +57,7 @@ export class ServiceModel {
   paid: boolean;
   position: number;
   cover: string;
+  coverLocalPath: string;
 }
 
 

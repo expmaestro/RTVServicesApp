@@ -52,7 +52,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
 
       this.serviceId = Number(segments[0].path);
       this.params = segments.filter((f, i) => i > 0).map((x) => Number(x.path));
-      this.settingsService.getServicePlayListFromStorage(this.serviceId, this.params);
+      this.settingsService.getServicePlayListFromStorage(this.serviceId);
       this.settingsService.getServicePlayList(this.serviceId);
       let temp = this.dataService.getItems(this.serviceId, this.params);
       this.service = temp.service;
@@ -70,8 +70,8 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
     this.subscription = this.settingsService.getServicePlayListAsync(this.serviceId)
       .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
       .safeSubscribe(this, (servicePlayList: ServicePlayListModelObject) => {
-        console.log('getServicePlayListAsync, serviceId ', this.serviceId);
-        console.log(servicePlayList);
+     //   console.log('getServicePlayListAsync, serviceId ', this.serviceId);
+      //  console.log(servicePlayList);
         this.playlistToDownload = [];
         if (servicePlayList) {
           this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);

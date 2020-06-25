@@ -15,7 +15,7 @@ import { NetworkService } from '../services/network.service';
 export class LoginPage extends BaseComponent implements OnInit {
 
     private loading: any;
-    private process: boolean = false;
+    process: boolean = false;
     showPassword = false;
     public loginForm = new FormGroup({
         login: new FormControl(environment.userName, [Validators.required]),

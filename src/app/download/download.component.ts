@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-native/file-transfer/ngx';
-import { LoadingController, Platform, AlertController } from '@ionic/angular';
+import { Platform, AlertController } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File } from '@ionic-native/file/ngx';
@@ -14,13 +14,21 @@ import { DataService } from '../services/data.service';
   styleUrls: ['./download.component.scss'],
 })
 export class DownloadComponent extends BaseComponent implements OnInit {
-  @Input() playlist: PlayListModel[] = [];
+  playlist: PlayListModel[] = [];
+  @Input() set setPlaylist(value: PlayListModel[]) {
+    this.playlist = value;
+    console.log(value.length);
+    if (value.length > 0) {
+      this.isPlaylistDownloaded();
+    }
+  }
   @Input() serviceId = 0;
   description = '';
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
-  constructor(private fileTransfer: FileTransfer, private loadingCtrl: LoadingController,
+  alreadyLoaded: boolean = undefined;
+  constructor(private fileTransfer: FileTransfer,
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
     private zone: NgZone, private dataService: DataService
@@ -31,27 +39,50 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.platform.ready().then(() => {
       if (this.platform.is("android") || this.platform.is("ios")) {
-        this.setDescription();
         this.fileTransferCreate = this.fileTransfer.create();
         this.fileTransferCreate.onProgress(progress => {
           if (this.playlist && this.playlist.length === 1) {
             this.zone.run(() => {
               this.progress = Math.round(progress.loaded / progress.total * 100);
-            })
+            });
           }
         });
       }
     });
   }
 
+  isPlaylistDownloaded() {
+    this.fileService.getFileListFromFolder(this.fileService.getAudioFolder + `/${this.serviceId}`).then((f) => {
+      let files = f;
+      this.playlist.forEach(f => {
+        f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.path));
+      });
+      this.alreadyLoaded = this.playlist.length > 0 && this.playlist.every(e => e.isDownload);
+      this.setDescription();
+      console.log('check ' + this.playlist.length);
+    });
+  }
+
+  deleteMusic() {
+    console.log('delete ' + this.serviceId);
+    this.fileService.clear(this.serviceId).then(t => this.isPlaylistDownloaded());
+  }
+
   private setDescription() {
     if (this.serviceId === 1) {
       const date = this.dataService.getDate();
-      this.description = `Загрузить завод времени на ${date[2]}.${date[1]}.${date[0]} для прослушивания без интернета`;
+      const stringDate = `${date[2]}.${date[1]}.${date[0]}`;
+      this.description = this.alreadyLoaded
+        ? `Завод времени на ${stringDate} загружен.`
+        : `Загрузить завод времени на ${stringDate} для прослушивания без интернета`;
     } else if (this.serviceId === 2) {
-      this.description = 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
+      this.description = this.alreadyLoaded
+        ? `Сервис загружен. <br>Можно слушать без интернета.`
+        : 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
     } else {
-      this.description = 'Загрузить сервис для прослушивания без интернета';
+      this.description = this.alreadyLoaded
+        ? `Сервис загружен`
+        : 'Загрузить сервис для прослушивания без интернета';
     }
 
   }
@@ -146,7 +177,8 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     await downloadPlayLsit()
       .finally(() => {
         this.fileService.updateFiles(this.serviceId);
-        // const source = timer(1000).safeSubscribe(this, () => this.isLoading = false);
+        this.alreadyLoaded = undefined; // remove small lag
+        this.isPlaylistDownloaded();
         //this.isLoading = false;
       });
   }

@@ -4,6 +4,7 @@ import { environment } from 'src/environments/environment';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { BaseComponent } from './base-component';
 import { Profile, ServiceModel, ServicePlayListModel, ServicePlayListModelObject, } from '../backend/interfaces';
+import { FilesService } from './files.service';
 
 const RTVTokenStorageKey = "_RTVLongToken";
 const profileStorageKey = '_profileData';
@@ -17,7 +18,7 @@ export class SettingsService extends BaseComponent {
   private userData$ = new BehaviorSubject({});
   private services$ = new BehaviorSubject(Array<ServiceModel>());
   private servicePlayList$ = new BehaviorSubject<ServicePlayListModelObject>(null);
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private filesService: FilesService) {
     super();
     let profile = localStorage.getItem(profileStorageKey);
     this.userData$.next(profile ? JSON.parse(profile) : {});
@@ -89,9 +90,11 @@ export class SettingsService extends BaseComponent {
     }
   }
 
-  setServicesData(data) {
+  setServicesData(data: ServiceModel[]) {
     window.localStorage.setItem(servicesStorageKey, data ? JSON.stringify(data) : "");
     if (data) {
+      let covers: string[] = data.map(m => m.cover);
+      this.filesService.cacheImages(covers);
       this.services$.next(data);
     }
   }
@@ -109,7 +112,7 @@ export class SettingsService extends BaseComponent {
     }
   }
 
-  getServicePlayListFromStorage(serviceId: number, params) {
+  getServicePlayListFromStorage(serviceId: number) {
     let data = localStorage.getItem(`${servicePlayListStorageKey};$serviceId=${serviceId};`);
     this.servicePlayList$.next(data ? JSON.parse(data) : null);  
   } 

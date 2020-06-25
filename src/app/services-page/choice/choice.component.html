@@ -61,7 +61,7 @@
           </ion-row>
         </ion-col>
         <ion-col class="ion-no-padding" size="2" *ngIf="model.items.length > 2">
-          <ion-button class="main-coord" size="large" expand="full" style="height: 96%;" (click)="choice(model.items[4], model.next)">
+          <ion-button class="main-coord" size="large" expand="full" style="height: 97%;" (click)="choice(model.items[4], model.next)">
             <ion-label style=" transform: rotate(-90deg); white-space: normal;">
               {{ model.items[4].name }}
             </ion-label>
@@ -92,7 +92,7 @@
       </ion-row>
     </ng-container>
 
-    <ng-contrainer *ngIf="serviceId === 5">
+    <ng-container *ngIf="serviceId === 5">
       <ion-row class="ion-justify-content-center ">
 
         <ion-col class="ion-no-padding" size-xs="12" size-sm="12" size-md="12" size-lg="12" size-lg="12">
@@ -133,11 +133,11 @@
           </ion-button>
         </ion-col>
       </ion-row>
-    </ng-contrainer>
+    </ng-container>
 
     <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
       <ion-col>
-        <download [serviceId]="service?.id" [playlist]="playlistToDownload"></download>
+        <download [serviceId]="service?.id" [setPlaylist]="playlistToDownload"></download>
       </ion-col>
     </ion-row>
   </ion-grid>

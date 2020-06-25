@@ -36,7 +36,7 @@
     "cordova-plugin-appminimize": "^1.0.1",
     "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-file-transfer": "^1.7.1",
-    "cordova-plugin-music-controls2": "^3.0.5",
+    "cordova-plugin-music-controls2": "git+https://github.com/ghenry22/cordova-plugin-music-controls2.git",
     "core-js": "^3.6.5",
     "rxjs": "~6.5.1",
     "tslib": "^1.9.0",
@@ -87,8 +87,8 @@
       "cordova-plugin-background-mode": {},
       "cordova-plugin-network-information": {},
       "cordova-plugin-advanced-http": {},
-      "cordova-plugin-music-controls2": {},
-      "cordova-plugin-appminimize": {}
+      "cordova-plugin-appminimize": {},
+      "cordova-plugin-music-controls2": {}
     },
     "platforms": [
       "android"
