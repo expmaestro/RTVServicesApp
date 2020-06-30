@@ -182,7 +182,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
 
     if (this.service.id === 3) {
       this.profileSubscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
-        this.matrix = r.stradasteya.value;
+        this.matrix = r.matrix.value;
       });
     }
   }
