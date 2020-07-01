@@ -7,6 +7,7 @@ import { File } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
 import { PlayListModel } from '../backend/interfaces';
 import { DataService } from '../services/data.service';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'download',
@@ -23,7 +24,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     }
   }
   @Input() serviceId = 0;
-  description = '';
+  description;
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
@@ -31,7 +32,8 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   constructor(private fileTransfer: FileTransfer,
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
-    private zone: NgZone, private dataService: DataService
+    private zone: NgZone, private dataService: DataService,
+    private sanitizer:DomSanitizer
   ) {
     super();
   }
@@ -58,7 +60,7 @@ export class DownloadComponent extends BaseComponent implements OnInit {
         f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.path));
       });
       this.alreadyLoaded = this.playlist.length > 0 && this.playlist.every(e => e.isDownload);
-      this.setDescription();
+      this.description = this.sanitizer.bypassSecurityTrustHtml(this.setDescription());
       console.log('check ' + this.playlist.length);
     });
   }
@@ -72,16 +74,16 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     if (this.serviceId === 1) {
       const date = this.dataService.getDate();
       const stringDate = `${date[2]}.${date[1]}.${date[0]}`;
-      this.description = this.alreadyLoaded
-        ? `Завод времени на ${stringDate} загружен.`
+       return this.alreadyLoaded
+        ? `Завод времени на ${stringDate} загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
         : `Загрузить завод времени на ${stringDate} для прослушивания без интернета`;
     } else if (this.serviceId === 2) {
-      this.description = this.alreadyLoaded
-        ? `Сервис загружен. <br>Можно слушать без интернета.`
+      return this.alreadyLoaded
+        ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
         : 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
     } else {
-      this.description = this.alreadyLoaded
-        ? `Сервис загружен`
+      return this.alreadyLoaded
+        ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
         : 'Загрузить сервис для прослушивания без интернета';
     }
 

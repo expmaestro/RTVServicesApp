@@ -1,8 +1,8 @@
 <ion-grid class="download">
   <ng-container *ngIf="alreadyLoaded !== undefined && !alreadyLoaded">
     <ion-row class="ion-justify-content-center">
-      <ion-col size="11" class="ion-text-center">
-        {{ description }}
+      <ion-col size="11" class="ion-text-center" [innerHTML]="description">
+        
       </ion-col>
     </ion-row>
 
@@ -28,7 +28,7 @@
   </ng-container>
   <ng-container *ngIf="alreadyLoaded !== undefined && alreadyLoaded">
     <ion-row class="ion-justify-content-center">
-      <ion-col size="11" class="ion-text-center"  [innerHTML]="description">
+      <ion-col size="11" class="ion-text-center already-loaded"  [innerHTML]="description">
        
       </ion-col>
     </ion-row>
