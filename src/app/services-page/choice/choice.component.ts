@@ -59,7 +59,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       this.model = temp.current;
       const serviceName = this.dataService.getSubServiceName(this.serviceId, this.params);
       if (this.service.id === 2) {
-        this.subSectionName = `Черпачок ${serviceName}`;
+        this.subSectionName = this.params.length === 0 ? `Черпачок` : `Черпачок ${serviceName}`;
       } else {
         this.subSectionName = serviceName;
       }

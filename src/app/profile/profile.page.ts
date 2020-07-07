@@ -79,38 +79,36 @@ export class ProfilePage extends BaseComponent implements OnInit {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
-  } 
+  }
 
 
   async clear() {
     this.fileService.clear();
   }
 
-  private async presentToast(message: string) {
-    const toast = await this.toastController.create({
-      message: message,
-      duration: 2000,
-      color: 'secondary'
-    });
-    toast.present();
-  }
+  // private async presentToast(message: string) {
+  //   const toast = await this.toastController.create({
+  //     message: message,
+  //     duration: 2000,
+  //     color: 'secondary'
+  //   });
+  //   toast.present();
+  // }
 
   getId(type, name) {
     let obj = this.variants.data[type].enum;
     return Object.keys(obj).find(x => obj[x] === name);
   }
 
-  change(e, type) {
-    console.log(e);
-    console.log(e.target.value);
-    this.settingsService.updateUserCoordApi(type, e.target.value).subscribe((r) => {
-      this.settingsService.setProfileData = r.data;
-      this.prepareData();
-      this.presentToast('Данные успешно сохранены');
-    }, (e) => {
-      this.presentToast('Ошибка сохранения данных');
-    });
-  }
+  // change(e, type) {
+  //   this.settingsService.updateUserCoordApi(type, e.target.value).subscribe((r) => {
+  //     this.settingsService.setProfileData = r.data;
+  //     this.prepareData();
+  //     this.presentToast('Данные успешно сохранены');
+  //   }, (e) => {
+  //     this.presentToast('Ошибка сохранения данных');
+  //   });
+  // }
 
   ngOnInit() {
     this.subscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
@@ -135,8 +133,11 @@ export class ProfilePage extends BaseComponent implements OnInit {
   }
 
   private getEnumId(type: string) {
+    if (!this.data) return;
     let obj = this.variants.data[type].enum;
-    this.data[type].enumId = Object.keys(obj).find(x => this.data[type].value === obj[x]);
+    let enumId = Object.keys(obj).find(x => this.data[type].value === obj[x]);
+    if (!enumId) return;
+    this.data[type].enumId = enumId;
   }
 
   public variants =

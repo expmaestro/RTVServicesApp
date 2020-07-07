@@ -48,67 +48,81 @@
       <ion-label>
         {{ data.matrix.name}}:
       </ion-label>
-      <ion-select value="{{ data.matrix.enumId }}" okText="OK" cancelText="Отмена"
+      <!-- <ion-select value="{{ data.matrix.enumId }}" okText="OK" cancelText="Отмена"
         (ionChange)="change($event, 'matrix')">
         <ion-select-option *ngIf="!data.matrix.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['matrix'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['matrix'].enum[data.matrix.enumId]}}
+      </ion-label>
     </ion-item>
-
 
 
     <ion-item *ngIf="data?.softSignPosition">
       <ion-label>
         {{ data.softSignPosition.name}}:
       </ion-label>
-      <ion-select value="{{ data.softSignPosition.enumId }}" okText="OK" cancelText="Отмена"
+      <!-- <ion-select value="{{ data.softSignPosition.enumId }}" okText="OK" cancelText="Отмена"
         (ionChange)="change($event, 'softSignPosition')">
         <ion-select-option *ngIf="!data.softSignPosition.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['softSignPosition'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['softSignPosition'].enum[data.softSignPosition.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.rPosition">
       <ion-label>
         {{ data.rPosition.name}}:
       </ion-label>
-      <ion-select value="{{ data.rPosition.enumId }}" okText="OK" cancelText="Отмена"
+      <!-- <ion-select value="{{ data.rPosition.enumId }}" okText="OK" cancelText="Отмена"
         (ionChange)="change($event, 'rPosition')">
         <ion-select-option *ngIf="!data.rPosition.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['rPosition'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['rPosition'].enum[data.rPosition.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.solidSignPosition">
       <ion-label>
         {{ data.solidSignPosition.name}}
       </ion-label>
-      <ion-select value="{{ data.solidSignPosition.enumId }}" okText="OK" cancelText="Отмена"
+      <!-- <ion-select value="{{ data.solidSignPosition.enumId }}" okText="OK" cancelText="Отмена"
         (ionChange)="change($event, 'solidSignPosition')">
         <ion-select-option *ngIf="!data.solidSignPosition.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['solidSignPosition'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['solidSignPosition'].enum[data.solidSignPosition.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.stradasteya">
       <ion-label>
         {{ data.stradasteya.name}}:
       </ion-label>
-      <ion-select value="{{ data.stradasteya.enumId }}" okText="OK" cancelText="Отмена"
+      <!-- <ion-select value="{{ data.stradasteya.enumId }}" okText="OK" cancelText="Отмена"
         (ionChange)="change($event, 'stradasteya')">
         <ion-select-option *ngIf="!data.stradasteya.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['stradasteya'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['stradasteya'].enum[data.stradasteya.enumId]}}
+      </ion-label>
     </ion-item>
 
 
@@ -116,48 +130,60 @@
       <ion-label>
         {{ data.obraz.name}}:
       </ion-label>
-      <ion-select value="{{ data.obraz.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'obraz')">
+      <!-- <ion-select value="{{ data.obraz.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'obraz')">
         <ion-select-option *ngIf="!data.obraz.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['obraz'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['obraz'].enum[data.obraz.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.oblik">
       <ion-label>
         {{ data.oblik.name}}:
       </ion-label>
-      <ion-select value="{{ data.oblik.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'oblik')">
+      <!-- <ion-select value="{{ data.oblik.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'oblik')">
         <ion-select-option *ngIf="!data.oblik.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['oblik'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['oblik'].enum[data.oblik.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.lobr">
       <ion-label>
         {{ data.lobr.name}}:
       </ion-label>
-      <ion-select value="{{ data.lobr.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'lobr')">
+      <!-- <ion-select value="{{ data.lobr.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'lobr')">
         <ion-select-option *ngIf="!data.lobr.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['lobr'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['lobr'].enum[data.lobr.enumId]}}
+      </ion-label>
     </ion-item>
 
     <ion-item *ngIf="data?.robl">
       <ion-label>
         {{ data.robl.name}}
       </ion-label>
-      <ion-select value="{{ data.robl.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'robl')">
+      <!-- <ion-select value="{{ data.robl.enumId }}" okText="OK" cancelText="Отмена" (ionChange)="change($event, 'robl')">
         <ion-select-option *ngIf="!data.robl.enumId" value="">Не выбрано</ion-select-option>
         <ion-select-option *ngFor="let item of variants.data['robl'].enum | keyvalue" value="{{item.key}}">
           {{item.value}}
         </ion-select-option>
-      </ion-select>
+      </ion-select> -->
+      <ion-label class="ion-text-right">
+        {{ variants.data['robl'].enum[data.robl.enumId]}}
+      </ion-label>
     </ion-item>
 
   </ion-list>
