@@ -28,9 +28,13 @@
   </ng-container>
   <ng-container *ngIf="alreadyLoaded !== undefined && alreadyLoaded">
     <ion-row class="ion-justify-content-center">
-      <ion-col size="11" class="ion-text-center already-loaded"  [innerHTML]="description">
+      <ion-col size="11" class="ion-text-center already-loaded" [innerHTML]="description">
        
       </ion-col>
+      <ion-col size="11" class="ion-text-center already-loaded" style="min-height: 32px;">
+        <span>Занимает: {{size | number: '1.0-0' }} МБ</span>
+      </ion-col>
+   
     </ion-row>
     <ion-row class="ion-justify-content-center">
       <ion-col size="11" class="ion-text-center">

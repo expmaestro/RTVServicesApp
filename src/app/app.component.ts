@@ -8,7 +8,7 @@ import { NetworkService } from './services/network.service';
 // import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { AppMinimize } from '@ionic-native/app-minimize/ngx';
 import { Router } from '@angular/router';
-import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
+//import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
 
 
 @Component({
@@ -63,7 +63,7 @@ export class AppComponent extends BaseComponent {
   private window: any = window;
   initBackgroundMode() {
 
-
+//debugger;
     var backgroundMode = this.window.cordova.plugins.backgroundMode;
     backgroundMode.setDefaults({
       text: 'Running in background!',
@@ -83,55 +83,16 @@ export class AppComponent extends BaseComponent {
       
       backgroundMode.disableWebViewOptimizations();
       // bg.disableBatteryOptimizations();
-      console.log('actiate');
-      console.log("background activate !!!!");
+      console.log("Background status: activate");
       backgroundMode.isIgnoringBatteryOptimizations(function (isIgnoring) {
         console.log(`isIgnoring: ${isIgnoring}`);
       })
     });
     backgroundMode.on('deactivate ', function() {
-      console.log('deactivate!!!!!!!!!!!!!!!!!!!!');
+      console.log('Background status: deactivate');
     //  MusicControls.destroy(onSuccess => { }, onError => { });
     });
-    backgroundMode.disableBatteryOptimizations();
-    //bg.moveToBackground();
-    // this.backgroundMode.enable();
-    //this.window.cordova.plugins.backgroundMode.enable();
-    // this.backgroundMode.setDefaults({
-    //   title: "helo <b>Энергозаряд</b>",
-    //   text: "Text <b>Энергозаряд</b>",
-    //   icon: 'ic_launcher',
-    //   //color: "F14F4D",
-    //   resume: true
-    // })
-    // this.backgroundMode.setDefaults({ 
-    //  // silent: true,
-    //     hidden: true,
-    //     title: 'Наш текст', //TODO remove,
-    //     // text: 'Gavaleshko',
-    //     // icon: 'ic_launcher.png',
-    //     // ticker: 'ticker ticker',
-    //     // color: 'FF0000'
-    //    });
-    // this.backgroundMode.configure({
-    //   title: 'Наш текст',
-    //   // text: "The app is running in the background...",
-    //  // resume: true,
-    //   hidden: true,
-    //   // bigText: false,
-    //   //silent: true,
-    // });
-    // this.backgroundMode.on("activate").subscribe(() => {
-    //   // this.backgroundMode.disableWebViewOptimizations();
-    //   // this.backgroundMode.disableBatteryOptimizations();
-    //   console.log("background activate !!!!");
-    // });
-
-    // this.backgroundMode.on("enable").subscribe(() => {
-    //   this.backgroundMode.disableWebViewOptimizations();
-    //   this.backgroundMode.disableBatteryOptimizations();
-    //   console.log("background enable !!!!");
-    // });
+    backgroundMode.disableBatteryOptimizations();    
   }
 
   initBackButtonEvent() {

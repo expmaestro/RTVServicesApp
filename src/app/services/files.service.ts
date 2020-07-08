@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { File, FileReader, FileError, FileEntry } from '@ionic-native/file/ngx';
+import { File, FileReader, FileError, Entry, DirectoryEntry } from '@ionic-native/file/ngx';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { LoadingController, ToastController, Platform } from '@ionic/angular';
 import { FileTransferObject, FileTransfer } from '@ionic-native/file-transfer/ngx';
@@ -66,14 +66,7 @@ export class FilesService {
   getFileListFromFolder(folder: string) { //observable
     return this.file.listDir(this.file.dataDirectory, folder)
       .then((files) => {
-        console.log(`Files in phone: ${files.length}`)
-        if (files.length > 0) {
-
-          // files.forEach(file => { //rewrite check by id
-          //   console.log(file.fullPath)
-          // });
-        }
-
+        console.log(`Files in phone (current service): ${files.length}`);
         return files;
       }, (error) => {
         console.log('Directory does not exist!');
@@ -92,12 +85,15 @@ export class FilesService {
     });
   }
 
-  async clear(serviceId = null): Promise<void> {
+  async clear(serviceId = null, showLoader = true): Promise<void> {
     console.log('clear')
-    this.loading = await this.loadingCtrl.create({
-      message: 'Пожалуйста подождите...'
-    });
-    await this.loading.present();
+    if (showLoader) {
+      this.loading = await this.loadingCtrl.create({
+        message: 'Пожалуйста подождите...'
+      });
+      await this.loading.present();
+    }
+
     const folded = serviceId ? `${this.getAudioFolder}/${serviceId}/` : this.getAudioFolder;
     return this.file.removeRecursively(this.file.dataDirectory, folded).then(
       async (entry) => {
@@ -110,14 +106,13 @@ export class FilesService {
         console.log(error);
 
       }).finally(async () => {
-        await this.loading.dismiss();
-        if (serviceId) {
-
+        if (showLoader) {
+          await this.loading.dismiss();
         }
       });
   }
 
-  private async presentToast(message: string) { // maybe toastr service, because duplicate
+  private async presentToast(message: string) { //TODO: maybe toastr service, because duplicate
     const toast = await this.toastController.create({
       message: message,
       duration: 2000,
@@ -159,4 +154,28 @@ export class FilesService {
     return temp.pop();
   }
 
+  directorySize(directory: DirectoryEntry): Promise<number> {
+    return this.size(directory);
+  }
+
+  private size(entry: Entry) {
+    if (entry.isFile) {
+      return new Promise<number>((resolve, reject) => {
+        entry.getMetadata(f => resolve(f.size), error => reject(error))
+      });
+    }
+
+    if (entry.isDirectory) {
+      return new Promise<number>((resolve, reject) => {
+        const directoryReader = (entry as DirectoryEntry).createReader();
+        directoryReader.readEntries((entries: Entry[]) => {
+            Promise.all(entries.map(e => this.size(e))).then((size: number[]) => {
+              const dirSize = size.reduce((prev, current) => prev + current, 0);
+              resolve(dirSize);
+            }).catch(err => reject(err));
+          },
+          (error) => reject(error));
+      })
+    }
+  }
 }

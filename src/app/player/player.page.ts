@@ -142,7 +142,8 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     this.playlistToDownload$.next(playlistToDownload);
     if (this.service.id === 3 && secretNameArray.length === 0) return;
    // console.log(playlistToDownload);
-    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], secretNameArray);
+    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
+  //  console.log('!!!!!!!!! Set play list')
     this.musicControlService.setPlayList(this.playlist, this.service, this.params);
     this.platform.ready().then(() => {
       this.fileService.updateFiles(this.service.id);
@@ -167,7 +168,6 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         console.log(servicePlayList)
 
         if (servicePlayList) {
-          //console.log('!!!!!!!!!!!!!!!!!!!!!!!!!GEt play list!!!!!!!!!!!!!!!!!!!!')
           this.getPlayList(servicePlayList);
         }
         else {

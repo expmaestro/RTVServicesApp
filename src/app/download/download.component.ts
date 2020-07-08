@@ -3,7 +3,7 @@ import { FileTransfer, FileUploadOptions, FileTransferObject } from '@ionic-nati
 import { Platform, AlertController } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
-import { File } from '@ionic-native/file/ngx';
+import { File, Entry } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
 import { PlayListModel } from '../backend/interfaces';
 import { DataService } from '../services/data.service';
@@ -28,12 +28,13 @@ export class DownloadComponent extends BaseComponent implements OnInit {
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
   progress = 0;
+  size = 0;
   alreadyLoaded: boolean = undefined;
   constructor(private fileTransfer: FileTransfer,
     private platform: Platform, private fileService: FilesService, private file: File,
     private alertController: AlertController,
     private zone: NgZone, private dataService: DataService,
-    private sanitizer:DomSanitizer
+    private sanitizer: DomSanitizer
   ) {
     super();
   }
@@ -53,9 +54,11 @@ export class DownloadComponent extends BaseComponent implements OnInit {
     });
   }
 
+
+
   isPlaylistDownloaded() {
     this.fileService.getFileListFromFolder(this.fileService.getAudioFolder + `/${this.serviceId}`).then((f) => {
-      let files = f;
+      let files: Entry[] = f;
       this.playlist.forEach(f => {
         f.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(f.path));
       });
@@ -63,18 +66,25 @@ export class DownloadComponent extends BaseComponent implements OnInit {
       this.description = this.sanitizer.bypassSecurityTrustHtml(this.setDescription());
       console.log('check ' + this.playlist.length);
     });
+    this.file.resolveDirectoryUrl(this.file.dataDirectory + this.fileService.getAudioFolder + `/${this.serviceId}`).then(x => {
+      this.fileService.directorySize(x)
+        .then((s) => (this.size = s / 1024 / 1024))
+        .catch(() => this.size = 0);
+    }).catch(() => this.size = 0);
   }
 
   deleteMusic() {
     console.log('delete ' + this.serviceId);
-    this.fileService.clear(this.serviceId).then(t => this.isPlaylistDownloaded());
+    this.fileService
+      .clear(this.serviceId)
+      .then(t => this.isPlaylistDownloaded());
   }
 
   private setDescription() {
     if (this.serviceId === 1) {
       const date = this.dataService.getDate();
       const stringDate = `${date[2]}.${date[1]}.${date[0]}`;
-       return this.alreadyLoaded
+      return this.alreadyLoaded
         ? `Завод времени на ${stringDate} загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
         : `Загрузить завод времени на ${stringDate} для прослушивания без интернета`;
     } else if (this.serviceId === 2) {
@@ -89,9 +99,14 @@ export class DownloadComponent extends BaseComponent implements OnInit {
 
   }
 
-  async download(playList = null) {
+  async download() {
+    this.fileService
+      .clear(this.serviceId, false)
+      .then(() => this.downloadPlayList());
+  }
+
+  async downloadPlayList(playList = null) {
     if (!playList) {
-      // this.isLoading = true;
       this.progress = 0;
     }
 
@@ -181,7 +196,6 @@ export class DownloadComponent extends BaseComponent implements OnInit {
         this.fileService.updateFiles(this.serviceId);
         this.alreadyLoaded = undefined; // remove small lag
         this.isPlaylistDownloaded();
-        //this.isLoading = false;
       });
   }
 
@@ -198,14 +212,13 @@ export class DownloadComponent extends BaseComponent implements OnInit {
           cssClass: 'secondary',
           handler: () => {
             console.log('Confirm Cancel');
-            //this.isLoading = false;
             this.needToDownloadFiles = [];
           }
         }, {
           text: 'Повторить',
           handler: () => {
             console.log('Confirm Ok');
-            this.download(this.needToDownloadFiles);
+            this.downloadPlayList(this.needToDownloadFiles);
           }
         }
       ]
@@ -213,5 +226,9 @@ export class DownloadComponent extends BaseComponent implements OnInit {
 
     await alert.present();
   }
+
+  // getFolderSize(serviceId) {
+  //   this.fileService.directorySize(this.serviceId).then();
+  // }
 
 }

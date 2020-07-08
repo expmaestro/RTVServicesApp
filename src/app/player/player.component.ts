@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input, ChangeDetectorRef } from '@angular/core';
 
 import { Platform, } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
-import { BehaviorSubject, timer } from 'rxjs';
+import { BehaviorSubject, timer, Subscription, SubscriptionLike } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { BaseComponent } from '../services/base-component';
 //import { MusicControls } from '@ionic-native/music-controls/ngx';
@@ -26,13 +26,16 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     params: []
   };
   currentPlaylist: PlayListModel[] = [];
-  isUpdateProgress$ = new BehaviorSubject<boolean>(false);
   private win: any = window;
   sectionName = '';
   trackName = '';
   private stopPlaylistFlag = false;
   private playlistFinished = false;
   state: StreamState;
+  subscriptionToLiveApp: Subscription;
+  private platformResume = true;
+  private minutesWhenExit = 60;
+  subscriptions: SubscriptionLike[] = [];
 
   constructor(
     private platform: Platform,
@@ -41,32 +44,43 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     private musicControlService: MusicControlService,
     private networkService: NetworkService,
     private dataService: DataService,
+    public cd: ChangeDetectorRef
   ) {
     super();
 
     this.platform.ready().then(() => {
+
       if (
         this.platform.is("android") ||
         this.platform.is("ios")) {
 
-        if (this.platform.is("android")) {
-          // this.platform.pause.safeSubscribe(this, x => {
-          //   console.log(x);
-          //   MusicControls.destroy(onSuccess => { }, onError => { });
-          // });
-        }
+        // if (this.platform.is("android")) {
+        // this.platform.pause.safeSubscribe(this, x => {
+        //   console.log(x);
+        //   MusicControls.destroy(onSuccess => { }, onError => { });
+        // });
+        // }
         this.platform.resume.safeSubscribe(this, () => {
+          this.platformResume = true;
           console.log('platform resume');
+          //this.state?.playing
+          this.deactivateTimer();
         });
-        // this.platform.
+
         this.platform.pause.safeSubscribe(this, x => {
+          this.platformResume = false;
           console.log('platform pause');
+
+          if (!this.state?.playing) {
+            this.activateTimer();
+          }
+
           const source = timer(1000);
-          // MusicControls.destroy(onSuccess => {
-          //   source.safeSubscribe(this, () => {
-          //     this.initMusicContols();
-          //   })
-          // }, onError => { });
+          MusicControls.destroy(onSuccess => {
+            source.safeSubscribe(this, () => {
+              this.initMusicContols(this.state.playing, !this.state.playing);
+            })
+          }, onError => { });
 
         });
       }
@@ -258,9 +272,31 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   pause() {
     this.musicControlService.pause();
+    this.activateTimer();
+  }
+
+  private activateTimer() {
+    if (!this.platformResume) {
+      console.log('activate timer');
+      const source = timer(1000 * 60 * this.minutesWhenExit); //1000 * 60 * 30
+      this.subscriptionToLiveApp = source.subscribe(val => {
+        this.destroyMusicControl();
+        navigator['app'].exitApp();
+      });
+    }
+
+  }
+
+  private deactivateTimer() {
+    if (this.subscriptionToLiveApp) {
+      console.log('deactivate timer');
+      this.subscriptionToLiveApp.unsubscribe();
+      this.subscriptionToLiveApp = null;
+    }
   }
 
   play() {
+    this.deactivateTimer();
     this.musicControlService.play();
   }
 
@@ -292,16 +328,23 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     console.log('destroy');
     this.destroyMusicControl();
     this.musicControlService.stop();
-    this.state.currentTime = 0;
-    this.state.readableCurrentTime = '00:00';
-    this.state.readableDuration = '00:00';
+    if (this.state) {
+      this.state.currentTime = 0;
+      this.state.readableCurrentTime = '00:00';
+      this.state.readableDuration = '00:00';
+    }
     this.musicControlService.setCurrentIndex(-1);
+
+
+    this.subscriptions.forEach(
+      (subscription) => subscription.unsubscribe());
+    this.subscriptions = [];
   }
 
 
   ngOnInit() {
-    console.log(' INIT PLAYER COMPONENT');
-    this.musicControlService.getState()
+    console.log('INIT PLAYER COMPONENT');
+    let sub0 = this.musicControlService.getState()
       .safeSubscribe(this, state => {
         if (this.stopPlaylistFlag && state.canplay) {
           this.pause();
@@ -310,12 +353,16 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         }
         this.state = state;
       });
+      this.subscriptions.push(sub0);
 
-    this.musicControlService.runTrack$.safeSubscribe(this, index => {
-      console.log('Run track manyally');
+    let sub1 = this.musicControlService.runTrack$.safeSubscribe(this, index => {
+      console.log('Run track manually');
       this.runTrack(index);
     });
-    this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
+    this.subscriptions.push(sub1);
+    let sub2 = this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
+      console.log('Get play list');
+      console.log(data);
       this.sectionPlayList = data;
       let playlistAreSame = this.currentPlaylist.length > 0 ?
         JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
@@ -328,10 +375,13 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         this.runTrack(0);
       }
     });
+    this.subscriptions.push(sub2);
   }
 
   private runTrack(index: number) {
+    //    this.currentPlaylist = [...this.sectionPlayList.playList];
     this.currentPlaylist = this.sectionPlayList.playList;
+    console.log(this.currentPlaylist);
     this.sectionName = this.dataService.getFullSectionName(this.sectionPlayList.service, this.sectionPlayList.params);
     this.openFile(index);
     this.musicControlService.setPlaylistAreSame(true);

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from '../services/settings.service';
 import { LoginService } from '../services/login.service';
-import { NavController, ToastController, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, ToastController, LoadingController, AlertController, Platform } from '@ionic/angular';
 import { File } from '@ionic-native/file/ngx';
 import { FilesService } from '../services/files.service';
 import { NetworkService } from '../services/network.service';
@@ -17,9 +17,11 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
   public data: Profile = new Profile();
   subscription: any;
+  size = 0;
   constructor(private settingsService: SettingsService, private loginService: LoginService, private nav: NavController,
     private file: File, private fileService: FilesService, private toastController: ToastController,
-    private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController) {
+    private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController,
+    private platform: Platform,) {
     super();
     this.settingsService.getUserData();
   }
@@ -83,7 +85,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
 
   async clear() {
-    this.fileService.clear();
+    this.fileService.clear().then(() => this.updateSize());
   }
 
   // private async presentToast(message: string) {
@@ -111,10 +113,23 @@ export class ProfilePage extends BaseComponent implements OnInit {
   // }
 
   ngOnInit() {
+    this.platform.ready().then(() => {
+      this.updateSize();
+    });
     this.subscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
       this.data = r;
       this.prepareData();
     });
+  }
+
+  private updateSize() {
+    this.file.resolveDirectoryUrl(this.file.dataDirectory + this.fileService.getAudioFolder)
+      .then(x => {
+        this.fileService.directorySize(x).then((s) => (this.size = s / 1024 / 1024))
+          .catch(() => this.size = 0);
+      }).catch(() => {
+        this.size = 0
+      });
   }
 
   private prepareData() {
@@ -134,6 +149,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
 
   private getEnumId(type: string) {
     if (!this.data) return;
+    if (Object.keys(this.data).length === 0) return;
     let obj = this.variants.data[type].enum;
     let enumId = Object.keys(obj).find(x => this.data[type].value === obj[x]);
     if (!enumId) return;
