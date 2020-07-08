@@ -8,6 +8,7 @@
 </ion-header>
 
 <ion-content class="choice-content ion-padding-bottom-custom">
+  
 
   <ion-grid style="display: flex; flex-flow: column; height: 100%;">
 
@@ -100,12 +101,7 @@
 
             <ion-item lines="full">
               <ion-label>Страдастея</ion-label>
-              {{stradasteya}}
-            </ion-item>
-
-            <ion-item>
-              <ion-label>Радастея</ion-label>
-              <ion-select [formControl]="radasteya" okText="OK" cancelText="Отмена">
+              <ion-select [formControl]="stradasteya"  [interfaceOptions]="selectInterfaceOptions"  okText="OK" cancelText="Отмена">
                 <ion-select-option *ngFor="let item of model.items;" [value]="item">
                   {{item.name}}
                 </ion-select-option>
@@ -113,9 +109,18 @@
             </ion-item>
 
             <ion-item>
-              <ion-label>Зитуорд</ion-label>
-              <ion-select [formControl]="zituord" okText="OK" cancelText="Отмена">
+              <ion-label>Радастея</ion-label>
+              <ion-select [formControl]="radasteya" [interfaceOptions]="selectInterfaceOptions"  okText="OK" cancelText="Отмена">
                 <ion-select-option *ngFor="let item of model.next.items;" [value]="item">
+                  {{item.name}}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-label>Зитуорд</ion-label>
+              <ion-select [formControl]="zituord" [interfaceOptions]="selectInterfaceOptions"  okText="OK" cancelText="Отмена">
+                <ion-select-option *ngFor="let item of model.next.next.items;" [value]="item">
                   {{item.name}}
                 </ion-select-option>
               </ion-select>
@@ -127,7 +132,7 @@
 
       <ion-row class="ion-justify-content-center">
         <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2">
-          <ion-button [disabled]="!radasteya.value || !zituord.value" expand="full" color="primary" type="submit"
+          <ion-button [disabled]="!stradasteya.value || !radasteya.value || !zituord.value" expand="full" color="primary" type="submit"
             class="ion-no-margin" (click)="mainCoord()">
             Напитать
           </ion-button>

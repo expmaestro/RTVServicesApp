@@ -55,10 +55,10 @@ export class DataService extends BaseComponent {
       return `${service.name} ${level} ${(params[1] === 1 ? '↓' : '↑')}`;
     }
     return service.name;
-  } 
+  }
 
 
-  buildComputedPlayList(playList: ServicePlayListModel, radasteyaId, zituordId, secretNameIndexes = []): PlayListModel[] {
+  buildComputedPlayList(playList: ServicePlayListModel, stradasteyaId, radasteyaId, zituordId, secretNameIndexes = []): PlayListModel[] {
     if (!playList) return [];
     if (!playList.main) return [];
     const date = this.getDate();
@@ -89,12 +89,15 @@ export class DataService extends BaseComponent {
             tempArr = playList.additional[main.id][monthDay];
             break;
           case 'number':
-            if (main.id === 'zituord') {
-              tempArr = playList.additional[main.id][Number(zituordId)];
+            if (main.id === 'stradasteya') {
+              tempArr = playList.additional[main.id][Number(stradasteyaId)];
             } else
-              if (main.id === 'radasteya') {
-                tempArr = playList.additional[main.id][Number(radasteyaId)];
-              }
+              if (main.id === 'zituord') {
+                tempArr = playList.additional[main.id][Number(zituordId)];
+              } else
+                if (main.id === 'radasteya') {
+                  tempArr = playList.additional[main.id][Number(radasteyaId)];
+                }
             break;
         }
         if (tempArr) {
@@ -144,7 +147,7 @@ export class DataService extends BaseComponent {
     Object.values(servicePlayList).forEach((subService: ServicePlayListModel) => {
       switch (service.id) {
         case 1:
-          let oneDay = this.buildComputedPlayList(subService, null, null, []);
+          let oneDay = this.buildComputedPlayList(subService, null, null, null, []);
           playlistToDownload.push(...oneDay);
           // console.log(playlistToDownload.length)
           //additional
@@ -170,9 +173,10 @@ export class DataService extends BaseComponent {
           break;
         case 5:
           playlistToDownload.push(...subService.main.filter(f => !f.id));
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.stradasteya);
           this.buildAdditionalMainCoord(playlistToDownload, subService.additional.radasteya);
           this.buildAdditionalMainCoord(playlistToDownload, subService.additional.zituord);
-          break;        
+          break;
         default:
           playlistToDownload.push(...subService.main);
           break;

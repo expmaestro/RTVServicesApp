@@ -21,9 +21,14 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   subSectionName: string;
   subscription: any;
   profileSubscription: any;
-  stradasteya = '';
+  stradasteya = new FormControl('');
   radasteya = new FormControl('');
   zituord = new FormControl('');
+
+  selectInterfaceOptions: any = {
+    cssClass: 'ion-select-pupup-class'  
+  };
+
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
     private dataService: DataService,
     private settingsService: SettingsService) { super(); console.log('Choice: ctor'); }
@@ -43,7 +48,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   mainCoord() {
-    this.router.navigate([`/player/${this.serviceId}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
+    this.router.navigate([`/player/${this.serviceId}/${this.stradasteya.value.id}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
   }
 
   ngOnInit() {
@@ -70,18 +75,12 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
     this.subscription = this.settingsService.getServicePlayListAsync(this.serviceId)
       .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
       .safeSubscribe(this, (servicePlayList: ServicePlayListModelObject) => {
-     //   console.log('getServicePlayListAsync, serviceId ', this.serviceId);
-      //  console.log(servicePlayList);
+        console.log('getServicePlayListAsync, serviceId ', this.serviceId);
         this.playlistToDownload = [];
         if (servicePlayList) {
           this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
         }
-      });
-    if (this.serviceId === 5) {
-      this.profileSubscription = this.settingsService.getProfileDataAsync.safeSubscribe(this, (r: any) => {
-        this.stradasteya = r.stradasteya.value;
-      });
-    }
+      });   
   }
 
   ionViewWillLeave() {
