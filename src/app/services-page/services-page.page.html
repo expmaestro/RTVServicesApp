@@ -9,6 +9,13 @@
 
 
 <ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down-circle-outline"
+    refreshingSpinner="circles"
+    refreshingText="Обновление..."></ion-refresher-content>
+  </ion-refresher>
+
+
   <ion-card button="true" *ngFor="let service of services" (click)="next(service)" [class.not-paid]="!service.paid"
     class="item-padding">
     <ion-item  class="ion-no-padding" lines="none" color="transparent">

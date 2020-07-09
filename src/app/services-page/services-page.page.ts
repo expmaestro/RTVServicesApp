@@ -6,7 +6,9 @@ import { BaseComponent } from '../services/base-component';
 import { Profile, ServiceModel } from '../backend/interfaces';
 import { environment } from 'src/environments/environment';
 import { FilesService } from '../services/files.service';
+import { Subject } from 'rxjs';
 //import { distinctUntilChanged } from 'rxjs/operators';
+import { take } from "rxjs/operators";
 
 @Component({
   selector: 'app-services-page',
@@ -20,7 +22,7 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   constructor(private nav: NavController, private router: Router, private settingsService: SettingsService, private filesService: FilesService,
     private platform: Platform,) {
     super();
-    this.settingsService.getUserData();
+    this.settingsService.getUserProfileData();
     // this.settingsService.getServices();
   }
 
@@ -31,6 +33,7 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     this.settingsService.getServicesDataAsync
       //.pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
       .safeSubscribe(this, services => {
+        console.log('get services');
         this.services = services;
         this.platform.ready().then(() => {
           let win: any = window;
@@ -47,7 +50,7 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   }
 
   errorHandler(event, service) {
-   // console.log('error: ' + event.target.src)
+    // console.log('error: ' + event.target.src)
     if (!event.target.noErrorMore) {
       event.target.src = service.cover;
       event.target.noErrorMore = true;
@@ -68,5 +71,16 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     } else {
       this.router.navigate([`/player/${service.id}`]);
     }
+  }
+
+  doRefresh(event) {
+    this.settingsService.getServices();
+    this.settingsService.completeServiceRequest$
+      .pipe(take(1))
+      .safeSubscribe(this, () => {
+        console.log('complete');
+        event.target.complete();
+      })
+
   }
 }

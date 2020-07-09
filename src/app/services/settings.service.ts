@@ -18,6 +18,7 @@ export class SettingsService extends BaseComponent {
   private userData$ = new BehaviorSubject({});
   private services$ = new BehaviorSubject(Array<ServiceModel>());
   private servicePlayList$ = new BehaviorSubject<ServicePlayListModelObject>(null);
+  completeServiceRequest$ = new Subject();
   constructor(private http: HttpClient, private filesService: FilesService) {
     super();
     let profile = localStorage.getItem(profileStorageKey);
@@ -47,6 +48,9 @@ export class SettingsService extends BaseComponent {
   getServices() {
     this.servicesApi().safeSubscribe(this, (r: any) => {
       this.setServicesData(r.data);
+      this.completeServiceRequest$.next();
+    }, () => {
+      this.completeServiceRequest$.next();
     });
   }
 
@@ -74,7 +78,7 @@ export class SettingsService extends BaseComponent {
     return this.userData$.asObservable();
   }
 
-  getUserData() {
+  getUserProfileData() {
     this.userProfileApi().safeSubscribe(this, (r: any) => {
       this.setProfileData = r.data;
     },

@@ -23,7 +23,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
     private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController,
     private platform: Platform,) {
     super();
-    this.settingsService.getUserData();
+    this.settingsService.getUserProfileData();
   }
 
   logout() {
