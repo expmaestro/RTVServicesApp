@@ -87,22 +87,6 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     });
   }
 
-  convertFileSrc(url) {
-    if (!url) {
-      return url;
-    }
-    if (url.indexOf('/') === 0) {
-      return this.win.WEBVIEW_SERVER_URL + '/_app_file_' + url;
-    }
-    if (url.indexOf('file://') === 0) {
-      return this.win.WEBVIEW_SERVER_URL + url.replace('file://', '/_app_file_');
-    }
-    if (url.indexOf('content://') === 0) {
-      return this.win.WEBVIEW_SERVER_URL + url.replace('content:/', '/_app_content_');
-    }
-    return url;
-  };
-
   prevTrack() {
     if (this.disablePrev()) return; // btn disable too
     const index = this.musicControlService.currentIndex > 0 ? this.musicControlService.currentIndex - 1 : this.currentPlaylist.length - 1;
@@ -256,14 +240,14 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     this.musicControlService.setCurrentIndex(index);
     this.musicControlService.stop();
 
-    const src = this.currentPlaylist[this.musicControlService.currentIndex].path;
+    const filePath = this.currentPlaylist[this.musicControlService.currentIndex].path;
     this.trackName = this.currentPlaylist[this.musicControlService.currentIndex].name;
-    const fileName = this.fileService.getFileNameFromSrc(src);
+    const fileName = this.fileService.getFileNameFromSrc(filePath);
     console.log('Open track with name: ' + fileName);
     const fileExist = await this.fileService.fileExist(fileName, this.sectionPlayList.service.id);
     const filePathOrUrl = fileExist
-      ? this.convertFileSrc(this.fileService.getFullFilePath(this.sectionPlayList.service.id, fileName))
-      : environment.cdn + src + '';
+      ? this.win.Ionic.WebView.convertFileSrc(this.fileService.getFullFilePath(this.sectionPlayList.service.id, fileName))
+      : (filePath.includes('https') ? '' : environment.cdn ) + filePath + '';
     console.log(filePathOrUrl);
     // this.initMusicContols();
     this.playStream(filePathOrUrl);

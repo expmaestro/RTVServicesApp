@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { NavController, Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { SettingsService } from '../services/settings.service';
@@ -14,6 +14,7 @@ import { take } from "rxjs/operators";
   selector: 'app-services-page',
   templateUrl: './services-page.page.html',
   styleUrls: ['./services-page.page.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class ServicesPagePage extends BaseComponent implements OnInit {
   services: Array<ServiceModel> = [];
@@ -39,10 +40,12 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
           let win: any = window;
           if (this.platform.is("android") || this.platform.is("ios")) {
             this.services.forEach(service => {
-              let temp = this.filesService.getCoverFullPath(this.filesService.getCoverImageName(service.cover));
-              let path = win.Ionic.WebView.convertFileSrc(temp);
-              path = path.replace('undefined', "http://localhost"); // solution for live reload mode
-              service.coverLocalPath = path;
+              if (service.cover) {
+                let temp = this.filesService.getCoverFullPath(this.filesService.getCoverImageName(service.cover));
+                let path = win.Ionic.WebView.convertFileSrc(temp);
+                path = path.replace('undefined', "http://localhost"); // solution for live reload mode
+                service.coverLocalPath = path;
+              }
             });
           }
         });

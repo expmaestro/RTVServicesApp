@@ -71,7 +71,7 @@
       </ion-row>
     </ng-container>
 
-    <ng-container *ngIf="serviceId === 2">
+    <ng-container *ngIf="serviceId === 2 || service?.type === 'video' || service?.type === 'live' ">
       <ion-row class="ion-justify-content-center " *ngIf="model.items.length === 2">
         <ion-col size="12" class="ion-no-padding">
           <ion-button class="cherpachok" disabled="true" size="large" expand="full" style="opacity: 1;">
@@ -142,7 +142,7 @@
 
     <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
       <ion-col>
-        <download [serviceId]="service?.id" [setPlaylist]="playlistToDownload"></download>
+        <download *ngIf="service?.type !== 'video' && service?.type !== 'live' " [serviceId]="service?.id" [setPlaylist]="playlistToDownload"></download>
       </ion-col>
     </ion-row>
   </ion-grid>

@@ -22,7 +22,7 @@
       <img class="img" *ngIf="service.coverLocalPath" [src]="service.coverLocalPath" (error)="errorHandler($event, service)">
       <ion-label class="new-line-text ion-no-margin">
         <h4>{{ service.name }}</h4>
-        <!-- <p>{{ service.name }}</p> -->
+        <p [class.red]="service.type === 'video' || service.type === 'live'">{{ service.comment }}</p>
       </ion-label>
       <ion-button fill="clear" *ngIf="!service.paid">
         <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>

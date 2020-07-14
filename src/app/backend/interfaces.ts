@@ -58,6 +58,8 @@ export class ServiceModel {
   position: number;
   cover: string;
   coverLocalPath: string;
+  type: string;
+  comment: string;
 }
 
 

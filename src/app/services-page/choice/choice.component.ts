@@ -26,7 +26,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   zituord = new FormControl('');
 
   selectInterfaceOptions: any = {
-    cssClass: 'ion-select-pupup-class'  
+    cssClass: 'ion-select-pupup-class'
   };
 
   constructor(private router: Router, private activatedRoute: ActivatedRoute,
@@ -39,7 +39,12 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       this.router.navigate([`/services/${this.serviceId}/${(this.params.join('/'))}`]);
     }
     else {
-      this.router.navigate([`/player/${this.serviceId}/${(this.params.join('/'))}`]);
+      if (this.service.type === 'audio') {
+        this.router.navigate([`/player/${this.serviceId}/${(this.params.join('/'))}`]);
+      }
+      if (this.service.type === 'video' || this.service.type === 'live') {
+        this.router.navigate([`/home/${this.serviceId}/${(this.params.join('/'))}`]);
+      }
     }
   }
 
@@ -80,7 +85,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
         if (servicePlayList) {
           this.playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
         }
-      });   
+      });
   }
 
   ionViewWillLeave() {

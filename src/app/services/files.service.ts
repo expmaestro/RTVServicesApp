@@ -35,7 +35,9 @@ export class FilesService {
 
   getFileNameFromSrc(src: string): string {
     if (!src) return '';
-    let hashFileName = this.generateHash(src) + '.mp3';
+    let type = src.split('.');
+    let hashFileName = this.generateHash(src) + '.' + type[type.length - 1];
+   
     return hashFileName;
   }
 
@@ -122,6 +124,7 @@ export class FilesService {
   }
 
   cacheImages(covers: string[]) {
+    covers = covers.filter(f => f.length > 0);
     this.fileTransferCreate = this.fileTransfer.create();
     this.getFileListFromFolder(this.getImageFolder).then((files) => {
       let allFilesInFolder = covers.every(cover => {

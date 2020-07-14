@@ -97,6 +97,8 @@ export class DataService extends BaseComponent {
               } else
                 if (main.id === 'radasteya') {
                   tempArr = playList.additional[main.id][Number(radasteyaId)];
+                } else if (main.id === 'video' || main.id === 'live') {
+                  tempArr = playList.additional[main.id][Number(stradasteyaId)];
                 }
             break;
         }
@@ -176,6 +178,10 @@ export class DataService extends BaseComponent {
           this.buildAdditionalMainCoord(playlistToDownload, subService.additional.stradasteya);
           this.buildAdditionalMainCoord(playlistToDownload, subService.additional.radasteya);
           this.buildAdditionalMainCoord(playlistToDownload, subService.additional.zituord);
+          break;
+
+        case 11:
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.video);
           break;
         default:
           playlistToDownload.push(...subService.main);
