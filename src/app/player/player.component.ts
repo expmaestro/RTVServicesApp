@@ -36,6 +36,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   private platformResume = true;
   private minutesWhenExit = 60;
   subscriptions: SubscriptionLike[] = [];
+  isAndroid = false;
+  isIos = false;
 
   constructor(
     private platform: Platform,
@@ -49,6 +51,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     super();
 
     this.platform.ready().then(() => {
+      if (this.platform.is("android")) { this.isAndroid = true; }
+      if (this.platform.is("ios")) { this.isIos = true; }
 
       if (
         this.platform.is("android") ||
@@ -74,14 +78,16 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           if (!this.state?.playing) {
             this.activateTimer();
           }
-
-          const source = timer(1000);
-          MusicControls.destroy(onSuccess => {
-            source.safeSubscribe(this, () => {
-              this.initMusicContols(this.state.playing, !this.state.playing);
-            })
-          }, onError => { });
-
+          if(this.isAndroid) {
+            const source = timer(1000);
+            MusicControls.destroy(onSuccess => {
+              source.safeSubscribe(this, () => {
+                this.initMusicContols(this.state.playing, !this.state.playing);
+              })
+            }, onError => { });
+  
+          }
+          
         });
       }
     });
