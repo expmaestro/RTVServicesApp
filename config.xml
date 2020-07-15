@@ -71,6 +71,7 @@
         <resource-file src="resources/android/icon/drawable-xxxhdpi-icon.png" target="app/src/main/res/drawable-xxxhdpi/ic_icon.png" />
     </platform>
     <platform name="ios">
+        <preference name="Hostname" value="test-rithm-time.tv" />
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
         <icon height="57" src="resources/ios/icon/icon.png" width="57" />
