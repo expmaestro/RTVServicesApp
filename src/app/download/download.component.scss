@@ -2,4 +2,15 @@
     ion-button {
         text-transform: initial;
        }
+
+       .cancel-loading {
+            font-size: 27px; 
+            margin-left: 15px;
+       }
+
+       .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+       }
 }
