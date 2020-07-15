@@ -84,9 +84,7 @@ export class AppComponent extends BaseComponent {
       backgroundMode.disableWebViewOptimizations();
       // bg.disableBatteryOptimizations();
       console.log("Background status: activate");
-      backgroundMode.isIgnoringBatteryOptimizations(function (isIgnoring) {
-        console.log(`isIgnoring: ${isIgnoring}`);
-      })
+      
     });
     backgroundMode.on('deactivate ', function() {
       console.log('Background status: deactivate');
