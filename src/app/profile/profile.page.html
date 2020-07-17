@@ -23,7 +23,7 @@
       {{ data.USER_FIO }}
     </ion-item>
 
-    <ion-item button="true" (click)="clear()" lines="full">
+    <ion-item button="true" (click)="clear()" lines="full" detail="false"> 
       <ion-label>Удалить сохранённые файлы <ng-container *ngIf="size > 0">({{size | number: '1.0-0' }} МБ)</ng-container></ion-label>
       <ion-icon name="trash" slot="end"></ion-icon>
     </ion-item>

@@ -63,7 +63,7 @@
       <ion-col size="12" class="ion-no-padding">
         <ion-list>
 
-          <ion-item button *ngFor="let music of playlist; let index = index;" (click)="play(index)" lines="full">
+          <ion-item detail="false" button *ngFor="let music of playlist; let index = index;" (click)="play(index)" lines="full">
             <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
               {{ index + 1 }}. {{ music.name }}
             </ion-label>
