@@ -3,11 +3,11 @@
     
     <ion-row>
     
-      <ion-col size="6" class="section-column">
+      <ion-col size="6" size-xs="5" class="section-column">
         <ion-note class="section-name block">{{ sectionName }}</ion-note>
         <ion-note class="track-name">{{ trackName }}</ion-note>
       </ion-col>
-      <ion-col size="6" class="ion-text-right ion-no-padding custom-padding">
+      <ion-col size="6" size-xs="7" class="ion-text-right ion-no-padding custom-padding">
         <ion-button fill="clear" [disabled]="disablePrev()" (click)="prevTrack()" color="light">
           <ion-icon name="play-skip-back"></ion-icon>
         </ion-button>
