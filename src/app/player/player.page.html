@@ -8,7 +8,7 @@
 </ion-header>
 
 <ion-content class="player">
-  <ion-grid style="height: 100%; display: flex;  flex-flow: column;">
+  <ion-grid style="min-height:100%;display: flex;  flex-flow: column;">
     <ion-row *ngIf="playlistAreSame !== undefined && !playlistAreSame" class="ion-justify-content-center">
       <ion-col size="11" size-xs="11" size-sm="6" size-md="4" size-lg="3" size-lg="2" class="ion-padding-top">
         <ion-button expand="full" type="button" (click)="play(0)" class="ion-no-margin">Слушать
