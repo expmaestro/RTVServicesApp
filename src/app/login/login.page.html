@@ -1,6 +1,6 @@
 <ion-content class="ion-padding login-page ">
-  <form [formGroup]="loginForm" (ngSubmit)="login()" style="height: 100%;">
-    <ion-grid style=" display: flex; flex-flow: column; height: 100%;">
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    <ion-grid style=" display: flex; flex-flow: column; height: 100vh;">
 
       <ion-row class="ion-justify-content-center">
         <ion-col size="11">
@@ -57,7 +57,7 @@
         </ion-col>
       </ion-row>
 
-      <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
+      <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 0.8;">
         <ion-col size="11" class="ion-text-center ion-padding-top">
           <span style="color: grey;">Ещё нет логина? </span> <a class="no-decoration"
             href="{{apiUrl}}/auth/registration.php">Зарегистрироваться</a>
