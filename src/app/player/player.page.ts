@@ -34,6 +34,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
   title = '';
   matrix = '';
   state: StreamState;
+  buttonText = '';
 
   constructor(private musicControlService: MusicControlService, private activatedRoute: ActivatedRoute,
     private dataService: DataService, private fileService: FilesService, private settingsService: SettingsService,

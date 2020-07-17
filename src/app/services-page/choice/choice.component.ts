@@ -24,6 +24,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   stradasteya = new FormControl('');
   radasteya = new FormControl('');
   zituord = new FormControl('');
+  buttonText = '';
 
   selectInterfaceOptions: any = {
     cssClass: 'ion-select-pupup-class'

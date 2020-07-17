@@ -18,6 +18,7 @@ export class ProfilePage extends BaseComponent implements OnInit {
   public data: Profile = new Profile();
   subscription: any;
   size = 0;
+  buttonText = '';
   constructor(private settingsService: SettingsService, private loginService: LoginService, private nav: NavController,
     private file: File, private fileService: FilesService, private toastController: ToastController,
     private loadingCtrl: LoadingController, private networkService: NetworkService, private alertController: AlertController,
