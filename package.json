@@ -38,7 +38,7 @@
     "cordova-plugin-background-mode": "git+https://expmaestro@bitbucket.org/integtamma/cordova-plugin-run-in-background.git",
     "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-file-transfer": "^1.7.1",
-    "cordova-plugin-music-controls": "git+https://github.com/homerours/cordova-music-controls-plugin.git#90e3fe8838c3151bd8e51901079eb34740ec87c9",
+    "cordova-plugin-music-controls2": "git+https://github.com/expmaestro/cordova-plugin-music-controls2.git",
     "cordova-plugin-network-information": "^2.0.2",
     "core-js": "^3.6.5",
     "rxjs": "~6.5.1",
@@ -91,7 +91,7 @@
       "cordova-plugin-advanced-http": {},
       "cordova-plugin-appminimize": {},
       "cordova-plugin-background-mode": {},
-      "cordova-plugin-music-controls": {}
+      "cordova-plugin-music-controls2": {}
     },
     "platforms": [
       "android",
