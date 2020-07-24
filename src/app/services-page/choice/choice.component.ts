@@ -37,14 +37,14 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   choice(item: NameIdModel, next: NextModel) {
     this.params.push(item.id);
     if (next) {
-      this.router.navigate([`/services/${this.serviceId}/${(this.params.join('/'))}`]);
+      this.router.navigate([`/tabs/services/${this.serviceId}/${(this.params.join('/'))}`]);
     }
     else {
       if (this.service.type === 'audio') {
-        this.router.navigate([`/player/${this.serviceId}/${(this.params.join('/'))}`]);
+        this.router.navigate([`/tabs/player/${this.serviceId}/${(this.params.join('/'))}`]);
       }
       if (this.service.type === 'video' || this.service.type === 'live') {
-        this.router.navigate([`/home/${this.serviceId}/${(this.params.join('/'))}`]);
+        this.router.navigate([`/tabs/home/${this.serviceId}/${(this.params.join('/'))}`]);
       }
     }
   }
@@ -54,7 +54,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   mainCoord() {
-    this.router.navigate([`/player/${this.serviceId}/${this.stradasteya.value.id}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
+    this.router.navigate([`/tabs/player/${this.serviceId}/${this.stradasteya.value.id}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
   }
 
   ngOnInit() {

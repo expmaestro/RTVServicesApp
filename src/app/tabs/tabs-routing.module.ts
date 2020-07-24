@@ -9,9 +9,9 @@ import { PlayerPage } from '../player/player.page';
 import { HomePage } from '../home/home.page';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'services', pathMatch: 'full' },
+  { path: '', redirectTo: '/tabs/services', pathMatch: 'full' },
   {
-    path: '',
+    path: 'tabs',
     component: TabsPage,
     children: [
       {
@@ -65,6 +65,7 @@ const routes: Routes = [
       },
     ]
   },
+  
 ];
 
 @NgModule({

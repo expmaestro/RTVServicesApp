@@ -86,7 +86,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     await alert.present();
   }
   otherTimeRedirect() {
-    this.nav.navigateRoot("/services/1");
+    this.nav.navigateRoot("/tabs/services/1");
   }
 
   ngOnInit() {

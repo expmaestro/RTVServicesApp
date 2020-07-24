@@ -70,9 +70,9 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
       return;
     }
     if (service.next) {
-      this.router.navigate([`/services/${service.id}`]);
+      this.router.navigate([`/tabs/services/${service.id}`]);
     } else {
-      this.router.navigate([`/player/${service.id}`]);
+      this.router.navigate([`/tabs/player/${service.id}`]);
     }
   }
 

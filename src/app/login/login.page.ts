@@ -58,7 +58,7 @@ export class LoginPage extends BaseComponent implements OnInit {
                         this.settingsService.setProfileData = r.data;
                         await this.loading.dismiss();
                         this.process = false;
-                        this.nav.navigateRoot('/services');
+                        this.nav.navigateRoot('/tabs/services');
                     })
 
                 } else {
