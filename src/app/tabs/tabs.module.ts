@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { LayoutPagePageRoutingModule } from './layout-page-routing.module';
-import { LayoutPagePage } from './layout-page.page';
+import { TabsPageRoutingModule } from './tabs-routing.module';
+import { TabsPage } from './tabs.page';
 import { PlayerComponent } from '../player/player.component';
 import { MaterialModule } from '../material.module';
 
@@ -14,12 +14,12 @@ import { MaterialModule } from '../material.module';
     CommonModule,
     FormsModule,
     IonicModule,
-    LayoutPagePageRoutingModule,
+    TabsPageRoutingModule,
     MaterialModule
   ],
   declarations: [
-    LayoutPagePage,
+    TabsPage,
     PlayerComponent
   ]
 })
-export class LayoutPagePageModule { }
+export class TabsPageModule { }

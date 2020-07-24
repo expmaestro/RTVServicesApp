@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
-import { LayoutPagePage } from './layout-page.page';
+import { TabsPage as TabsPage } from './tabs.page';
 import { AuthGuardService } from '../services/auth-guard.service';
 import { ServicesPagePage } from '../services-page/services-page.page';
 import { ChoiceComponent } from '../services-page/choice/choice.component';
@@ -12,7 +12,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'services', pathMatch: 'full' },
   {
     path: '',
-    component: LayoutPagePage,
+    component: TabsPage,
     children: [
       {
         path: 'services',
@@ -71,4 +71,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class LayoutPagePageRoutingModule {}
+export class TabsPageRoutingModule {}

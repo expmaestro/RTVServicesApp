@@ -19,7 +19,7 @@ import { Network } from '@ionic-native/network/ngx';
 import { HTTP } from '@ionic-native/http/ngx';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InterceptorService } from './services/interceptor.service';
-import { LayoutPagePageModule } from './layout-page/layout-page.module';
+import { TabsPageModule } from './tabs/tabs.module';
 import { AppMinimize } from '@ionic-native/app-minimize/ngx';
 import { SharedModule } from './shared.module';
 
@@ -32,7 +32,7 @@ import { SharedModule } from './shared.module';
     AppRoutingModule, 
     HttpClientModule,
     BrowserAnimationsModule,
-    LayoutPagePageModule,
+    TabsPageModule,
     SharedModule,
   ],
   providers: [
