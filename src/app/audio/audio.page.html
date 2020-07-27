@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar color="primary" [routerLink]="['/tabs/profile']">
+    <ion-avatar slot="start">
+      <img src="assets/img/avatar.svg">
+    </ion-avatar>
+    <ion-title *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content pullingIcon="chevron-down-circle-outline"
+    refreshingSpinner="circles"
+    refreshingText="Обновление..."></ion-refresher-content>
+  </ion-refresher>
+
+
+  <!-- <ion-card button="true" *ngFor="let service of services" (click)="next(service)" [class.not-paid]="!service.paid"
+    class="item-padding">
+    <ion-item  class="ion-no-padding" lines="none" color="transparent">
+      <img class="img" *ngIf="service.coverLocalPath" [src]="service.coverLocalPath" (error)="errorHandler($event, service)">
+      <ion-label class="new-line-text ion-no-margin">
+        <h4>{{ service.name }}</h4>
+        <p [class.red]="service.type === 'video' || service.type === 'live'">{{ service.comment }}</p>
+      </ion-label>
+      <ion-button fill="clear" *ngIf="!service.paid">
+        <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-card>   -->
+</ion-content>

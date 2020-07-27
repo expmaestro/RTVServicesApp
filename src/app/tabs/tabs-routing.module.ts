@@ -37,6 +37,11 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'audio',
+        canActivate: [AuthGuardService],
+        loadChildren: () => import('../audio/audio.module').then( m => m.AudioPageModule)
+      },
+      {
         path: 'profile',
         canActivate: [AuthGuardService],
         loadChildren: () => import('../profile/profile.module').then( m => m.ProfilePageModule)

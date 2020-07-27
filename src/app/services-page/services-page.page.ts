@@ -53,7 +53,6 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   }
 
   errorHandler(event, service) {
-    // console.log('error: ' + event.target.src)
     if (!event.target.noErrorMore) {
       event.target.src = service.cover;
       event.target.noErrorMore = true;
@@ -81,7 +80,7 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     this.settingsService.completeServiceRequest$
       .pipe(take(1))
       .safeSubscribe(this, () => {
-        console.log('complete');
+        console.log('complete refresh');
         event.target.complete();
       })
 
