@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { AudioPageRoutingModule } from './audio-routing.module';
 
 import { AudioPage } from './audio.page';
+import { SharedModule } from '../shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    AudioPageRoutingModule
+    AudioPageRoutingModule,
+    SharedModule
   ],
   declarations: [AudioPage]
 })

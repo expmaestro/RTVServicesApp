@@ -1,12 +1,4 @@
-<ion-header>
-  <ion-toolbar color="primary" [routerLink]="['/tabs/profile']">
-    <ion-avatar slot="start">
-      <img src="assets/img/avatar.svg">
-    </ion-avatar>
-    <ion-title *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }}</ion-title>
-  </ion-toolbar>
-</ion-header>
-
+<profile-header></profile-header>
 
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
