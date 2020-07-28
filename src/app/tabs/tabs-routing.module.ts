@@ -7,6 +7,8 @@ import { ServicesPagePage } from '../services-page/services-page.page';
 import { ChoiceComponent } from '../services-page/choice/choice.component';
 import { PlayerPage } from '../player/player.page';
 import { HomePage } from '../home/home.page';
+import { AlbumsPage } from '../audio/albums/albums.page';
+import { AudioPage } from '../audio/audio.page';
 
 const routes: Routes = [
   { path: '', redirectTo: '/tabs/services', pathMatch: 'full' },
@@ -39,12 +41,24 @@ const routes: Routes = [
       {
         path: 'audio',
         canActivate: [AuthGuardService],
-        loadChildren: () => import('../audio/audio.module').then( m => m.AudioPageModule)
+       // loadChildren: () => import('../audio/audio.module').then(m => m.AudioPageModule),
+        children: [
+          {
+            path: '',
+            component: AudioPage,
+            loadChildren: () => import('../audio/audio.module').then(m => m.AudioPageModule),
+          },
+          {
+            path: 'albums',
+            component: AlbumsPage,
+            loadChildren: () => import('../audio/albums/albums.module').then(m => m.AlbumsPageModule)
+          }
+        ]
       },
       {
         path: 'profile',
         canActivate: [AuthGuardService],
-        loadChildren: () => import('../profile/profile.module').then( m => m.ProfilePageModule)
+        loadChildren: () => import('../profile/profile.module').then(m => m.ProfilePageModule)
       },
       {
         path: 'player',
@@ -70,11 +84,11 @@ const routes: Routes = [
       },
     ]
   },
-  
+
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class TabsPageRoutingModule {}
+export class TabsPageRoutingModule { }
