@@ -6,9 +6,8 @@ import { BaseComponent } from '../services/base-component';
 import { Profile, ServiceModel } from '../backend/interfaces';
 import { environment } from 'src/environments/environment';
 import { FilesService } from '../services/files.service';
-import { Subject } from 'rxjs';
-//import { distinctUntilChanged } from 'rxjs/operators';
-import { take } from "rxjs/operators";
+import { distinctUntilChanged, take } from 'rxjs/operators';
+import { ElementSchemaRegistry } from '@angular/compiler';
 
 @Component({
   selector: 'app-services-page',
@@ -20,8 +19,8 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   services: Array<ServiceModel> = [];
   public profile: Profile;
 
-  constructor(private nav: NavController, private router: Router, private settingsService: SettingsService, private filesService: FilesService,
-    private platform: Platform,) {
+  constructor(private router: Router, private settingsService: SettingsService, private filesService: FilesService,
+    private platform: Platform) {
     super();
     this.settingsService.getUserProfileData();
     // this.settingsService.getServices();
@@ -32,25 +31,18 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
       this.profile = response;
     });
     this.settingsService.getServicesDataAsync
-      //.pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
-      .safeSubscribe(this, services => {
+      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .safeSubscribe(this, serv => {
+        const services = JSON.parse(JSON.stringify(serv));
         console.log('get services');
         this.services = services;
         this.platform.ready().then(() => {
-          let win: any = window;
-          if (this.platform.is("android") || this.platform.is("ios")) {
-            this.services.forEach(service => {
-              if (service.cover) {
-                let temp = this.filesService.getCoverFullPath(this.filesService.getCoverImageName(service.cover));
-                let path = win.Ionic.WebView.convertFileSrc(temp);
-                path = path.replace('undefined', "http://localhost"); // solution for live reload mode
-                service.coverLocalPath = path;
-              }
-            });
-          }
+          this.filesService.getImageLocalPath(this.services, null);
         });
       });
   }
+
+
 
   errorHandler(event, service) {
     if (!event.target.noErrorMore) {
@@ -82,7 +74,6 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
       .safeSubscribe(this, () => {
         console.log('complete refresh');
         event.target.complete();
-      })
-
+      });
   }
 }

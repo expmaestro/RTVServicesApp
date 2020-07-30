@@ -14,6 +14,10 @@ export class FilesService {
   private loading: any;
   private audioFolder = 'audio';
   private imageFolder = 'images';
+
+  serviceImageSubFolder = '_service'; // images/_service
+  audioImageSubFolder = '_audio'; //images/_audio
+
   public files$ = new BehaviorSubject<any>(null);
   fileTransferCreate: FileTransferObject;
 
@@ -21,23 +25,23 @@ export class FilesService {
     return this.audioFolder;
   }
 
-  get getImageFolder(): string {
-    return this.imageFolder;
+  getImageFolder(type: string): string {
+    return `${this.imageFolder}/${type}`;
   }
 
   getFullFilePath(serviceId: number, fileName: string) {
     return this.file.dataDirectory + `${this.getAudioFolder}/${serviceId}/` + fileName;
   }
 
-  getCoverFullPath(fileName: string) {
-    return this.file.dataDirectory + `${this.getImageFolder}/` + fileName;
+  getCoverFullPath(fileName: string, type: string) {
+    return this.file.dataDirectory + `${this.getImageFolder(type)}/` + fileName;
   }
 
   getFileNameFromSrc(src: string): string {
     if (!src) return '';
     let type = src.split('.');
     let hashFileName = this.generateHash(src) + '.' + type[type.length - 1];
-   
+
     return hashFileName;
   }
 
@@ -123,10 +127,10 @@ export class FilesService {
     toast.present();
   }
 
-  cacheImages(covers: string[]) {
+  cacheImages(covers: string[], imageSubFolder: string) {
     covers = covers.filter(f => f.length > 0);
     this.fileTransferCreate = this.fileTransfer.create();
-    this.getFileListFromFolder(this.getImageFolder).then((files) => {
+    this.getFileListFromFolder(this.getImageFolder(imageSubFolder)).then((files) => {
       let allFilesInFolder = covers.every(cover => {
         let temp = cover.split('/');
         let name = temp.pop();
@@ -134,7 +138,7 @@ export class FilesService {
       });
       console.log('allFilesInFolder ' + allFilesInFolder);
       if (!allFilesInFolder) {
-        return this.file.removeRecursively(this.file.dataDirectory, this.getImageFolder).then(
+        return this.file.removeRecursively(this.file.dataDirectory, this.getImageFolder(imageSubFolder)).then(
           async (entry) => {
             console.log('Images sucessfully removed');
           },
@@ -144,8 +148,9 @@ export class FilesService {
             console.log('We need saved Images');
             covers.forEach(cover => {
               let name = this.getCoverImageName(cover);
-              this.fileTransferCreate.download(cover, this.getCoverFullPath(name), false)
-                .then((r) => console.log(r));
+              this.fileTransferCreate.download(cover, this.getCoverFullPath(name, imageSubFolder), false)
+                .then((r) => console.log(r))
+                .catch(c => console.log(c));
             });
           })
       }
@@ -172,13 +177,31 @@ export class FilesService {
       return new Promise<number>((resolve, reject) => {
         const directoryReader = (entry as DirectoryEntry).createReader();
         directoryReader.readEntries((entries: Entry[]) => {
-            Promise.all(entries.map(e => this.size(e))).then((size: number[]) => {
-              const dirSize = size.reduce((prev, current) => prev + current, 0);
-              resolve(dirSize);
-            }).catch(err => reject(err));
-          },
+          Promise.all(entries.map(e => this.size(e))).then((size: number[]) => {
+            const dirSize = size.reduce((prev, current) => prev + current, 0);
+            resolve(dirSize);
+          }).catch(err => reject(err));
+        },
           (error) => reject(error));
       })
     }
+  }
+
+
+  getImageLocalPath(services, albums) {
+    let win: any = window;
+    if (services !== null) {
+      services.forEach(service => {
+        if (service.cover) {
+          let temp = this.getCoverFullPath(this.getCoverImageName(service.cover), this.serviceImageSubFolder);
+          let path = win.Ionic.WebView.convertFileSrc(temp);
+          path = path.replace('undefined', "http://localhost"); // solution for live reload mode
+          service.coverLocalPath = path;
+        }
+      });
+    } else if (albums !== null) {
+
+    }
+
   }
 }

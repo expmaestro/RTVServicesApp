@@ -49,7 +49,7 @@ const routes: Routes = [
             loadChildren: () => import('../audio/audio.module').then(m => m.AudioPageModule),
           },
           {
-            path: 'albums',
+            path: 'albums/:type',
             component: AlbumsPage,
             loadChildren: () => import('../audio/albums/albums.module').then(m => m.AlbumsPageModule)
           }

@@ -109,7 +109,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   private initMusicContols(isPlaying, dismissable) {
     if (this.musicControlService.currentIndex > -1) {
-      let fullpath = this.fileService.getCoverFullPath(this.fileService.getCoverImageName(this.sectionPlayList.service.cover));
+      let fullpath = this.fileService.getCoverFullPath(this.fileService.getCoverImageName(this.sectionPlayList.service.cover), 'service');
       //console.log(this.state?.playing);
       MusicControls.create(
         this.musicControlService.mediaControlSettings(this.sectionName, this.trackName, isPlaying, dismissable, fullpath),

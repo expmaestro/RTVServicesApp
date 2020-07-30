@@ -226,4 +226,13 @@ export class DataService extends BaseComponent {
 
     return [year, month, day];
   }
+
+  getAlbumDescription(type) {
+    switch (type) {
+      case 'album': return 'Песни';
+      case 'audiobook': return 'Аудиокниги';
+      case 'rythm': return 'Ритмы в исполнении автора';
+      default: return type;
+    }
+  }
 }
