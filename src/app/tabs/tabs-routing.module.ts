@@ -26,6 +26,17 @@ const routes: Routes = [
             loadChildren: () => import('../services-page/services-page.module').then(m => m.ServicesPagePageModule),
           },
           {
+            path: 'player',
+            canActivate: [AuthGuardService],
+            children: [
+              {
+                path: '**',
+                component: PlayerPage,
+                loadChildren: () => import('../player/player.module').then(m => m.PlayerPageModule),
+              },
+            ]
+          },
+          {
             path: ':id',
             component: ChoiceComponent,
             loadChildren: () => import('../services-page/services-page.module').then(m => m.ServicesPagePageModule),
@@ -60,17 +71,17 @@ const routes: Routes = [
         canActivate: [AuthGuardService],
         loadChildren: () => import('../profile/profile.module').then(m => m.ProfilePageModule)
       },
-      {
-        path: 'player',
-        canActivate: [AuthGuardService],
-        children: [
-          {
-            path: '**',
-            component: PlayerPage,
-            loadChildren: () => import('../player/player.module').then(m => m.PlayerPageModule),
-          },
-        ]
-      },
+      // {
+      //   path: 'player',
+      //   canActivate: [AuthGuardService],
+      //   children: [
+      //     {
+      //       path: '**',
+      //       component: PlayerPage,
+      //       loadChildren: () => import('../player/player.module').then(m => m.PlayerPageModule),
+      //     },
+      //   ]
+      // },
       {
         path: 'home',
         canActivate: [AuthGuardService],

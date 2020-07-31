@@ -41,7 +41,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
     }
     else {
       if (this.service.type === 'audio') {
-        this.router.navigate([`/tabs/player/${this.serviceId}/${(this.params.join('/'))}`]);
+        this.router.navigate([`/tabs/services/player/${this.serviceId}/${(this.params.join('/'))}`]);
       }
       if (this.service.type === 'video' || this.service.type === 'live') {
         this.router.navigate([`/tabs/home/${this.serviceId}/${(this.params.join('/'))}`]);
@@ -54,7 +54,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   mainCoord() {
-    this.router.navigate([`/tabs/player/${this.serviceId}/${this.stradasteya.value.id}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
+    this.router.navigate([`/tabs/services/player/${this.serviceId}/${this.stradasteya.value.id}/${this.radasteya.value.id}/${this.zituord.value.id}`]);
   }
 
   ngOnInit() {
