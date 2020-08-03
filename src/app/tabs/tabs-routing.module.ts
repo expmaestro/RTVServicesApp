@@ -9,6 +9,7 @@ import { PlayerPage } from '../player/player.page';
 import { HomePage } from '../home/home.page';
 import { AlbumsPage } from '../audio/albums/albums.page';
 import { AudioPage } from '../audio/audio.page';
+import { ListPage } from '../audio/list/list.page';
 
 const routes: Routes = [
   { path: '', redirectTo: '/tabs/services', pathMatch: 'full' },
@@ -54,6 +55,17 @@ const routes: Routes = [
         canActivate: [AuthGuardService],
        // loadChildren: () => import('../audio/audio.module').then(m => m.AudioPageModule),
         children: [
+          {
+            path: 'player',
+            canActivate: [AuthGuardService],
+            children: [
+              {
+                path: ':id',
+                component: ListPage,
+                loadChildren: () => import('../audio/list/list.module').then(m => m.ListPageModule),
+              },
+            ]
+          },
           {
             path: '',
             component: AudioPage,

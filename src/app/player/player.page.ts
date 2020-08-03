@@ -5,7 +5,7 @@ import { DataService } from '../services/data.service';
 import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { FormControl, Validators } from '@angular/forms';
 import { FilesService } from '../services/files.service';
-import { ServicePlayListModel, PlayListModel, ServiceModel, ServicePlayListModelObject } from '../backend/interfaces';
+import { ServicePlayListModel, PlayListModel, ServiceModel, ServicePlayListModelObject, ServiceEnum } from '../backend/interfaces';
 import { SettingsService } from '../services/settings.service';
 import { NetworkService } from '../services/network.service';
 import { AlertController, Platform, NavController } from '@ionic/angular';
@@ -105,7 +105,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         this.title = this.dataService.getFullSectionName(this.service, this.params);
 
         this.settingsService.getServicePlayListFromStorage(this.service.id);
-        this.settingsService.getServicePlayList(this.service.id);
+        this.settingsService.getServicePlayList(this.service.id, ServiceEnum.service);
       }
 
       this.musicControlService.getCurrentIndex().safeSubscribe(this, (index) => {

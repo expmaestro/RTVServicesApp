@@ -3,7 +3,7 @@ import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { BaseComponent } from '../services/base-component';
 import { DataService } from '../services/data.service';
 import { SettingsService } from '../services/settings.service';
-import { ServicePlayListModelObject, ServicePlayListModel, PlayListModel } from '../backend/interfaces';
+import { ServicePlayListModelObject, ServicePlayListModel, PlayListModel, ServiceEnum } from '../backend/interfaces';
 import { distinctUntilChanged, filter, takeUntil, take } from 'rxjs/operators';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { Platform } from '@ionic/angular';
@@ -36,7 +36,7 @@ export class HomePage extends BaseComponent {
           // this.title = this.dataService.getFullSectionName(this.service, this.params);
 
           this.settingsService.getServicePlayListFromStorage(this.service.id);
-          this.settingsService.getServicePlayList(this.service.id);
+          this.settingsService.getServicePlayList(this.service.id, ServiceEnum.service);
 
           this.subscription = this.settingsService.getServicePlayListAsync(this.service.id)
             .pipe(distinctUntilChanged((prev, curr) => {
