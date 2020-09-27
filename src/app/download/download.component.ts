@@ -5,7 +5,7 @@ import { FilesService } from '../services/files.service';
 import { environment } from 'src/environments/environment';
 import { File, Entry } from '@ionic-native/file/ngx';
 import { BaseComponent } from '../services/base-component';
-import { PlayListModel } from '../backend/interfaces';
+import { PlayListModel, ServiceEnum } from '../backend/interfaces';
 import { DataService } from '../services/data.service';
 import { DomSanitizer } from '@angular/platform-browser';
 
@@ -16,14 +16,17 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class DownloadComponent extends BaseComponent implements OnInit, OnDestroy {
   playlist: PlayListModel[] = [];
+  @Input() oneFileMode: boolean;
+  @Input() isDownload: boolean = undefined;
   @Input() set setPlaylist(value: PlayListModel[]) {
     this.playlist = value;
-    console.log(value.length);
-    if (value.length > 0) {
+    console.log(this.type)
+    if (value.length > 0 && !this.oneFileMode) {
       this.isPlaylistDownloaded();
     }
   }
   @Input() serviceId = 0;
+  @Input() type = 0;
   description;
   needToDownloadFiles: PlayListModel[] = [];
   fileTransferCreate: FileTransferObject;
@@ -45,31 +48,31 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
     this.platform.ready().then(() => {
       if (this.platform.is("android")) { this.isAndroid = true; }
       if (this.platform.is("ios")) { this.isIos = true; }
-      if (this.platform.is("android") || this.platform.is("ios")) {
-        this.fileTransferCreate = this.fileTransfer.create();
+      //   if (this.platform.is("android") || this.platform.is("ios")) {
+      this.fileTransferCreate = this.fileTransfer.create();
 
-        this.fileTransferCreate.onProgress(progress => {
-          if (this.playlist && this.playlist.length === 1) {
-            this.zone.run(() => {
-              // console.log(progress);
-              if (progress.lengthComputable) {
-                // this.getFreeSpace().then(freeDiskSpace => {
-                //   console.log(`${progress.total} - ${freeDiskSpace}`)
-                //   if (freeDiskSpace > 0 && progress.total > (freeDiskSpace - 500 * 1024 * 1024)) {
-                //     freeDiskSpace = 0;
-                //     this.fileTransferCreate.abort();
-                //     this.downloadFileError(`Недостаточно места для скачивания файла`, false);
-                //   }
-                // });
-                this.progress = Math.round(progress.loaded / progress.total * 100);
-              }
-              else {
-                //console.log(progress.loaded / 1024 / 1024);
-              }
-            });
-          }
-        });
-      }
+      this.fileTransferCreate.onProgress(progress => {
+        if (this.playlist && this.playlist.length === 1) {
+          this.zone.run(() => {
+            // console.log(progress);
+            if (progress.lengthComputable) {
+              // this.getFreeSpace().then(freeDiskSpace => {
+              //   console.log(`${progress.total} - ${freeDiskSpace}`)
+              //   if (freeDiskSpace > 0 && progress.total > (freeDiskSpace - 500 * 1024 * 1024)) {
+              //     freeDiskSpace = 0;
+              //     this.fileTransferCreate.abort();
+              //     this.downloadFileError(`Недостаточно места для скачивания файла`, false);
+              //   }
+              // });
+              this.progress = Math.round(progress.loaded / progress.total * 100);
+            }
+            else {
+              //console.log(progress.loaded / 1024 / 1024);
+            }
+          });
+        }
+      });
+      // }
     });
   }
 
@@ -108,6 +111,10 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
     }
   }
 
+  cancelOneFileDownload() {
+    this.fileTransferCreate.abort();
+  }
+
 
   private getFreeSpace() {
     return this.file.getFreeDiskSpace().then(result => {
@@ -122,29 +129,41 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   private setDescription() {
-    if (this.serviceId === 1) {
-      const date = this.dataService.getDate();
-      const stringDate = `${date[2]}.${date[1]}.${date[0]}`;
+    if (this.type === ServiceEnum.service) {
+      if (this.serviceId === 1) {
+        const date = this.dataService.getDate();
+        const stringDate = `${date[2]}.${date[1]}.${date[0]}`;
+        return this.alreadyLoaded
+          ? `Завод времени на ${stringDate} загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
+          : `Загрузить завод времени на ${stringDate} для прослушивания без интернета`;
+      } else if (this.serviceId === 2) {
+        return this.alreadyLoaded
+          ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
+          : 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
+      } else {
+        return this.alreadyLoaded
+          ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
+          : 'Загрузить сервис для прослушивания без интернета';
+      }
+    } else if (this.type === ServiceEnum.audio) {
       return this.alreadyLoaded
-        ? `Завод времени на ${stringDate} загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
-        : `Загрузить завод времени на ${stringDate} для прослушивания без интернета`;
-    } else if (this.serviceId === 2) {
-      return this.alreadyLoaded
-        ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
-        : 'Загрузить подъём и опускание черпачков для прослушивания без интернета';
-    } else {
-      return this.alreadyLoaded
-        ? `Сервис загружен. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
-        : 'Загрузить сервис для прослушивания без интернета';
+        ? `Треки загружены. <ion-icon name="checkmark-circle-outline"></ion-icon> <br>Можно слушать без интернета.`
+        : 'Загрузить треки для прослушивания без интернета';
     }
+
 
   }
 
   async download() {
-
     this.fileService
       .clear(this.serviceId, false)
       .then(() => this.downloadPlayList());
+  }
+
+
+  downloadOneFile(event) {
+    this.downloadPlayList();
+    event.preventDefault();event.stopPropagation()
   }
 
   async downloadPlayList(playList = null) {
@@ -160,16 +179,22 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
     //   src: 'http://speedtest.tis-dialog.ru/test10',
     //   title: "big-file1"
     // }]
-    const download_retry = async (model: PlayListModel, url: string, filePath: string, retryCount) => {
-
+    const download_retry = async (model: PlayListModel, url: string, folderPath: string, fileName: string, retryCount) => {
+      const filePath = folderPath + fileName;
       for (let i = 0; i < retryCount; i++) {
         const t = Math.floor(Math.random() * 2); // Just for error test
         const url1 = url + (t > 0 ? '' : '');
         const filePath1 = filePath + (t > 0 ? '' : '');
+        console.log(filePath1)
         try {
           return await this.fileTransferCreate.download(url1, filePath1, false)
             .then(
-              (entry) => {
+              async (entry) => {
+                await this.file.moveFile(folderPath, fileName, folderPath, fileName.replace('_start', ''))
+                if (this.oneFileMode) {
+                  this.isDownload = true;
+                }
+                model.isDownload = true;
                 console.log("Successful download: " + url);
                 //console.log("download complete: " + entry.toURL());
                 this.progress = Math.round(100 / this.playlist.length * (this.playlist.length + 1 - this.needToDownloadFiles.length));
@@ -201,17 +226,19 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
       }
     };
 
-    const downloadPlayLsit = async () => {
+    const downloadPlayList = async () => {
       while (this.needToDownloadFiles.length > 0) {
         const currentDownloaded = this.needToDownloadFiles[0];
         const fullUrl = (currentDownloaded.path.includes('https') ? '' : environment.cdn) + currentDownloaded.path;
-        const filePath = this.fileService.getFullFilePath(this.serviceId, this.fileService.getFileNameFromSrc(currentDownloaded.path));
+        const fileName = this.fileService.getFileNameFromSrc(currentDownloaded.path) + '_start';
+        // const filePath = this.fileService.getFullFilePath(this.serviceId, fileName) + '_start';
+        const fullFolderPath = this.fileService.getFullFolderPath(this.serviceId);
 
-        return await download_retry(currentDownloaded, fullUrl, filePath, 3)
+        return await download_retry(currentDownloaded, fullUrl, fullFolderPath, fileName, 3)
           .then(async (t) => {
             // console.log(7777777777777777777)
             this.needToDownloadFiles.shift();
-            await downloadPlayLsit();
+            await downloadPlayList();
           })
           .catch((e) => {
             let textError = '';
@@ -252,7 +279,7 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
       }
     }
 
-    await downloadPlayLsit()
+    await downloadPlayList()
       .finally(() => {
         this.fileService.updateFiles(this.serviceId);
         this.alreadyLoaded = undefined; // remove small lag

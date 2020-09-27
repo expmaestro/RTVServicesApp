@@ -1,4 +1,4 @@
-<ion-grid class="download">
+<ion-grid class="download" *ngIf="!oneFileMode">
   <ng-container *ngIf="alreadyLoaded !== undefined && !alreadyLoaded">
     <ion-row class="ion-justify-content-center">
       <ion-col size="11" class="ion-text-center" [innerHTML]="description">
@@ -50,3 +50,21 @@
     </ion-row>
   </ng-container>
 </ion-grid>
+
+<ng-container *ngIf="oneFileMode && isDownload !== undefined ">
+  <!-- *ngIf="!track.isDownload" -->
+
+  <ion-button fill="clear" (click)="downloadOneFile($event)" *ngIf="!isDownload && needToDownloadFiles.length === 0">
+    <ion-icon slot="icon-only" name="save-outline" color="primary"></ion-icon>
+  </ion-button>
+
+  <ion-button fill="clear" *ngIf="isDownload">
+    <ion-icon  slot="icon-only"  name="checkmark-outline" color="success"></ion-icon>
+  </ion-button>
+
+  <ion-button fill="clear" *ngIf="needToDownloadFiles.length > 0 && !isDownload">
+  <mat-progress-spinner (click)="cancelOneFileDownload()" class="example-margin" [color]="'primary'"
+    [mode]="'determinate'" [value]="progress" [diameter]="20">
+  </mat-progress-spinner>
+</ion-button>
+</ng-container>
