@@ -5,22 +5,40 @@
     </ion-buttons>
     <ion-title>{{ getAlbumDescription(type) }}</ion-title>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar type="text" debounce="500" [formControl]="searchValue" placeholder="Введите название">
+    </ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="!searchValue.value">
+    <ion-card button="true" *ngFor="let service of albums" [routerLink]="['/tabs/audio/player', service.id]"
+      class="item-padding" style="position: relative;">
+      <ng-container *ngIf="service.json_data">
 
-  <ion-card button="true" *ngFor="let service of albums" [routerLink]="['./albums', service]"
-  class="item-padding">
-  <ion-item class="ion-no-padding" lines="none" color="transparent">
-    <img class="img" src="assets/img/logo-512.png">
-    <ion-label class="new-line-text ion-no-margin">
-      <h4>{{ service.name }}</h4>
-      <!-- <p [class.red]="service.type === 'video' || service.type === 'live'">{{ service.comment }}</p> -->
-    </ion-label>
-    <!-- <ion-button fill="clear" *ngIf="!service.paid">
-      <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
-    </ion-button> -->
-  </ion-item>
-</ion-card>
+        <ion-badge class="badge" *ngFor="let stiker of parse(service.json_data).stikers" color="danger">{{stiker}}
+        </ion-badge>
+
+      </ng-container>
+      <ion-item class="ion-no-padding" lines="none" color="transparent">
+
+        <img class="img" *ngIf="service.coverLocalPath" [src]="service.coverLocalPath"
+          (error)="errorHandler($event, service)">
+        <ion-label class="new-line-text ion-no-margin">
+          <h4>{{ service.name }}</h4>
+          <h5 *ngIf="service.paid">{{ getTime(service) }}</h5>
+        </ion-label>
+        <ion-button fill="clear" *ngIf="!service.paid"
+          (click)="buy(service.id);$event.preventDefault();$event.stopPropagation()">
+          <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+        </ion-button>
+      </ion-item>
+    </ion-card>
+  </ng-container>
+
+  <app-search [playlist]="[]" [fullAudioStructure]="fullAudioStructure" [searchValue]="searchValue"
+    (initializate)="update()">
+  </app-search>
 
 </ion-content>

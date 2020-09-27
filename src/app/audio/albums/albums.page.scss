@@ -5,7 +5,7 @@
 
 ion-icon.cart {
     font-size: 28px;
-    color: #b6b6b6;
+    // color: #b6b6b6;
   }
 
   h4 {
@@ -23,3 +23,14 @@ ion-icon.cart {
   .new-line-text{ 
       white-space: normal;
   } 
+
+  .badge {
+    font-size: 12px;
+    background: #f13a78;
+    top: 3px;
+    left: 2px;
+    color: #fff;
+    position: absolute;
+    font-weight: 500;
+    padding-bottom: 3px; z-index: 999;
+  }

@@ -5,31 +5,60 @@
     </ion-buttons>
     <ion-title>{{ title }}</ion-title>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar type="text" debounce="500" [formControl]="searchValue"
+      placeholder="Введите название"></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="player">
   <ion-grid style="min-height:100%;display: flex;  flex-flow: column;">
     <ion-row class="ion-justify-content-center">
       <ion-col size="12" class="ion-no-padding">
-        <ion-list>
+        <app-search 
+        [playlist]="playlist"
+        [fullAudioStructure]="fullAudioStructure"        
+        [searchValue]="searchValue"
+        (initializate)="buildPlayList()">
+      </app-search>
+        <!-- <ion-list>
 
-          <ion-item detail="false" button *ngFor="let music of playlist; let index = index;" (click)="play(index)" lines="full">
+          <ion-item detail="false" button *ngFor="let music of catalog; let index = index;" [routerLink]="['/tabs/audio/player', music.id]"
+            lines="full">
+            <img class="img" *ngIf="music.path" [src]="music.path"
+            (error)="errorHandler($event, service)">
+            <ion-label>
+               {{ music.name }}
+              <h5>{{ music.description }}</h5>
+            </ion-label>
+            <ion-button fill="clear" *ngIf="!music.paid">
+              <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+            </ion-button>
+          </ion-item>
+
+          <ion-item detail="false" button *ngFor="let music of playlist; let index = index;"
+            (click)="play(index, music)" lines="full">
             <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
               {{ index + 1 }}. {{ music.name }}
+              <h5 *ngIf="searchValue.value">{{ music.description }}</h5>
             </ion-label>
+
+            <ion-button fill="clear" *ngIf="!music.paid">
+              <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+            </ion-button>
+
             <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
           </ion-item>
 
-        </ion-list>
+        </ion-list> -->
 
       </ion-col>
     </ion-row>
 
-    <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
+    <ion-row *ngIf="!searchValue.value" class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
       <ion-col>
-        Download
-        <!-- <download [serviceId]="2" [setPlaylist]="playlistToDownload$ | async">
-        </download> -->
+        <download [serviceId]="id" [setPlaylist]="playlistToDownload$ | async" [type]="1" [oneFileMode]="false">
+        </download>
       </ion-col>
     </ion-row>
   </ion-grid>

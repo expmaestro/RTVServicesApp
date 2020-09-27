@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { BaseComponent } from '../services/base-component';
 import { SettingsService } from '../services/settings.service';
-import { distinctUntilChanged, take } from 'rxjs/operators';
+import { distinctUntilChanged, take, filter } from 'rxjs/operators';
 import { DataService } from '../services/data.service';
-import { AudioObject } from '../backend/interfaces';
+import { AudioObject, ServicePlayListModelObject, PlayListModel } from '../backend/interfaces';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-audio',
@@ -12,19 +13,27 @@ import { AudioObject } from '../backend/interfaces';
 })
 export class AudioPage extends BaseComponent implements OnInit {
   audioServices = [];
+  searchValue = new FormControl('');
+  fullAudioStructure: { [key: number]: AudioObject };
   constructor(private settingsService: SettingsService, private dataService: DataService) { super(); }
 
   ngOnInit() {
-    this.settingsService.getAudioDataAsync
+    this.settingsService.getAudioStructureAsync
+      .pipe(filter(f => !!f))
       .pipe(distinctUntilChanged((prev, curr) => Object.values(prev).map((t: AudioObject) => t.type).join('-') ===
         Object.values(curr).map((t: AudioObject) => t.type).join('-')))
       .safeSubscribe(this, (data => {
-        // var data  = JSON.parse(JSON.stringify(d))
-        console.log('get audio data structure async !!!!!!!!!!!!!!!!!!!!!!!');
+        console.log('Get Audio Structure');
+        this.fullAudioStructure = data;
         this.audioServices = Object.values(data)
           .map((m: any) => m.type)
           .filter((el: any, index, array) => array.indexOf(el) === index);
+
+        //cache all paths for search
+        const servicesIds = Object.keys(data).map(Number);
+        this.settingsService.getAudioPlayList(servicesIds);
       }));
+
   }
 
   getAlbumDescription(type) {
@@ -32,7 +41,7 @@ export class AudioPage extends BaseComponent implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.settingsService.getAudioStructure();
+    this.settingsService.getAudioStructure(); // move onInit ?
   }
 
   doRefresh(event) {
@@ -41,8 +50,13 @@ export class AudioPage extends BaseComponent implements OnInit {
       .pipe(take(1))
       .safeSubscribe(this, () => {
         console.log('complete refresh');
-        event.target.complete();
+        if (event !== null) {
+          event.target.complete();
+        }
       });
   }
 
+  update() {
+    this.doRefresh(null);
+  }
 }
