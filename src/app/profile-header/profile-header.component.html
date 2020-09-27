@@ -5,4 +5,8 @@
     </ion-avatar>
     <ion-title *ngIf="profile?.USER_FIO">{{ profile.USER_FIO }}</ion-title>
   </ion-toolbar>
+  <!-- <ion-toolbar *ngIf="search">
+    <ion-searchbar type="text" debounce="500" [formControl]="searchValue" showCancelButton="always"
+    placeholder="Введите название"></ion-searchbar>
+  </ion-toolbar> -->
 </ion-header>

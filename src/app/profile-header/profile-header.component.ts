@@ -9,6 +9,7 @@ import { SettingsService } from '../services/settings.service';
   styleUrls: ['./profile-header.component.scss'],
 })
 export class ProfileHeaderComponent extends BaseComponent implements OnInit {
+  @Input() search = false;
   public profile: Profile;
   constructor( private settingsService: SettingsService) { super(); }
 
