@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject, Observable } from 'rxjs';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
-import { SectionPlayList, ServiceModel } from '../backend/interfaces';
+import { SectionPlayList, ServiceModel, ServiceEnum, PlayListModel } from '../backend/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -17,8 +17,8 @@ export class MusicControlService {
     return this.playlist$.asObservable();
   }
 
-  setPlayList(playList, service: ServiceModel, params: number[]): void {
-    this.playlist$.next({  playList: playList, service: service,  params});
+  setPlayList(playList: PlayListModel[], type: ServiceEnum): void {
+    this.playlist$.next({  playList: playList, type: type});
   }
 
   get currentIndex() {
@@ -242,4 +242,3 @@ export interface StreamState {
   canplay: boolean;
   error: boolean;
 }
-

@@ -3,6 +3,7 @@ import { File, FileReader, FileError, Entry, DirectoryEntry } from '@ionic-nativ
 import { Observable, BehaviorSubject } from 'rxjs';
 import { LoadingController, ToastController, Platform } from '@ionic/angular';
 import { FileTransferObject, FileTransfer } from '@ionic-native/file-transfer/ngx';
+import { AudioObject, ServiceModel, ServiceEnum } from '../backend/interfaces';
 
 
 @Injectable({
@@ -29,12 +30,20 @@ export class FilesService {
     return `${this.imageFolder}/${type}`;
   }
 
+  getFullFolderPath(serviceId: number) {
+    return this.file.dataDirectory + `${this.getAudioFolder}/${serviceId}/`;
+  }
+
   getFullFilePath(serviceId: number, fileName: string) {
     return this.file.dataDirectory + `${this.getAudioFolder}/${serviceId}/` + fileName;
   }
 
-  getCoverFullPath(fileName: string, type: string) {
-    return this.file.dataDirectory + `${this.getImageFolder(type)}/` + fileName;
+  getCoverFullPath(fileName: string, type: ServiceEnum) {
+    if (type === ServiceEnum.audio && !fileName) {
+      return 'assets/img/logo-512.png';
+    }
+    const subFolder = type === ServiceEnum.service ? this.serviceImageSubFolder : this.audioImageSubFolder;
+    return this.file.dataDirectory + `${this.getImageFolder(subFolder)}/` + fileName;
   }
 
   getFileNameFromSrc(src: string): string {
@@ -72,7 +81,7 @@ export class FilesService {
   getFileListFromFolder(folder: string) { //observable
     return this.file.listDir(this.file.dataDirectory, folder)
       .then((files) => {
-        console.log(`Files in phone (current service): ${files.length}`);
+        console.log(`Files in phone (current service folder: ${folder}): ${files.length}`);
         return files;
       }, (error) => {
         console.log('Directory does not exist!');
@@ -127,8 +136,9 @@ export class FilesService {
     toast.present();
   }
 
-  cacheImages(covers: string[], imageSubFolder: string) {
+  cacheImages(covers: string[], type: ServiceEnum) {
     covers = covers.filter(f => f.length > 0);
+    const imageSubFolder = type === ServiceEnum.service ? this.serviceImageSubFolder : this.audioImageSubFolder;
     this.fileTransferCreate = this.fileTransfer.create();
     this.getFileListFromFolder(this.getImageFolder(imageSubFolder)).then((files) => {
       let allFilesInFolder = covers.every(cover => {
@@ -148,7 +158,7 @@ export class FilesService {
             console.log('We need saved Images');
             covers.forEach(cover => {
               let name = this.getCoverImageName(cover);
-              this.fileTransferCreate.download(cover, this.getCoverFullPath(name, imageSubFolder), false)
+              this.fileTransferCreate.download(cover, this.getCoverFullPath(name, type), false)
                 .then((r) => console.log(r))
                 .catch(c => console.log(c));
             });
@@ -188,19 +198,25 @@ export class FilesService {
   }
 
 
-  getImageLocalPath(services, albums) {
+  getImageLocalPath(services: ServiceModel[], albums: AudioObject[]) {
     let win: any = window;
     if (services !== null) {
       services.forEach(service => {
         if (service.cover) {
-          let temp = this.getCoverFullPath(this.getCoverImageName(service.cover), this.serviceImageSubFolder);
-          let path = win.Ionic.WebView.convertFileSrc(temp);
+          let temp = this.getCoverFullPath(this.getCoverImageName(service.cover), ServiceEnum.service);
+          let path = win.Ionic.WebView?.convertFileSrc(temp);
           path = path.replace('undefined', "http://localhost"); // solution for live reload mode
           service.coverLocalPath = path;
         }
       });
     } else if (albums !== null) {
 
+      albums.forEach(album => {
+        let temp = this.getCoverFullPath(this.getCoverImageName(album.image), ServiceEnum.audio);
+        let path = win.Ionic.WebView?.convertFileSrc(temp);
+        path = path.replace('undefined', "http://localhost"); // solution for live reload mode
+        album.coverLocalPath = path;
+      });
     }
 
   }

@@ -58,7 +58,7 @@ export class DataService extends BaseComponent {
   }
 
 
-  buildComputedPlayList(playList: ServicePlayListModel, stradasteyaId, radasteyaId, zituordId, secretNameIndexes = []): PlayListModel[] {
+  buildComputedPlayList(serviceId, cover, sectionName, playList: ServicePlayListModel, stradasteyaId, radasteyaId, zituordId, secretNameIndexes = []): PlayListModel[] {
     if (!playList) return [];
     if (!playList.main) return [];
     const date = this.getDate();
@@ -109,7 +109,14 @@ export class DataService extends BaseComponent {
               isDownload: false,
               name: item.name ? item.name : main.name,
               path: item.path,
-              condition: main.condition
+              condition: main.condition,
+              serviceId: serviceId,
+              cover: cover,
+              sectionName: sectionName,
+              description: '',
+              isCatalog: false,
+              paid: false,
+              downloadAccess: false
             });
           });
         }
@@ -120,7 +127,14 @@ export class DataService extends BaseComponent {
           isDownload: main.isDownload,
           name: main.name,
           path: main.path,
-          condition: main.condition
+          condition: main.condition,
+          serviceId: serviceId,
+          cover: cover,
+          sectionName: sectionName,
+          description: '',
+          isCatalog: false,
+          paid: false,
+          downloadAccess: false
         });
       }
     });
@@ -134,7 +148,14 @@ export class DataService extends BaseComponent {
             isDownload: false,
             name: item.name,
             path: item.path,
-            condition: ''
+            condition: '',
+            serviceId: serviceId,
+            cover: cover,
+            sectionName: sectionName,
+            description: '',
+            isCatalog: false,
+            paid: false,
+            downloadAccess: false,
           });
         });
       }
@@ -149,7 +170,7 @@ export class DataService extends BaseComponent {
     Object.values(servicePlayList).forEach((subService: ServicePlayListModel) => {
       switch (service.id) {
         case 1:
-          let oneDay = this.buildComputedPlayList(subService, null, null, null, []);
+          let oneDay = this.buildComputedPlayList(service.id, service.cover, '', subService, null, null, null, []);
           playlistToDownload.push(...oneDay);
           // console.log(playlistToDownload.length)
           //additional
@@ -168,20 +189,20 @@ export class DataService extends BaseComponent {
           break;
         case 3:
           playlistToDownload.push(...subService.main.filter(f => !f.id));
-          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.secretName);
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.secretName, service.id);
           break;
         case 4:
           playlistToDownload.push(...subService.main);
           break;
         case 5:
           playlistToDownload.push(...subService.main.filter(f => !f.id));
-          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.stradasteya);
-          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.radasteya);
-          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.zituord);
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.stradasteya, service.id);
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.radasteya, service.id);
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.zituord, service.id);
           break;
 
         case 11:
-          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.video);
+          this.buildAdditionalMainCoord(playlistToDownload, subService.additional.video, service.id);
           break;
         default:
           playlistToDownload.push(...subService.main);
@@ -196,7 +217,7 @@ export class DataService extends BaseComponent {
     return unique;
   }
 
-  private buildAdditionalMainCoord(playlistToDownload: PlayListModel[], data: any) {
+  private buildAdditionalMainCoord(playlistToDownload: PlayListModel[], data: any, serviceId: number) {
     console.log(data);
     Object.values(data).forEach((val: any) => {
       val.forEach(element => {
@@ -205,7 +226,14 @@ export class DataService extends BaseComponent {
           path: element.path,
           condition: '',
           id: '',
-          isDownload: false
+          isDownload: false,
+          paid: false,
+          isCatalog: false,
+          description: '',
+          serviceId: serviceId,
+          cover: '',
+          sectionName: '',
+          downloadAccess: false,
         });
       });
     });
@@ -234,5 +262,26 @@ export class DataService extends BaseComponent {
       case 'rythm': return 'Ритмы в исполнении автора';
       default: return type;
     }
+  }
+
+  getSearchAlbumDescription(type) {
+    switch (type) {
+      case 'album': return 'Альбом';
+      case 'audiobook': return 'Аудиокниги';
+      case 'rythm': return 'Ритмы в исполнении автора';
+      default: return type;
+    }
+  }
+
+  compareAuidoObject(curr: any, id) {
+    //let data = curr[id];
+    var data = JSON.parse(JSON.stringify(curr[id]))
+    data.coverLocalPath = '';
+    data.elements.forEach(element => {
+      if (element.user_access) {
+        element.user_access = true;
+      }
+    });
+    return data;
   }
 }
