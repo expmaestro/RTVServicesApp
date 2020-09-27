@@ -62,18 +62,15 @@ export class ServiceModel {
   comment: string;
 }
 
-
 export class ServiceChoiceModel {
   service: ServiceModel;
   current: NextModel;
 }
 
-
 export class NextModel {
   items: Array<NameIdModel>;
   next: NextModel;
 }
-
 
 export class NameIdModel {
   public id: number;
@@ -91,17 +88,22 @@ export class ServicePlayListModel {
 
 export class SectionPlayList {
   playList: PlayListModel[];
-  service: ServiceModel;
-  params: number[];
+  type: ServiceEnum;
 }
 
 export class PlayListModel {
   id: string;
   name: string;
   path: string;
-  //type: string; // file or computed
   isDownload: boolean;
   condition: string; // "day", "month", "year","date", "dayMonth", "number"
+  paid: boolean;
+  isCatalog: boolean;
+  description: string;
+  serviceId: number;
+  cover: string;
+  sectionName: string;
+  downloadAccess: boolean;
 }
 
 // export class AudioMainObject {
@@ -113,11 +115,13 @@ export class AudioObject {
   description: string;
   elements: Array<AudioElements>;
   id: string;
+  image: string;
   json_data: {};
   name: string;
   tmp_rubric_id: {};
   type: string;
-
+  coverLocalPath: string;
+  paid: boolean;
 }
 
 export class AudioElements {
@@ -136,7 +140,12 @@ export class AudioElements {
   tmp_duration_watching_access: string;//"0"
   tmp_product_id: null
   type: string;// "audio"
-  user_access: {};//{accesses: {799: {entity_id: "260", entity_type: "1", id: "799", name: "Все аудио",…}},…}
+  user_access: any;//{accesses: {799: {entity_id: "260", entity_type: "1", id: "799", name: "Все аудио",…}},…}
   user_created: string; //"69742"
   visible_catalog: string;// "1"
+}
+
+export enum ServiceEnum {
+  service = 0,
+  audio = 1
 }
