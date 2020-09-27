@@ -31,7 +31,7 @@
 
     <ion-row class="ion-justify-content-center ion-align-items-end " style="flex-grow: 1;">
       <ion-col>
-        <download *ngIf="service?.type !== 'live' " [serviceId]="service?.id" [setPlaylist]="playlistToDownload$ | async">
+        <download *ngIf="service?.type !== 'live' " [serviceId]="service?.id" [setPlaylist]="playlistToDownload$ | async" [type]="0" [oneFileMode]="false">
         </download>
       </ion-col>
     </ion-row>

@@ -3,7 +3,7 @@ import { ActivatedRoute, UrlSegment } from '@angular/router';
 import { BaseComponent } from '../services/base-component';
 import { DataService } from '../services/data.service';
 import { SettingsService } from '../services/settings.service';
-import { ServicePlayListModelObject, ServicePlayListModel, PlayListModel, ServiceEnum } from '../backend/interfaces';
+import { ServicePlayListModelObject, ServicePlayListModel, PlayListModel } from '../backend/interfaces';
 import { distinctUntilChanged, filter, takeUntil, take } from 'rxjs/operators';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { Platform } from '@ionic/angular';
@@ -36,7 +36,7 @@ export class HomePage extends BaseComponent {
           // this.title = this.dataService.getFullSectionName(this.service, this.params);
 
           this.settingsService.getServicePlayListFromStorage(this.service.id);
-          this.settingsService.getServicePlayList(this.service.id, ServiceEnum.service);
+          this.settingsService.getServicePlayList(this.service.id);
 
           this.subscription = this.settingsService.getServicePlayListAsync(this.service.id)
             .pipe(distinctUntilChanged((prev, curr) => {
@@ -53,18 +53,25 @@ export class HomePage extends BaseComponent {
                 console.log('Open video with name: ' + fileName);
                 const fileExist = await this.fileService.fileExist(fileName, serviceId);
                 const filePathOrUrl = fileExist
-                  ? this.win.Ionic.WebView.convertFileSrc(this.fileService.getFullFilePath(serviceId, fileName))
+                  ? this.win.Ionic.WebView?.convertFileSrc(this.fileService.getFullFilePath(serviceId, fileName))
                   : filePath;
                 console.log(filePathOrUrl);
                 this.videoSrc = filePathOrUrl;
 
-                let playlistToDownload = {
+                let playlistToDownload: PlayListModel = {
                   name: file.name,
                   path: filePath,
                   condition: '',
                   id: '',
-                  isDownload: false
-                };//this.dataService.getFilesToDownloads(this.service, servicePlayList);
+                  isDownload: false,
+                  paid: false,
+                  isCatalog: false,
+                  description: 'Видео',
+                  serviceId: serviceId,
+                  cover: '',
+                  sectionName: 'Видео',
+                  downloadAccess: false,
+                };
                 this.playlistToDownload$.next([playlistToDownload]);
               }
             });
