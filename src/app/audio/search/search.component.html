@@ -1,0 +1,33 @@
+<ion-list >    
+  <ion-item detail="false" button *ngFor="let track of catalog; let index = index;" [routerLink]="['/tabs/audio/player', track.id]" lines="full">
+    <img class="img" *ngIf="track.path" [src]="track.path" (error)="errorHandler($event, service)">
+    <ion-label>
+       {{ track.name }}
+      <h5>{{ track.description }}</h5>
+    </ion-label>
+    <ion-button fill="clear" *ngIf="!track.paid">
+      <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+    </ion-button>
+  </ion-item>
+
+  <ion-item detail="false" button *ngFor="let track of playlist; let index = index;" (click)="play(index, track)" 
+   lines="full">
+    <ion-label   [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
+      {{ index + 1 }}. {{ track.name }}
+      <h5 *ngIf="track.description">{{ track.description }}</h5>
+    </ion-label>
+
+    <ion-button fill="clear" *ngIf="!track.paid">
+      <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
+    </ion-button>
+
+    <download *ngIf="!track.description && (track.paid || track.downloadAccess)"
+    [serviceId]="track.serviceId" 
+    [type]="1" [oneFileMode]="true" 
+    [isDownload]="track.isDownload" 
+    [setPlaylist]="[track]"></download>
+
+   
+  </ion-item>
+
+</ion-list>
