@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, NgZone, Input, ChangeDetectorRef } from '@angular/core';
 
-import { Platform, } from '@ionic/angular';
+import { Platform, AlertController, } from '@ionic/angular';
 import { FilesService } from '../services/files.service';
 import { BehaviorSubject, timer, Subscription, SubscriptionLike } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls
 import { environment } from 'src/environments/environment';
 import { NetworkService } from '../services/network.service';
 import { MusicControlService, StreamState } from '../services/music-control.service';
-import { PlayListModel, SectionPlayList } from '../backend/interfaces';
+import { PlayListModel, SectionPlayList, ServiceEnum } from '../backend/interfaces';
 import { DataService } from '../services/data.service';
 
 @Component({
@@ -22,22 +22,21 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   sectionPlayList: SectionPlayList = {
     playList: [],
-    service: null,
-    params: []
+    type: ServiceEnum.service
   };
   currentPlaylist: PlayListModel[] = [];
   private win: any = window;
-  sectionName = '';
-  trackName = '';
+  //sectionName = '';
   private stopPlaylistFlag = false;
   private playlistFinished = false;
   state: StreamState;
   subscriptionToLiveApp: Subscription;
   private platformResume = true;
   private minutesWhenExit = 60;
-  subscriptions: SubscriptionLike[] = [];
+  subscriptions: Subscription[] = [];
   isAndroid = false;
   isIos = false;
+  currentTrackEntity: PlayListModel;
 
   constructor(
     private platform: Platform,
@@ -46,6 +45,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
     private musicControlService: MusicControlService,
     private networkService: NetworkService,
     private dataService: DataService,
+    private alertController: AlertController,
     public cd: ChangeDetectorRef
   ) {
     super();
@@ -78,16 +78,16 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           if (!this.state?.playing) {
             this.activateTimer();
           }
-          if(this.isAndroid) {
+          if (this.isAndroid) {
             const source = timer(1000);
             MusicControls.destroy(onSuccess => {
               source.safeSubscribe(this, () => {
                 this.initMusicContols(this.state.playing, !this.state.playing);
               })
             }, onError => { });
-  
+
           }
-          
+
         });
       }
     });
@@ -109,10 +109,11 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   private initMusicContols(isPlaying, dismissable) {
     if (this.musicControlService.currentIndex > -1) {
-      let fullpath = this.fileService.getCoverFullPath(this.fileService.getCoverImageName(this.sectionPlayList.service.cover), 'service');
+      const fullpath = this.fileService.getCoverFullPath(this.fileService.getCoverImageName(this.currentTrackEntity.cover), this.sectionPlayList.type);
+      console.log(fullpath);
       //console.log(this.state?.playing);
       MusicControls.create(
-        this.musicControlService.mediaControlSettings(this.sectionName, this.trackName, isPlaying, dismissable, fullpath),
+        this.musicControlService.mediaControlSettings(this.currentTrackEntity.sectionName, this.currentTrackEntity.name, isPlaying, dismissable, fullpath),
         (success) => console.log(success),
         (error) => console.log(error));
 
@@ -245,15 +246,25 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   async openFile(index) {
     this.musicControlService.setCurrentIndex(index);
     this.musicControlService.stop();
+    this.currentTrackEntity = this.currentPlaylist[this.musicControlService.currentIndex];
+    if (!this.currentTrackEntity) {
+      console.log(this.currentPlaylist);
+      console.log(this.musicControlService.currentIndex);
+      console.log('Warning: Can not open file: ' + index);
+    }
 
-    const filePath = this.currentPlaylist[this.musicControlService.currentIndex].path;
-    this.trackName = this.currentPlaylist[this.musicControlService.currentIndex].name;
+    const filePath = this.currentTrackEntity.path;
+    if (!filePath) {
+      this.noConnection('Ошибка открытия файла. Пожалуйста напишите нам на <a href="mailto:support@rithm-time.tv">support@rithm-time.tv</a>');
+      return;
+    }
+
     const fileName = this.fileService.getFileNameFromSrc(filePath);
     console.log('Open track with name: ' + fileName);
-    const fileExist = await this.fileService.fileExist(fileName, this.sectionPlayList.service.id);
+    const fileExist = await this.fileService.fileExist(fileName, this.currentTrackEntity.serviceId);
     const filePathOrUrl = fileExist
-      ? this.win.Ionic.WebView.convertFileSrc(this.fileService.getFullFilePath(this.sectionPlayList.service.id, fileName))
-      : (filePath.includes('https') ? '' : environment.cdn ) + filePath + '';
+      ? this.win.Ionic.WebView?.convertFileSrc(this.fileService.getFullFilePath(this.currentTrackEntity.serviceId, fileName))
+      : (filePath.includes('https') ? '' : environment.cdn) + filePath + '';
     console.log(filePathOrUrl);
     // this.initMusicContols();
     this.playStream(filePathOrUrl);
@@ -343,36 +354,50 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         }
         this.state = state;
       });
-      this.subscriptions.push(sub0);
+    this.subscriptions.push(sub0);
 
     let sub1 = this.musicControlService.runTrack$.safeSubscribe(this, index => {
       console.log('Run track manually');
       this.runTrack(index);
     });
     this.subscriptions.push(sub1);
-    let sub2 = this.musicControlService.getPlaylist.safeSubscribe(this, (data: SectionPlayList) => {
-      console.log('Get play list');
-      console.log(data);
-      this.sectionPlayList = data;
-      let playlistAreSame = this.currentPlaylist.length > 0 ?
-        JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
-        : true;
-      this.musicControlService.setPlaylistAreSame(playlistAreSame);
-      if (data.service.id === 3) return;
-      if (this.musicControlService.currentIndex === -1 && data.playList.length > 0 || this.playlistFinished) {
-        this.playlistFinished = false;
-        console.log('Auto run track');
-        this.runTrack(0);
-      }
+    let playlistSubscription = this.musicControlService.getPlaylist
+      .pipe(filter(f => f.playList.length > 0))
+      .safeSubscribe(this, (data: SectionPlayList) => {
+        console.log('Get play list');
+        console.log(data);
+        this.sectionPlayList = data;
+        let playlistAreSame = this.currentPlaylist.length > 0 ?
+          JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
+          : true;
+          console.log(`Playlist are same ?`  + playlistAreSame);
+          console.log( JSON.stringify(this.sectionPlayList.playList.map(s => s.path)))
+          console.log( JSON.stringify(this.currentPlaylist.map(s => s.path)))
+        this.musicControlService.setPlaylistAreSame(playlistAreSame);
+        if (data.playList.length > 0 && data.playList[0].serviceId === 3) return;
+        if (data.type === ServiceEnum.service && (this.musicControlService.currentIndex === -1 && data.playList.length > 0 || this.playlistFinished)) {
+          this.playlistFinished = false;
+          console.log('Auto run track');
+          this.runTrack(0);
+        }
+      });
+    this.subscriptions.push(playlistSubscription);
+  }
+
+  private async noConnection(message: string) {
+    const alert = await this.alertController.create({
+      header: 'Ошибка',
+      message: message,
+      buttons: ['OK']
     });
-    this.subscriptions.push(sub2);
+
+    await alert.present();
   }
 
   private runTrack(index: number) {
-    //    this.currentPlaylist = [...this.sectionPlayList.playList];
     this.currentPlaylist = this.sectionPlayList.playList;
     console.log(this.currentPlaylist);
-    this.sectionName = this.dataService.getFullSectionName(this.sectionPlayList.service, this.sectionPlayList.params);
+   // this.sectionName = this.sectionPlayList.playList[index].sectionName;
     this.openFile(index);
     this.musicControlService.setPlaylistAreSame(true);
   }

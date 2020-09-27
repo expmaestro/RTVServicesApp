@@ -105,7 +105,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
         this.title = this.dataService.getFullSectionName(this.service, this.params);
 
         this.settingsService.getServicePlayListFromStorage(this.service.id);
-        this.settingsService.getServicePlayList(this.service.id, ServiceEnum.service);
+        this.settingsService.getServicePlayList(this.service.id);
       }
 
       this.musicControlService.getCurrentIndex().safeSubscribe(this, (index) => {
@@ -134,18 +134,17 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
       key = `${this.service.id}.${this.params.length > 0 ? this.params.join('-') : '1-1'}`;
     }
     let subServicePlayList: ServicePlayListModel = servicePlayList[key];
-    //if(this.)
-
-    // console.log(this.playlist)
 
     playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
     // console.table(this.playlistToDownload.map(m => m.path));
     this.playlistToDownload$.next(playlistToDownload);
     if (this.service.id === 3 && secretNameArray.length === 0) return;
    // console.log(playlistToDownload);
-    this.playlist = this.dataService.buildComputedPlayList(subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
+    const sectionName = this.dataService.getFullSectionName(this.service, this.params);
+    this.playlist = this.dataService.buildComputedPlayList(this.service.id, this.service.cover, sectionName, subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
   //  console.log('!!!!!!!!! Set play list')
-    this.musicControlService.setPlayList(this.playlist, this.service, this.params);
+    
+    this.musicControlService.setPlayList(this.playlist, ServiceEnum.service);
     this.platform.ready().then(() => {
       this.fileService.updateFiles(this.service.id);
       this.fileService.getFileList(this.service.id).safeSubscribe(this, files => {
