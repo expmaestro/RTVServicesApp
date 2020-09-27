@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute, UrlSegment } from '@angular/router';
 import { DataService } from 'src/app/services/data.service';
-import { NextModel, NameIdModel, PlayListModel, ServicePlayListModel, ServiceModel, ServicePlayListModelObject, ServiceEnum } from 'src/app/backend/interfaces';
+import { NextModel, NameIdModel, PlayListModel, ServicePlayListModel, ServiceModel, ServicePlayListModelObject } from 'src/app/backend/interfaces';
 import { SettingsService } from 'src/app/services/settings.service';
 import { BaseComponent } from 'src/app/services/base-component';
 import { distinctUntilChanged } from 'rxjs/operators';
@@ -64,7 +64,7 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       this.serviceId = Number(segments[0].path);
       this.params = segments.filter((f, i) => i > 0).map((x) => Number(x.path));
       this.settingsService.getServicePlayListFromStorage(this.serviceId);
-      this.settingsService.getServicePlayList(this.serviceId, ServiceEnum.service);
+      this.settingsService.getServicePlayList(this.serviceId);
       let temp = this.dataService.getItems(this.serviceId, this.params);
       this.service = temp.service;
       this.model = temp.current;

@@ -42,8 +42,6 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
       });
   }
 
-
-
   errorHandler(event, service) {
     if (!event.target.noErrorMore) {
       event.target.src = service.cover;
