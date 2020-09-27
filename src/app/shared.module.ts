@@ -5,16 +5,18 @@ import { MaterialModule } from './material.module';
 import { IonicModule } from '@ionic/angular';
 import { ProfileHeaderComponent } from './profile-header/profile-header.component';
 import { RouterModule } from '@angular/router';
+import { SearchComponent } from './audio/search/search.component';
 
 
 
 @NgModule({
-  declarations: [DownloadComponent, ProfileHeaderComponent],
+  declarations: [DownloadComponent, SearchComponent, ProfileHeaderComponent],
   imports: [
    CommonModule,
    IonicModule,
-   MaterialModule
+   MaterialModule,
+   RouterModule,
   ],
-  exports: [DownloadComponent, CommonModule, IonicModule, ProfileHeaderComponent, RouterModule]
+  exports: [DownloadComponent, CommonModule, SearchComponent, IonicModule, ProfileHeaderComponent, RouterModule]
 })
 export class SharedModule { }
