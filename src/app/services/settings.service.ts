@@ -220,4 +220,12 @@ export class SettingsService extends BaseComponent {
     return this.audioPlayList$.asObservable();
   }
 
+  getAudioPlayListValue() {
+    return this.audioPlayList$.value;
+  }
+
+  getAudioStructureValue() {
+    return this.audioStructure$.value;
+  }
+
 }

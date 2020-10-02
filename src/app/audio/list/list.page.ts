@@ -42,7 +42,10 @@ export class ListPage extends BaseComponent implements OnInit {
   }
 
   ionViewWillEnter() {
-    this.settingsService.getAudioPlayList([this.id]);
+    const servicesIds = Object.keys(this.settingsService.getAudioStructureValue()).map(Number);
+    this.settingsService.getAudioPlayList(servicesIds);
+
+    //this.settingsService.getAudioPlayList([this.id]);
 
     const audioStructureSubscr = this.settingsService.getAudioStructureAsync
       .pipe(filter(d => !!d)) // filtered if null
@@ -69,7 +72,7 @@ export class ListPage extends BaseComponent implements OnInit {
       .safeSubscribe(this, (paths) => {
         console.log('Get Track paths');
         this.fullPaths = paths;
-        this.buildPlayList();       
+        this.buildPlayList();
         this.musicControlService.setPlayList(this.playlist, ServiceEnum.audio);
         console.log(this.playlist)
         this.playlistToDownload$.next(this.playlist);
@@ -103,7 +106,7 @@ export class ListPage extends BaseComponent implements OnInit {
     this.updatePaths(this.fullPaths);
   }
 
-  
+
 
   private updatePaths(paths: ServicePlayListModelObject) {
 
@@ -112,12 +115,14 @@ export class ListPage extends BaseComponent implements OnInit {
       this.fileService.getFileList(this.id).safeSubscribe(this, files => {
         if (!files) return;
         this.playlist.forEach(p => {
-          const parsed = JSON.parse(paths[p.id].find(f => f.type === 'file').json_data);
-          p.path = (parsed.cdn === 'ngenix' ? environment.cdn : '') + parsed.path;
-          p.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(p.path));
+          if (paths[p.id]) {
+            const parsed = JSON.parse(paths[p.id].find(f => f.type === 'file').json_data);
+            p.path = (parsed.cdn === 'ngenix' ? environment.cdn : '') + parsed.path;
+            p.isDownload = files.some((fileInFolder) => fileInFolder.name === this.fileService.getFileNameFromSrc(p.path));
+          }
         });
       });
-    });   
+    });
   }
 
   ionViewWillLeave() {

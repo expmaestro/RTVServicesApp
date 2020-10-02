@@ -21,37 +21,6 @@
         [searchValue]="searchValue"
         (initializate)="buildPlayList()">
       </app-search>
-        <!-- <ion-list>
-
-          <ion-item detail="false" button *ngFor="let music of catalog; let index = index;" [routerLink]="['/tabs/audio/player', music.id]"
-            lines="full">
-            <img class="img" *ngIf="music.path" [src]="music.path"
-            (error)="errorHandler($event, service)">
-            <ion-label>
-               {{ music.name }}
-              <h5>{{ music.description }}</h5>
-            </ion-label>
-            <ion-button fill="clear" *ngIf="!music.paid">
-              <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
-            </ion-button>
-          </ion-item>
-
-          <ion-item detail="false" button *ngFor="let music of playlist; let index = index;"
-            (click)="play(index, music)" lines="full">
-            <ion-label [color]="index === currentIndex && playlistAreSame ? 'primary' : 'ligth'">
-              {{ index + 1 }}. {{ music.name }}
-              <h5 *ngIf="searchValue.value">{{ music.description }}</h5>
-            </ion-label>
-
-            <ion-button fill="clear" *ngIf="!music.paid">
-              <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
-            </ion-button>
-
-            <ion-icon *ngIf="music.isDownload" name="checkmark-outline" color="success"></ion-icon>
-          </ion-item>
-
-        </ion-list> -->
-
       </ion-col>
     </ion-row>
 

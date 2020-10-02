@@ -214,7 +214,7 @@ export class FilesService {
       albums.forEach(album => {
         let temp = this.getCoverFullPath(this.getCoverImageName(album.image), ServiceEnum.audio);
         let path = win.Ionic.WebView?.convertFileSrc(temp);
-        path = path.replace('undefined', "http://localhost"); // solution for live reload mode
+        path = path?.replace('undefined', "http://localhost"); // solution for live reload mode
         album.coverLocalPath = path;
       });
     }

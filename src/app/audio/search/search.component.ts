@@ -7,7 +7,6 @@ import { environment } from 'src/environments/environment';
 import { MusicControlService } from 'src/app/services/music-control.service';
 import { Subscription } from 'rxjs';
 import { FilesService } from 'src/app/services/files.service';
-import { filter } from 'rxjs/operators';
 import { SettingsService } from 'src/app/services/settings.service';
 
 @Component({
@@ -16,7 +15,6 @@ import { SettingsService } from 'src/app/services/settings.service';
   styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent extends BaseComponent implements OnInit, OnDestroy {
-  // playlist = [];
   catalog: PlayListModel[] = [];
   @Input()
   playlist: PlayListModel[] = [];
@@ -32,24 +30,34 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
         this.updateSearch();
       }
     }
-
   };
 
   fullCollections = [];
   currentIndex = -1;
-  
 
   playlistAreSame: boolean = undefined;
   apiUrl = environment.apiUrl;
   private subscriptions: Subscription[] = [];
-  private fullPaths: ServicePlayListModelObject;
-
   constructor(private dataService: DataService, private musicControlService: MusicControlService,
     private filesService: FilesService, private settingsService: SettingsService,) { super() }
 
   updateSearch() {
     console.log('update search');
     this.searchValue.setValue(this.searchValue.value);
+  }
+
+  private searchLogic(value: any) {
+    if (value) {
+      console.log(`Searching: ` + value);
+      this.searchProcess(value);
+      //  this.musicControlService.setPlaylistAreSame(true);
+    }
+    else {
+      console.log(`Searching: init base`);
+      this.catalog = [];
+      this.playlist = [];
+      this.initializate.emit();
+    }
   }
 
   ngOnInit() {
@@ -72,35 +80,8 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
       this.playlistAreSame = same;
       console.log(`same ${same}`)
     });
-
-    const audioPlaySubscription = this.settingsService.getAudioPlayListAsync()
-      .pipe(filter(f => !!f))
-      .safeSubscribe(this, (paths) => {
-        console.log('Get Track paths');
-        this.fullPaths = paths;
-
-      });
     this.subscriptions.push(currentIndexSubscr);
     this.subscriptions.push(subscrSamePlaylist);
-    this.subscriptions.push(audioPlaySubscription);
-
-    // if(this.searchValue.value) {
-    //   this.searchValue.setValue(this.searchValue.value);
-    // }
-  }
-
-  private searchLogic(value: any) {
-    if (value) {
-      console.log(`Searching: ` + value);
-      this.searchProcess(value);
-    //  this.musicControlService.setPlaylistAreSame(true);
-    }
-    else {
-      console.log(`Searching: init base`);
-      this.catalog = [];
-      this.playlist = [];
-      this.initializate.emit();
-    }
   }
 
   errorHandler(event, service) {
@@ -109,7 +90,6 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
       event.target.noErrorMore = true;
     }
   }
-
 
   getCollectionList(data: { [key: number]: AudioObject }) {
     const albums: PlayListModel[] = [];
@@ -135,19 +115,20 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
 
       album.elements.forEach(a => {
         // console.log(a.user_access)
+        const userAccessNotNull = a.user_access !== null;
         const track: PlayListModel = {
           id: a.id,
           name: a.name,
           path: '',
           isDownload: false,
           condition: '',
-          paid: a.user_access !== null,
+          paid: userAccessNotNull,
           isCatalog: false,
           description: `${this.dataService.getAlbumDescription(album.type)} / ${album.name}`,
           serviceId: Number(album.id),
           cover: album.image,
           sectionName: album.name,
-          downloadAccess: a.user_access.download
+          downloadAccess: userAccessNotNull && a.user_access.download
         };
         musicArray.push(track);
       });
@@ -158,16 +139,15 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
     return albums.concat(musicArray);
   }
 
-  async play(index, entity: PlayListModel) {
+  play(index, entity: PlayListModel) {
     if (!entity.downloadAccess && !entity.paid) {
       window.location.href = `${environment.apiUrl}#personal=audioteka&materialId=${entity.id}&isPayment=true`;
       return;
     }
     if (this.searchValue.value) {
-      this.updatePaths(this.fullPaths);
+      this.updatePaths();
       this.musicControlService.setPlayList(this.playlist, ServiceEnum.audio);
       this.musicControlService.runTrack$.next(index);
-      // await this.settingsService.getAudioPlayList(servicesIds);      
     }
     else {
       this.musicControlService.setPlayList(this.playlist, ServiceEnum.audio);
@@ -175,10 +155,15 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
     }
   }
 
-  private updatePaths(paths: ServicePlayListModelObject) {
+
+  private updatePaths() {
+    const paths: ServicePlayListModelObject = this.settingsService.getAudioPlayListValue();
+    console.log(this.playlist);
     this.playlist.forEach(p => {
-      const parsed = JSON.parse(paths[p.id].find(f => f.type === 'file').json_data);
-      p.path = (parsed.cdn === 'ngenix' ? environment.cdn : '') + parsed.path;
+      if (paths[p.id]) {
+        const parsed = JSON.parse(paths[p.id].find(f => f.type === 'file').json_data);
+        p.path = (parsed.cdn === 'ngenix' ? environment.cdn : '') + parsed.path;
+      }
     });
   }
 
