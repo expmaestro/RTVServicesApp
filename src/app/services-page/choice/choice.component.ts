@@ -40,10 +40,10 @@ export class ChoiceComponent extends BaseComponent implements OnInit, OnDestroy 
       this.router.navigate([`/tabs/services/${this.serviceId}/${(this.params.join('/'))}`]);
     }
     else {
-      if (this.service.type === 'audio') {
+      if (this.service.json_data.type === 'audio') {
         this.router.navigate([`/tabs/services/player/${this.serviceId}/${(this.params.join('/'))}`]);
       }
-      if (this.service.type === 'video' || this.service.type === 'live') {
+      if (this.service.json_data.type === 'video' || this.service.json_data.type === 'live') {
         this.router.navigate([`/tabs/home/${this.serviceId}/${(this.params.join('/'))}`]);
       }
     }

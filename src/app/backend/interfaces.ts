@@ -50,21 +50,24 @@ class KeyValuePair {
 
 
 export class ServiceModel {
+  admin_json_data: any;
   id: number;
-  minutes_to_end: string;
+  minutes_to_end: number;
   name: string;
-  next: NextModel | null;
-  paid: boolean;
-  position: number;
-  cover: string;
+  json_data: Json_data;
+  user_access: any;
   coverLocalPath: string;
-  type: string;
-  comment: string;
 }
 
 export class ServiceChoiceModel {
   service: ServiceModel;
   current: NextModel;
+}
+
+export class Json_data {
+  cover: string;
+  next: NextModel | null;
+  type: string;
 }
 
 export class NextModel {

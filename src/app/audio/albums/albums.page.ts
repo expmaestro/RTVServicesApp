@@ -112,65 +112,10 @@ export class AlbumsPage extends BaseComponent implements OnInit {
     const first = service.elements.find(f => !f.user_access.download);
     if (first) {
       //console.log(first)
-      return 'Осталось ' + this.messageTimeByMinutes(first.user_access.time_to_end);
+      return 'Осталось ' + this.dataService.messageTimeByMinutes(first.user_access.time_to_end);
     }
     return '';
-  }
-
-  messageTimeByMinutes(minutes) {
-    if (minutes / 1440 > 0) {
-      return this.messageDays(minutes);
-    } else if (minutes / 60 > 0) {
-      return this.messageHours(minutes);
-    } else {
-      return this.messageMinutes(minutes);
-    };
-  };
-
-
-  messageDays(minutes) {
-    var days = minutes / 1440;
-    var message = "";
-    if (days < 1) {
-      message = "менее дня";
-    } else if (days % 10 == 1) {
-      message = Math.round(days) + " день";
-    } else if (days % 10 <= 4 && days % 10 > 0) {
-      message = Math.round(days) + " дня";
-    } else {
-      message = Math.round(days) + " дней";
-    };
-    return message;
-  };
-
-  messageHours(minutes) {
-    var hours = minutes / 60;
-    var message = "";
-    if (hours < 1) {
-      message = "менее часа";
-    } else if (hours % 10 == 1) {
-      message = Math.round(hours) + " час";
-    } else if (hours % 10 <= 4 && hours % 10 > 0) {
-      message = Math.round(hours) + " часа";
-    } else {
-      message = Math.round(hours) + " часов";
-    };
-    return message;
-  };
-
-  messageMinutes(minutes) {
-    var message = "";
-    if (minutes < 1) {
-      message = "менее минуты";
-    } else if (minutes % 10 == 1) {
-      message = Math.round(minutes) + " минута";
-    } else if (minutes % 10 <= 4 && minutes % 10 > 0) {
-      message = Math.round(minutes) + " минуты";
-    } else {
-      message = Math.round(minutes) + " минут";
-    }
-    return message;
-  };
+  }  
 
   update() {
     this.settingsService.getAudioStructure();

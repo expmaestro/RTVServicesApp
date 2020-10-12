@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { FilesService } from '../services/files.service';
 import { distinctUntilChanged, take } from 'rxjs/operators';
 import { ElementSchemaRegistry } from '@angular/compiler';
+import { DataService } from '../services/data.service';
 
 @Component({
   selector: 'app-services-page',
@@ -20,7 +21,7 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
   public profile: Profile;
 
   constructor(private router: Router, private settingsService: SettingsService, private filesService: FilesService,
-    private platform: Platform) {
+    private platform: Platform, private dataService: DataService) {
     super();
     this.settingsService.getUserProfileData();
     // this.settingsService.getServices();
@@ -49,16 +50,21 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     }
   }
 
+  getTime(service: ServiceModel): string {
+    if(!service.minutes_to_end) return '';
+    return 'Осталось ' + this.dataService.messageTimeByMinutes(service.minutes_to_end); 
+  } 
+
   ionViewWillEnter() {
     this.settingsService.getServices();
   }
 
   next(service: ServiceModel) {
-    if (!service.paid) {
+    if (!service.minutes_to_end || service.minutes_to_end == 0) {
       window.location.href = `${environment.apiUrl}#personal=services&service=${service.id}&`;
       return;
     }
-    if (service.next) {
+    if (service.json_data.next) {
       this.router.navigate([`/tabs/services/${service.id}`]);
     } else {
       this.router.navigate([`/tabs/services/player/${service.id}`]);

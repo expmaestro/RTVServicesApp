@@ -141,7 +141,7 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     if (this.service.id === 3 && secretNameArray.length === 0) return;
    // console.log(playlistToDownload);
     const sectionName = this.dataService.getFullSectionName(this.service, this.params);
-    this.playlist = this.dataService.buildComputedPlayList(this.service.id, this.service.cover, sectionName, subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
+    this.playlist = this.dataService.buildComputedPlayList(this.service.id, this.service.json_data.cover, sectionName, subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
   //  console.log('!!!!!!!!! Set play list')
     
     this.musicControlService.setPlayList(this.playlist, ServiceEnum.service);
