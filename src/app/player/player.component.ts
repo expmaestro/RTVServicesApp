@@ -371,8 +371,8 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
           : true;
           console.log(`Playlist are same ?`  + playlistAreSame);
-          console.log( JSON.stringify(this.sectionPlayList.playList.map(s => s.path)))
-          console.log( JSON.stringify(this.currentPlaylist.map(s => s.path)))
+        //  console.log( JSON.stringify(this.sectionPlayList.playList.map(s => s.path)))
+       //   console.log( JSON.stringify(this.currentPlaylist.map(s => s.path)))
         this.musicControlService.setPlaylistAreSame(playlistAreSame);
         if (data.playList.length > 0 && data.playList[0].serviceId === 3) return;
         if (data.type === ServiceEnum.service && (this.musicControlService.currentIndex === -1 && data.playList.length > 0 || this.playlistFinished)) {

@@ -15,8 +15,11 @@
       <ion-label class="new-line-text ion-no-margin">
         <h4>{{ service.name }}</h4>
         <h5 *ngIf="service?.minutes_to_end > 0">{{ getTime(service) }}</h5>
+
+        <h5 *ngIf="service.id > 10">Данный сервис пока доступен только на <a [href]="buildPaymentHref(service)">сайте.</a></h5>
+
       </ion-label>
-      <ion-button fill="clear" *ngIf="!service.minutes_to_end || service.minutes_to_end == 0">
+      <ion-button fill="clear" [hidden]="service.id > 10" *ngIf="!service.minutes_to_end || service.minutes_to_end == 0">
         <ion-icon class="cart" slot="icon-only" name="cart"></ion-icon>
       </ion-button>
     </ion-item>

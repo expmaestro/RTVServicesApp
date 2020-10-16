@@ -137,7 +137,7 @@ export class FilesService {
   }
 
   cacheImages(covers: string[], type: ServiceEnum) {
-    covers = covers.filter(f => f.length > 0);
+    covers = covers.filter(f => f && f.length > 0);
     const imageSubFolder = type === ServiceEnum.service ? this.serviceImageSubFolder : this.audioImageSubFolder;
     this.fileTransferCreate = this.fileTransfer.create();
     this.getFileListFromFolder(this.getImageFolder(imageSubFolder)).then((files) => {
@@ -168,6 +168,7 @@ export class FilesService {
   }
 
   getCoverImageName(cover: string) {
+    if(!cover) return;
     let temp = cover.split('/');
     return temp.pop();
   }
@@ -198,19 +199,18 @@ export class FilesService {
   }
 
 
-  getImageLocalPath(services: ServiceModel[], albums: AudioObject[]) {
+  getImageLocalPath(services: { [key: number]: ServiceModel}, albums: AudioObject[]) {
     let win: any = window;
     if (services !== null) {
-      services.forEach(service => {
-        if (service.cover) {
-          let temp = this.getCoverFullPath(this.getCoverImageName(service.cover), ServiceEnum.service);
+      Object.values(services).forEach(service => {
+        if (service.json_data?.cover) {
+          let temp = this.getCoverFullPath(this.getCoverImageName(service.json_data.cover), ServiceEnum.service);
           let path = win.Ionic.WebView?.convertFileSrc(temp);
           path = path.replace('undefined', "http://localhost"); // solution for live reload mode
           service.coverLocalPath = path;
         }
       });
     } else if (albums !== null) {
-
       albums.forEach(album => {
         let temp = this.getCoverFullPath(this.getCoverImageName(album.image), ServiceEnum.audio);
         let path = win.Ionic.WebView?.convertFileSrc(temp);

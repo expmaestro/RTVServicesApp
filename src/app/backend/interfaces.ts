@@ -59,6 +59,19 @@ export class ServiceModel {
   coverLocalPath: string;
 }
 
+// export class ServiceModel {  
+//   id: number;
+//   minutes_to_end: string;
+//   name: string;
+//   next: NextModel | null;
+//   paid: boolean;
+//   position: number;
+//   cover: string;
+//   coverLocalPath: string;
+//   type: string;
+//   comment: string;
+// }
+
 export class ServiceChoiceModel {
   service: ServiceModel;
   current: NextModel;

@@ -262,6 +262,7 @@ export class DownloadComponent extends BaseComponent implements OnInit, OnDestro
               case 4: // FileTransferError.ABORT_ERR
                 throw 'ABORT_ERR';
               case 5: textError = 'NOT_MODIFIED_ERR'; break;  // FileTransferError.NOT_MODIFIED_ERR
+              default: break;
             }
             this.downloadFileError(`Не удается скачать файл: <b>${currentDownloaded.name}</b> <br> Причина: <b>${textError}</b>`);
           })

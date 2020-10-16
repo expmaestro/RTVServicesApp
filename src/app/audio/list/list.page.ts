@@ -44,9 +44,6 @@ export class ListPage extends BaseComponent implements OnInit {
   ionViewWillEnter() {
     const servicesIds = Object.keys(this.settingsService.getAudioStructureValue()).map(Number);
     this.settingsService.getAudioPlayList(servicesIds);
-
-    //this.settingsService.getAudioPlayList([this.id]);
-
     const audioStructureSubscr = this.settingsService.getAudioStructureAsync
       .pipe(filter(d => !!d)) // filtered if null
       .pipe(distinctUntilChanged((prev: any, curr: any) => {
@@ -67,8 +64,9 @@ export class ListPage extends BaseComponent implements OnInit {
       }));
 
     const audioPlaySubscription = this.settingsService.getAudioPlayListAsync()
-      .pipe(filter(f => !!f))
-      .pipe(distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
+      .pipe(
+        filter(f => !!f), // can be null, if nothing
+        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)))
       .safeSubscribe(this, (paths) => {
         console.log('Get Track paths');
         this.fullPaths = paths;

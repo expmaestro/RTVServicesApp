@@ -136,13 +136,10 @@ export class PlayerPage extends BaseComponent implements OnInit, OnDestroy {
     let subServicePlayList: ServicePlayListModel = servicePlayList[key];
 
     playlistToDownload = this.dataService.getFilesToDownloads(this.service, servicePlayList);
-    // console.table(this.playlistToDownload.map(m => m.path));
     this.playlistToDownload$.next(playlistToDownload);
     if (this.service.id === 3 && secretNameArray.length === 0) return;
-   // console.log(playlistToDownload);
     const sectionName = this.dataService.getFullSectionName(this.service, this.params);
-    this.playlist = this.dataService.buildComputedPlayList(this.service.id, this.service.json_data.cover, sectionName, subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
-  //  console.log('!!!!!!!!! Set play list')
+    this.playlist = this.dataService.buildComputedPlayList(this.service.id, this.service.json_data?.cover, sectionName, subServicePlayList, this.params[0], this.params[1], this.params[2], secretNameArray);
     
     this.musicControlService.setPlayList(this.playlist, ServiceEnum.service);
     this.platform.ready().then(() => {

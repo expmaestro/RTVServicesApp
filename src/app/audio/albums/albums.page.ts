@@ -43,7 +43,7 @@ export class AlbumsPage extends BaseComponent implements OnInit {
       //   return true;
       // }))
       .safeSubscribe(this, ((data: { [key: number]: AudioObject }) => {
-        console.log(data);
+      //  console.log(data);
         // var data  = JSON.parse(JSON.stringify(d))
         console.log('get album data structure async !!!!!!!!!!!!!!!!!!!!!!!');
         this.fullAudioStructure = data;

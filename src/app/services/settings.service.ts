@@ -18,7 +18,7 @@ const audioPlayListStorageKey = '_audioPlayListData';
 })
 export class SettingsService extends BaseComponent {
   private userData$ = new BehaviorSubject({});
-  private services$ = new BehaviorSubject(Array<ServiceModel>());
+  private services$ = new BehaviorSubject(null);
   private audioStructure$ = new BehaviorSubject(null);
   private servicePlayList$ = new BehaviorSubject<ServicePlayListModelObject>(null);
   private audioPlayList$ = new BehaviorSubject<ServicePlayListModelObject>(null);
@@ -31,7 +31,7 @@ export class SettingsService extends BaseComponent {
     this.userData$.next(profile ? JSON.parse(profile) : {});
 
     let services = localStorage.getItem(servicesStorageKey);
-    this.services$.next(services ? JSON.parse(services) : []);
+    this.services$.next(services ? JSON.parse(services) : {});
 
     let audio = localStorage.getItem(audioStructureStorageKey);
     this.audioStructure$.next(audio ? JSON.parse(audio) : null);
@@ -54,12 +54,12 @@ export class SettingsService extends BaseComponent {
     window.localStorage.setItem(RTVTokenStorageKey, token ? token : "");
   }
 
-  private servicesApi() {
-    return this.http.get(environment.apiUrl + `/back/srv/mobile/service.php?action=list`);
+  private serviceApi() {
+    return this.http.get(environment.apiUrl + `/back/srv/mobile/service.php?action=userList`);
   }
 
   getServices() {
-    this.servicesApi().safeSubscribe(this, (r: any) => {
+    this.serviceApi().safeSubscribe(this, (r: any) => {
       if (r.errors.length === 0) {
         this.setServicesData(r.data, 'service');
       }
@@ -75,11 +75,12 @@ export class SettingsService extends BaseComponent {
 
   private audioApi() {
     const body = {
+      format: "simple",
       collectionTypes: ["album", "audiobook", "rythm"],
       filter: { active: { "=": 1 } }
     }
 
-    return this.http.post(environment.apiUrl + `/back/srv/materials/material.php?action=userList&_=${this.getRandomInt(1000000)}`, JSON.stringify(body));
+    return this.http.post(environment.apiUrl + `/back/srv/mobile/material.php?action=userList&_=${this.getRandomInt(1000000)}`, JSON.stringify(body));
   }
 
   private getAudioApi(collectionsIds: Array<number>) {
@@ -157,7 +158,7 @@ export class SettingsService extends BaseComponent {
         if (data) {
           let covers: string[] =
             Object.values(data)
-              .filter((f: any) => f.image.length > 0)
+              .filter((f: any) => f.image && f.image.length > 0)
               .map((m: any) => environment.apiUrl + `${m.image}`);
           this.filesService.cacheImages(covers, ServiceEnum.audio);
           this.audioStructure$.next(data);
@@ -165,12 +166,13 @@ export class SettingsService extends BaseComponent {
         break;
 
       case 'service':
-        //array
-        window.localStorage.setItem(servicesStorageKey, data ? JSON.stringify(data) : "");
-        if (data) {
-          let covers: string[] = data.map(m => m.cover);
+        //object
+        window.localStorage.setItem(servicesStorageKey, data ? JSON.stringify(data) : "{}");
+        const temp: ServiceModel[] = Object.values(data);
+        if (temp) {
+          let covers: string[] = temp.filter(f => f.json_data).map(m => m.json_data.cover);
           this.filesService.cacheImages(covers, ServiceEnum.service);
-          this.services$.next(data);
+          this.services$.next(temp);
         }
         break;
     }
@@ -184,26 +186,17 @@ export class SettingsService extends BaseComponent {
     return this.audioStructure$.asObservable();
   }
 
-
-
   setServicePlayList(serviceId: number, data: any) {
     if (data && Object.keys(data).length > 0) {
       window.localStorage.setItem(`${servicePlayListStorageKey};$serviceId=${serviceId};`, data ? JSON.stringify(data) : "");
-      if (data) {
-        this.servicePlayList$.next(data);
-      }
+      this.servicePlayList$.next(data);      
     }
   }
 
   setAudioPlayList(data: any) {
-    if (data && Object.keys(data).length > 0) {
-      const d = localStorage.getItem(`${audioPlayListStorageKey}`);
-      let fromCache = d ? JSON.parse(d) : null
-      let newObj = { ...fromCache, ...data };
-      window.localStorage.setItem(`${audioPlayListStorageKey}`, newObj ? JSON.stringify(newObj) : "");
-      if (newObj) {
-        this.audioPlayList$.next(newObj);
-      }
+    if (data) {
+      window.localStorage.setItem(`${audioPlayListStorageKey}`, data ? JSON.stringify(data) : "{}");
+      this.audioPlayList$.next(data);
     }
   }
 

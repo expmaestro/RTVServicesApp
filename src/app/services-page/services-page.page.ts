@@ -7,7 +7,6 @@ import { Profile, ServiceModel } from '../backend/interfaces';
 import { environment } from 'src/environments/environment';
 import { FilesService } from '../services/files.service';
 import { distinctUntilChanged, take } from 'rxjs/operators';
-import { ElementSchemaRegistry } from '@angular/compiler';
 import { DataService } from '../services/data.service';
 
 @Component({
@@ -36,16 +35,16 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
       .safeSubscribe(this, serv => {
         const services = JSON.parse(JSON.stringify(serv));
         console.log('get services');
-        this.services = services;
+        this.services = Object.values(services);
         this.platform.ready().then(() => {
-          this.filesService.getImageLocalPath(this.services, null);
+          this.filesService.getImageLocalPath(services, null);
         });
       });
   }
 
-  errorHandler(event, service) {
+  errorHandler(event, service: ServiceModel) {
     if (!event.target.noErrorMore) {
-      event.target.src = service.cover;
+      event.target.src = service.json_data.cover;
       event.target.noErrorMore = true;
     }
   }
@@ -59,9 +58,11 @@ export class ServicesPagePage extends BaseComponent implements OnInit {
     this.settingsService.getServices();
   }
 
+  buildPaymentHref = (service: ServiceModel) => `${environment.apiUrl}#personal=services&service=${service.id}&`;
+
   next(service: ServiceModel) {
     if (!service.minutes_to_end || service.minutes_to_end == 0) {
-      window.location.href = `${environment.apiUrl}#personal=services&service=${service.id}&`;
+      window.location.href = this.buildPaymentHref(service);
       return;
     }
     if (service.json_data.next) {

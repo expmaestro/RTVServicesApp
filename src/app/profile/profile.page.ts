@@ -56,12 +56,12 @@ export class ProfilePage extends BaseComponent implements OnInit {
             if (needRequest) {
               this.loginService.logout().subscribe((r) => {
                 this.settingsService.authToken = null;
-                //TODO: clear storage
+                localStorage.clear();
                 this.nav.navigateRoot('/login');
               });
             } else {
               this.settingsService.authToken = null;
-              //TODO: clear storage
+              localStorage.clear();
               this.nav.navigateRoot('/login');
             }
           }

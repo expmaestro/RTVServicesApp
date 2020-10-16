@@ -114,7 +114,6 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
       };
 
       album.elements.forEach(a => {
-        // console.log(a.user_access)
         const userAccessNotNull = a.user_access !== null;
         const track: PlayListModel = {
           id: a.id,

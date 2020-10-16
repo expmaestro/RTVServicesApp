@@ -16,7 +16,7 @@ export class DataService extends BaseComponent {
   getItems(id: number, params: number[]): ServiceChoiceModel {
     let data = this.services.find(f => Number(f.id) === id);
 
-    let current = data.next;
+    let current = data.json_data.next;
     params.forEach(element => {
       current = current.next;
     });
@@ -36,7 +36,7 @@ export class DataService extends BaseComponent {
     let next: NextModel;
     params.forEach(el => {
       if (!next) {
-        next = services.next;
+        next = services.json_data.next;
       } else {
         next = next.next;
       }
@@ -170,7 +170,7 @@ export class DataService extends BaseComponent {
     Object.values(servicePlayList).forEach((subService: ServicePlayListModel) => {
       switch (service.id) {
         case 1:
-          let oneDay = this.buildComputedPlayList(service.id, service.cover, '', subService, null, null, null, []);
+          let oneDay = this.buildComputedPlayList(service.id, service.json_data.cover, '', subService, null, null, null, []);
           playlistToDownload.push(...oneDay);
           // console.log(playlistToDownload.length)
           //additional
@@ -284,4 +284,58 @@ export class DataService extends BaseComponent {
     });
     return data;
   }
+
+  messageTimeByMinutes(minutes) {
+    if (minutes / 1440 > 0) {
+      return this.messageDays(minutes);
+    } else if (minutes / 60 > 0) {
+      return this.messageHours(minutes);
+    } else {
+      return this.messageMinutes(minutes);
+    };
+  };
+
+  messageDays(minutes) {
+    var days = minutes / 1440;
+    var message = "";
+    if (days < 1) {
+      message = "менее дня";
+    } else if (days % 10 == 1) {
+      message = Math.round(days) + " день";
+    } else if (days % 10 <= 4 && days % 10 > 0) {
+      message = Math.round(days) + " дня";
+    } else {
+      message = Math.round(days) + " дней";
+    };
+    return message;
+  };
+
+  messageHours(minutes) {
+    var hours = minutes / 60;
+    var message = "";
+    if (hours < 1) {
+      message = "менее часа";
+    } else if (hours % 10 == 1) {
+      message = Math.round(hours) + " час";
+    } else if (hours % 10 <= 4 && hours % 10 > 0) {
+      message = Math.round(hours) + " часа";
+    } else {
+      message = Math.round(hours) + " часов";
+    };
+    return message;
+  };
+
+  messageMinutes(minutes) {
+    var message = "";
+    if (minutes < 1) {
+      message = "менее минуты";
+    } else if (minutes % 10 == 1) {
+      message = Math.round(minutes) + " минута";
+    } else if (minutes % 10 <= 4 && minutes % 10 > 0) {
+      message = Math.round(minutes) + " минуты";
+    } else {
+      message = Math.round(minutes) + " минут";
+    }
+    return message;
+  };
 }
