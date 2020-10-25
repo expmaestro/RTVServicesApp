@@ -7,14 +7,14 @@ import { BaseComponent } from './base-component';
   providedIn: 'root'
 })
 export class DataService extends BaseComponent {
-  services: Array<ServiceModel> = [];
+  private services: { [key: number]: ServiceModel} = {};
   constructor(private settings: SettingsService) {
     super();
-    this.settings.getServicesDataAsync.safeSubscribe(this, data => this.services = data)
+    this.settings.getServicesDataAsync.safeSubscribe(this, data => this.services = data);
   }
 
   getItems(id: number, params: number[]): ServiceChoiceModel {
-    let data = this.services.find(f => Number(f.id) === id);
+    let data = Object.values(this.services).find(f => Number(f.id) === id);
 
     let current = data.json_data.next;
     params.forEach(element => {
@@ -24,12 +24,12 @@ export class DataService extends BaseComponent {
   }
 
   getService(serviceId: number): ServiceModel {
-    const service = this.services.find(x => Number(x.id) === serviceId);
+    const service = Object.values(this.services).find(x => Number(x.id) === serviceId);
     return service;
   }
 
   getSubServiceName(serviceId: number, params: number[]) {
-    let services = this.services.find(x => Number(x.id) === serviceId);
+    let services = Object.values(this.services).find(x => Number(x.id) === serviceId);
     let name = services.name;
     if (params.length === 0) return name;
 

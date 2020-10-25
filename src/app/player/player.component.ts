@@ -12,6 +12,7 @@ import { NetworkService } from '../services/network.service';
 import { MusicControlService, StreamState } from '../services/music-control.service';
 import { PlayListModel, SectionPlayList, ServiceEnum } from '../backend/interfaces';
 import { DataService } from '../services/data.service';
+import { isNgTemplate } from '@angular/compiler';
 
 @Component({
   selector: 'player',
@@ -95,14 +96,37 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
 
   prevTrack() {
     if (this.disablePrev()) return; // btn disable too
-    const index = this.musicControlService.currentIndex > 0 ? this.musicControlService.currentIndex - 1 : this.currentPlaylist.length - 1;
+    let index = -1;
+    if (this.sectionPlayList.type === ServiceEnum.audio) {
+      for (let i = this.musicControlService.currentIndex - 1; i >= 0; i--) {
+        if (this.currentPlaylist[i].paid) {
+          index = i;
+          break;
+        }
+      }
+    }
+    else {
+      index = this.musicControlService.currentIndex > 0
+        ? this.musicControlService.currentIndex - 1
+        : this.currentPlaylist.length - 1;
+    }
     this.musicControlService.setCurrentIndex(index);
     this.openFile(index);
   }
 
   nextTrack() {
     if (this.disableNext()) return; // btn disable too
-    const index = this.musicControlService.currentIndex + 1 >= this.currentPlaylist.length ? -1 : this.musicControlService.currentIndex + 1;
+    let index = -1;
+    if (this.sectionPlayList.type === ServiceEnum.audio) {
+      // find next paid
+      index = this.currentPlaylist.findIndex((item, index, arr) => item.paid && index > this.musicControlService.currentIndex);
+    } else {
+      // const index = this.musicControlService.currentIndex + 1 >= this.currentPlaylist.length
+      index = this.musicControlService.currentIndex === this.currentPlaylist.length - 1
+        ? -1
+        : this.musicControlService.currentIndex + 1;
+    }
+
     this.musicControlService.setCurrentIndex(index);
     if (index !== -1) this.openFile(index);
   }
@@ -229,7 +253,14 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
           case 'ended':
             if (this.disableNext()) {
               this.stopPlaylistFlag = true;
-              this.openFile(0);
+              if (this.sectionPlayList.type === ServiceEnum.audio) {
+                let nextIndex = this.currentPlaylist.findIndex(item => item.paid);
+                if(nextIndex >= 0) {
+                  this.openFile(nextIndex);
+                }
+              } else {
+                this.openFile(0);
+              }
             } else {
               this.nextTrack();
             }
@@ -318,10 +349,21 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   }
 
   disablePrev() {
-    return this.musicControlService.currentIndex === 0;
+    if (this.sectionPlayList.type === ServiceEnum.audio) {
+      const exist = this.musicControlService.currentIndex === 0 || !this.currentPlaylist.find((x, i) => x.paid && i < this.musicControlService.currentIndex);
+      return exist;
+    }
+    else {
+      return this.musicControlService.currentIndex === 0;
+    }
   }
 
   disableNext() {
+    // if last disable next
+    if (this.sectionPlayList.type === ServiceEnum.audio) {
+      const arr = this.currentPlaylist.filter((item, index, array) => index > this.musicControlService.currentIndex && item.paid);
+      return arr.length === 0;
+    }
     return this.musicControlService.currentIndex === this.currentPlaylist.length - 1;
   }
 
@@ -370,9 +412,9 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
         let playlistAreSame = this.currentPlaylist.length > 0 ?
           JSON.stringify(this.sectionPlayList.playList.map(s => s.path)) === JSON.stringify(this.currentPlaylist.map(s => s.path))
           : true;
-          console.log(`Playlist are same ?`  + playlistAreSame);
+        console.log(`Playlist are same ?` + playlistAreSame);
         //  console.log( JSON.stringify(this.sectionPlayList.playList.map(s => s.path)))
-       //   console.log( JSON.stringify(this.currentPlaylist.map(s => s.path)))
+        //   console.log( JSON.stringify(this.currentPlaylist.map(s => s.path)))
         this.musicControlService.setPlaylistAreSame(playlistAreSame);
         if (data.playList.length > 0 && data.playList[0].serviceId === 3) return;
         if (data.type === ServiceEnum.service && (this.musicControlService.currentIndex === -1 && data.playList.length > 0 || this.playlistFinished)) {
@@ -397,7 +439,7 @@ export class PlayerComponent extends BaseComponent implements OnInit, OnDestroy 
   private runTrack(index: number) {
     this.currentPlaylist = this.sectionPlayList.playList;
     console.log(this.currentPlaylist);
-   // this.sectionName = this.sectionPlayList.playList[index].sectionName;
+    // this.sectionName = this.sectionPlayList.playList[index].sectionName;
     this.openFile(index);
     this.musicControlService.setPlaylistAreSame(true);
   }

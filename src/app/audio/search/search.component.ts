@@ -97,23 +97,23 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
     const audioObjAlbums = Object.values(data)
       .filter((m: AudioObject) => m.active === '1');
     this.filesService.getImageLocalPath(null, audioObjAlbums);
-    audioObjAlbums.forEach((album: AudioObject) => {
-      let el: PlayListModel = {
-        id: album.id,
-        name: album.name,
-        path: album.coverLocalPath,
+    audioObjAlbums.forEach((albumObject: AudioObject) => {
+      let album: PlayListModel = {
+        id: albumObject.id,
+        name: albumObject.name,
+        path: albumObject.coverLocalPath,
         isDownload: false,
         condition: '',
-        paid: album.elements.every(e => e.user_access !== null),
+        paid: albumObject.elements.every(e => e.user_access !== null),
         isCatalog: true,
-        description: this.dataService.getSearchAlbumDescription(album.type),
-        serviceId: Number(album.id),
-        cover: album.image,
-        sectionName: album.name,
+        description: this.dataService.getSearchAlbumDescription(albumObject.type),
+        serviceId: Number(albumObject.id),
+        cover: albumObject.image,
+        sectionName: albumObject.name,
         downloadAccess: false
       };
 
-      album.elements.forEach(a => {
+      albumObject.elements.forEach(a => {
         const userAccessNotNull = a.user_access !== null;
         const track: PlayListModel = {
           id: a.id,
@@ -123,16 +123,16 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
           condition: '',
           paid: userAccessNotNull,
           isCatalog: false,
-          description: `${this.dataService.getAlbumDescription(album.type)} / ${album.name}`,
-          serviceId: Number(album.id),
-          cover: album.image,
-          sectionName: album.name,
+          description: `${this.dataService.getAlbumDescription(albumObject.type)} / ${albumObject.name}`,
+          serviceId: Number(albumObject.id),
+          cover: albumObject.image,
+          sectionName: albumObject.name,
           downloadAccess: userAccessNotNull && a.user_access.download
         };
         musicArray.push(track);
       });
 
-      albums.push(el);
+      albums.push(album);
     });
 
     return albums.concat(musicArray);
@@ -174,6 +174,7 @@ export class SearchComponent extends BaseComponent implements OnInit, OnDestroy 
       .indexOf(value.toLowerCase().replace(new RegExp("ё", "g"), "е")) != -1);
     this.playlist = result.filter(f => !f.isCatalog);
     this.catalog = result.filter(f => f.isCatalog);
+    console.log(this.playlist);
   }
 
   ngOnDestroy() {

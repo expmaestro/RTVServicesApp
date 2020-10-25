@@ -1,6 +1,6 @@
 <ion-list >    
   <ion-item detail="false" button *ngFor="let track of catalog; let index = index;" [routerLink]="['/tabs/audio/player', track.id]" lines="full">
-    <img class="img" *ngIf="track.path" [src]="track.path" (error)="errorHandler($event, service)">
+    <img class="img" *ngIf="track.path" [src]="track.path" (error)="errorHandler($event, track)">
     <ion-label>
        {{ track.name }}
       <h5>{{ track.description }}</h5>

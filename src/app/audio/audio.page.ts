@@ -3,7 +3,7 @@ import { BaseComponent } from '../services/base-component';
 import { SettingsService } from '../services/settings.service';
 import { distinctUntilChanged, take, filter } from 'rxjs/operators';
 import { DataService } from '../services/data.service';
-import { AudioObject, ServicePlayListModelObject, PlayListModel } from '../backend/interfaces';
+import { AudioObject } from '../backend/interfaces';
 import { FormControl } from '@angular/forms';
 
 @Component({
