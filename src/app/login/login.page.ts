@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { BaseComponent } from '../services/base-component';
 import { SettingsService } from '../services/settings.service';
 import { NetworkService } from '../services/network.service';
+import { PushNotificationsService } from '../services/push-notifications.service';
 @Component({
     selector: 'app-login',
     templateUrl: './login.page.html',
@@ -29,7 +30,8 @@ export class LoginPage extends BaseComponent implements OnInit {
         private route: Router,
         private nav: NavController,
         private settingsService: SettingsService,
-        private networkService: NetworkService) {
+        private networkService: NetworkService,
+        private pushNotifications: PushNotificationsService,) {
         super();
     }
 
@@ -56,6 +58,7 @@ export class LoginPage extends BaseComponent implements OnInit {
                 if (response.status === 'success') {
                     this.settingsService.userProfileApi().safeSubscribe(this, async (r: any) => {
                         this.settingsService.setProfileData = r.data;
+                        this.pushNotifications.updateToken();
                         await this.loading.dismiss();
                         this.process = false;
                         this.nav.navigateRoot('/tabs/services');

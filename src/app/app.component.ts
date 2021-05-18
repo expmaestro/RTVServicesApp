@@ -8,6 +8,7 @@ import { NetworkService } from './services/network.service';
 // import { BackgroundMode } from '@ionic-native/background-mode/ngx';
 import { AppMinimize } from '@ionic-native/app-minimize/ngx';
 import { Router } from '@angular/router';
+import { PushNotificationsService } from './services/push-notifications.service';
 //import * as MusicControls from 'cordova-plugin-music-controls2/www/MusicControls';
 
 
@@ -25,7 +26,8 @@ export class AppComponent extends BaseComponent {
     private networkService: NetworkService,
     // private backgroundMode: BackgroundMode,
     private appMinimize: AppMinimize,
-    private router: Router
+    private router: Router,
+    private pushNotifications: PushNotificationsService,
   ) {
     super();
     this.initializeApp();
@@ -46,6 +48,7 @@ export class AppComponent extends BaseComponent {
       if (
         this.platform.is("android") ||
         this.platform.is("ios")) {
+          this.pushNotifications.initPush();
       }
     });
 

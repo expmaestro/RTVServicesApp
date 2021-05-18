@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "965668024505",
+    "project_id": "edlm-4e243",
+    "storage_bucket": "edlm-4e243.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965668024505:android:66cf6ff6c877898b7eab68",
+        "android_client_info": {
+          "package_name": "tv.rithmtime.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "965668024505-m1k6ct716mc5v0aqf91vi820r550ru4q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvpySFYID6pM_6-PELJRqGR4J290AwgmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965668024505-m1k6ct716mc5v0aqf91vi820r550ru4q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
